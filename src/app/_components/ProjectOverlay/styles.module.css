@@ -1,0 +1,3 @@
+body:has(.header[stuck]) {
+  background-color: red !important;
+}
