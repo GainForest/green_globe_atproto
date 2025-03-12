@@ -17,6 +17,7 @@ import { useProjectStore } from "./project";
 
 export type State = {
   mapView: "project" | "geojson" | undefined;
+  appActiveTab: "project" | "layers" | "search" | undefined;
   projectOverlayTab:
     | "info"
     | "ask-ai"
@@ -32,10 +33,12 @@ export type State = {
 export type Actions = {
   setMapView: (mapView: State["mapView"]) => void;
   setProjectOverlayTab: (projectOverlayTab: State["projectOverlayTab"]) => void;
+  setAppActiveTab: (appActiveTab: State["appActiveTab"]) => void;
 };
 
 const initialState: State = {
   mapView: undefined,
+  appActiveTab: undefined,
   projectOverlayTab: undefined,
 };
 
@@ -50,6 +53,8 @@ const useAppViewsStore = create<State & Actions>((set) => {
     },
     setProjectOverlayTab: (projectOverlayTab: State["projectOverlayTab"]) =>
       set({ projectOverlayTab }),
+    setAppActiveTab: (appActiveTab: State["appActiveTab"]) =>
+      set({ appActiveTab }),
   };
 });
 

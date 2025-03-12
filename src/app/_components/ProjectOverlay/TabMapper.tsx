@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import useAppViewsStore from "@/app/stores/app-views";
-import { Project } from "@/app/stores/project/types";
+import useAppViewsStore from "@/app/_stores/app-views";
+import { Project } from "@/app/_stores/project/types";
 import ProjectInfo from "./ProjectInfo";
 import AIAssistant from "./AIAssistant";
 

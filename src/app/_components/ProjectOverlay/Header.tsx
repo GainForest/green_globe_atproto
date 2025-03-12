@@ -1,6 +1,6 @@
 import { countryToEmoji } from "@/lib/country-emojis";
 import React, { useRef, useState, useEffect } from "react";
-import { Project } from "@/app/stores/project/types";
+import { Project } from "@/app/_stores/project/types";
 import { Button } from "@/components/ui/button";
 import {
   Info,
@@ -17,7 +17,7 @@ import QuickTooltip from "@/components/ui/quick-tooltip";
 import { cn } from "@/lib/utils";
 import useAppViewsStore, {
   State as AppViewsState,
-} from "@/app/stores/app-views";
+} from "@/app/_stores/app-views";
 
 const TabButton = ({
   children,
@@ -125,6 +125,8 @@ const Header = ({ projectDetails }: { projectDetails: Project }) => {
     : null;
   const area = Math.round(projectDetails.area / 10000);
 
+  const { projectOverlayTab } = useAppViewsStore((state) => state);
+
   const headerRef = useRef<HTMLDivElement>(null);
   const [isStuck, setIsStuck] = useState(false);
 
@@ -144,7 +146,7 @@ const Header = ({ projectDetails }: { projectDetails: Project }) => {
 
     parent.addEventListener("scroll", handleScroll);
     return () => parent.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [projectOverlayTab]);
 
   return (
     <div

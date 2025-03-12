@@ -10,8 +10,8 @@ import {
   addProjectMarkerHandlers,
   spinGlobe,
 } from "./utils";
-import { useProjectStore } from "../../stores/project";
-import useAppViewsStore from "../../stores/app-views";
+import { useProjectStore } from "../../_stores/project";
+import useAppViewsStore from "../../_stores/app-views";
 import bbox from "@turf/bbox";
 
 const Mapbox = () => {
@@ -25,6 +25,9 @@ const Mapbox = () => {
 
   const mapView = useAppViewsStore((state) => state.mapView);
   const setMapView = useAppViewsStore((actions) => actions.setMapView);
+  const setAppActiveTab = useAppViewsStore(
+    (actions) => actions.setAppActiveTab
+  );
   const projectOverlayTab = useAppViewsStore(
     (state) => state.projectOverlayTab
   );
@@ -34,6 +37,7 @@ const Mapbox = () => {
 
   const handleProjectMarkerClick = (projectId: string) => {
     setMapView("project");
+    setAppActiveTab("project");
     setActiveProjectId(projectId);
     if (!projectOverlayTab) setProjectOverlayTab("info");
   };
@@ -85,14 +89,17 @@ const Mapbox = () => {
         "star-intensity": 0.05,
       });
       addAllSourcesAndLayers(map);
-      setProjectMarkers(map);
-      addProjectMarkerHandlers(map, handleProjectMarkerClick);
+      setProjectMarkers(map).then(() => {
+        addProjectMarkerHandlers(map, handleProjectMarkerClick);
+      });
     };
 
     map.on("load", onLoad);
+    // map.on("styledata", onLoad);
 
     return () => {
       map.off("load", onLoad);
+      // map.off("styledata", onLoad);
       map.off("moveend", continueSpin);
       map.off("mousedown", stopSpin);
       map.off("touchstart", stopSpin);

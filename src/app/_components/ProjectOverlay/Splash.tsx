@@ -1,5 +1,6 @@
 "use client";
-import { Project } from "@/app/stores/project/types";
+import { Project } from "@/app/_stores/project/types";
+import useAppViewsStore from "@/app/_stores/app-views";
 import Image from "next/image";
 
 type SplashProps = {
@@ -8,6 +9,9 @@ type SplashProps = {
 };
 
 const Splash = ({ imageURL, projectDetails }: SplashProps) => {
+  const { projectOverlayTab } = useAppViewsStore((state) => state);
+  console.log("projectOverlayTab", projectOverlayTab);
+  if (projectOverlayTab === "ask-ai") return null;
   return (
     <>
       {imageURL ? (

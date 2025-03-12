@@ -4,9 +4,9 @@ import {
   addAllSitesSourceAndLayer,
   addHighlightedSiteSourceAndLayer,
 } from "./sources-and-layers/project-sites";
+import { addMeasuredTreesSourceAndLayer } from "./sources-and-layers/measured-trees";
 import { addProjectMarkersSourceAndLayer } from "./sources-and-layers/project-markers";
 import { ProjectSitePoints } from "./sources-and-layers/types";
-
 export const spinGlobe = (map: Map, spinEnabled: boolean) => {
   const secondsPerRevolution = 120;
   // Above zoom level 5, do not rotate.
@@ -38,6 +38,7 @@ export const addAllSourcesAndLayers = (map: Map) => {
   addHistoricalSatelliteSourceAndLayers(map);
   addAllSitesSourceAndLayer(map);
   addHighlightedSiteSourceAndLayer(map);
+  addMeasuredTreesSourceAndLayer(map);
   addProjectMarkersSourceAndLayer(map);
 };
 
@@ -46,11 +47,14 @@ export const setProjectMarkers = async (map: Map) => {
     const markerPointsResponse = await fetch(
       `${process.env.NEXT_PUBLIC_AWS_STORAGE}/shapefiles/gainforest-all-shapefiles.geojson`
     );
+
     const markerPoints: ProjectSitePoints = await markerPointsResponse.json();
 
     const source = map.getSource("projectMarkerSource") as GeoJSONSource;
     source?.setData(markerPoints);
-  } catch {}
+  } catch (error) {
+    console.error("Error setting project markers", error);
+  }
 };
 
 export const addProjectMarkerHandlers = (

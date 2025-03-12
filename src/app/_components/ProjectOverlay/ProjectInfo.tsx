@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect } from "react";
-import { Project, Shapefile } from "@/app/stores/project/types";
+import { Project, Shapefile } from "@/app/_stores/project/types";
 import { Combobox } from "@/components/ui/combobox";
-import { useProjectStore } from "@/app/stores/project";
+import { useProjectStore } from "@/app/_stores/project";
 
 type SiteAsset = {
   id: string;
