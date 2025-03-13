@@ -1,9 +1,12 @@
 import {
+  MeasuredTreesGeoJSON,
+  NormalizedTreeFeature,
   Project,
   ProjectDetailsAPIResponse,
   ProjectPolygonAPIResponse,
+  TreeFeature,
 } from "./types";
-
+import { getTreeSpeciesName } from "@/app/_components/Mapbox/sources-and-layers/measured-trees";
 export const fetchProjectDetails = async (projectId: string) => {
   const endpoint = `${process.env.NEXT_PUBLIC_GAINFOREST_ENDPOINT}/api/graphql`;
 
@@ -115,6 +118,50 @@ export const fetchProjectNumbers = async (projectId: string) => {
     if (!response.ok) throw new Error("Failed to fetch project numbers");
     return await response.json();
   } catch {
+    return null;
+  }
+};
+
+export const fetchMeasuredTreesShapefile = async (
+  projectName: string
+): Promise<MeasuredTreesGeoJSON | null> => {
+  const kebabCaseProjectName = projectName
+    .normalize("NFD") // Normalize to decomposed form
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const endpoint = `shapefiles/${kebabCaseProjectName}-all-tree-plantings.geojson`;
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_AWS_STORAGE}/${endpoint}`
+    );
+    if (response.ok) {
+      const result =
+        (await response.json()) as MeasuredTreesGeoJSON<TreeFeature>;
+
+      const normalizedFeatures: NormalizedTreeFeature[] = result.features.map(
+        (feature, index: number) => ({
+          ...feature,
+          properties: {
+            ...feature.properties,
+            species: getTreeSpeciesName(feature.properties).trim(),
+            type: "measured-tree",
+          },
+          id: index,
+        })
+      );
+      const normalizedResult: MeasuredTreesGeoJSON = {
+        ...result,
+        features: normalizedFeatures,
+      };
+      return normalizedResult;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error(error);
     return null;
   }
 };

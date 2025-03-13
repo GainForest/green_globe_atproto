@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Project, Shapefile } from "@/app/_stores/project/types";
 import { Combobox } from "@/components/ui/combobox";
 import { useProjectStore } from "@/app/_stores/project";
@@ -21,23 +21,32 @@ const ProjectSitesSection = ({
     (actions) => actions.setActiveProjectPolygonByCID
   );
 
-  const projectSites = projectDetails.assets.filter((asset) => {
-    if (asset.classification !== "Shapefiles") return false;
-    if (asset.shapefile === null) return false;
-    const shapefile = asset.shapefile;
-    return Boolean(shapefile.shortName && !shapefile.isReference);
-  }) as SiteAsset[];
+  const projectSites = useMemo(
+    () =>
+      projectDetails.assets.filter((asset) => {
+        if (asset.classification !== "Shapefiles") return false;
+        if (asset.shapefile === null) return false;
+        const shapefile = asset.shapefile;
+        return Boolean(shapefile.shortName && !shapefile.isReference);
+      }) as SiteAsset[],
+    [projectDetails.assets]
+  );
 
-  const projectSitesOptions = projectSites.map((site) => ({
-    value: site.awsCID,
-    label: site.shapefile.shortName,
-  }));
+  const projectSitesOptions = useMemo(
+    () =>
+      projectSites.map((site) => ({
+        value: site.awsCID,
+        label: site.shapefile.shortName,
+      })),
+    [projectSites]
+  );
 
   const [selectedSite, setSelectedSite] = React.useState<string | undefined>(
     undefined
   );
 
   const handleProjectSiteChange = (siteId: string) => {
+    console.log("siteId", siteId);
     setSelectedSite(siteId);
     setActiveProjectPolygonByCID(siteId);
   };
@@ -45,7 +54,7 @@ const ProjectSitesSection = ({
   useEffect(() => {
     if (projectSitesOptions.length === 0) return;
     handleProjectSiteChange(projectSitesOptions[0].value);
-  }, [handleProjectSiteChange, projectSitesOptions]);
+  }, [projectSitesOptions]);
 
   if (projectSitesOptions.length === 0) return null;
 

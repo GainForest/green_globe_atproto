@@ -3,13 +3,14 @@ import {
   GeoJSONSourceSpecification,
   Map,
 } from "mapbox-gl";
+import { MeasuredTreesGeoJSON, TreeFeature } from "@/app/_stores/project/types";
+import dayjs from "dayjs";
 
 export const treesSource = (
-  treesGeoJson: unknown
+  treesGeoJson: MeasuredTreesGeoJSON
 ): GeoJSONSourceSpecification => ({
   type: "geojson",
-  //TODO: Fix this in later commits, after evaluating the types deeply.
-  data: typeof treesGeoJson === "string" ? treesGeoJson : undefined,
+  data: treesGeoJson,
   cluster: true,
   clusterMaxZoom: 15, // Max zoom to cluster points on
   clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
@@ -66,18 +67,24 @@ export const unclusteredTreesLayer: CircleLayerSpecification = {
 
 export const addMeasuredTreesSourceAndLayer = (map: Map) => {
   if (!map.getSource("trees")) {
-    map.addSource(
-      "trees",
-      treesSource({
+    map.addSource("trees", {
+      type: "geojson",
+      data: {
         type: "FeatureCollection",
         features: [
           {
             type: "Feature",
-            geometry: null,
+            geometry: {
+              type: "Point",
+              coordinates: [0, 0],
+            },
+            properties: {
+              data: "Dummy Source for initialization",
+            },
           },
         ],
-      })
-    );
+      },
+    });
   }
   if (!map.getLayer("clusteredTrees")) {
     map.addLayer(clusteredTreesLayer);
@@ -98,9 +105,120 @@ export const toggleMeasuredTreesLayer = (
     map.setLayoutProperty("clusteredTrees", "visibility", visibility);
   }
   if (map.getLayer("clusteredTreesCountText")) {
-    map.setLayoutProperty("clusteredTreesCountText", "visibility", visibility);
+    // map.setLayoutProperty("clusteredTreesCountText", "visibility", visibility);
   }
   if (map.getLayer("unclusteredTrees")) {
-    map.setLayoutProperty("unclusteredTrees", "visibility", visibility);
+    // map.setLayoutProperty("unclusteredTrees", "visibility", visibility);
   }
+};
+
+export const getTreeSpeciesName = (tree: TreeFeature["properties"]) => {
+  const upperCaseEveryWord = (name: string) =>
+    name.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase());
+  if (tree?.Plant_Name) {
+    return upperCaseEveryWord(tree?.Plant_Name);
+  } else if (tree?.species) {
+    return tree?.species;
+  } else {
+    return "unknown";
+  }
+};
+
+export const getTreeHeight = (tree: TreeFeature["properties"]) => {
+  if (tree?.Height) {
+    // iNaturalist API
+    return `${tree?.Height}m`;
+  } else if (tree?.height) {
+    return `${tree?.height}m`;
+  } else {
+    return "unknown";
+  }
+};
+
+export const getTreeDBH = (tree: TreeFeature["properties"]) => {
+  if (tree?.DBH) {
+    // iNaturalist API
+    return `${tree?.DBH}cm`;
+  } else if (tree?.diameter) {
+    // kobo API
+    return `${tree?.diameter}cm`;
+  } else {
+    return "unknown";
+  }
+};
+
+export const getTreeDateOfMeasurement = (tree: TreeFeature["properties"]) => {
+  if (tree?.dateOfMeasurement) {
+    return tree?.dateOfMeasurement;
+  } else if (tree?.datePlanted) {
+    return dayjs(tree?.datePlanted).format("DD/MM/YYYY");
+  } else if (tree?.dateMeasured) {
+    return dayjs(tree?.dateMeasured).format("DD/MM/YYYY");
+  } else if (tree["FCD-tree_records-tree_time"]) {
+    function formatDateTime(input: string) {
+      const [datePart, timePart] = input.split(" ");
+      const ddmmyyArr = datePart.split("/");
+      const [day, month] = ddmmyyArr;
+      let [, , year] = ddmmyyArr;
+      year = year.length === 2 ? `20${year}` : year;
+      const isoDateString = `${year}-${month}-${day}T${timePart}:00`;
+      const date = new Date(isoDateString);
+      const formattedDate = date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+      return formattedDate;
+    }
+    return formatDateTime(tree["FCD-tree_records-tree_time"]);
+  } else {
+    return "unknown";
+  }
+};
+
+export const getTreePhotos = (
+  tree: TreeFeature["properties"],
+  activeProject: string,
+  treeID: string
+) => {
+  const result = [];
+  if (tree?.tree_photo) {
+    return [tree?.tree_photo];
+  }
+  // TODO: Ask the question about following from Sharfy
+  if (
+    activeProject ==
+      "40367dfcbafa0a8d1fa26ff481d6b2609536c0e14719f8e88060a9aee8c8ab0a" &&
+    treeID !== "unknown"
+  ) {
+    {
+      return [
+        `${process.env.NEXT_PUBLIC_AWS_STORAGE}/trees-measured/${treeID}.jpg`,
+      ];
+    }
+  }
+  if (tree?.awsUrl) {
+    result.push(tree?.awsUrl);
+  } else if (tree?.koboUrl) {
+    result.push(tree?.koboUrl);
+  }
+
+  if (tree?.leafAwsUrl) {
+    result.push(tree?.leafAwsUrl);
+  } else if (tree?.leafKoboUrl) {
+    result.push(tree?.leafKoboUrl);
+  }
+
+  if (tree?.barkAwsUrl) {
+    result.push(tree?.barkAwsUrl);
+  } else if (tree?.barkKoboUrl) {
+    result.push(tree?.barkKoboUrl);
+  }
+  if (result.length == 0) {
+    result.push(
+      `${process.env.AWS_STORAGE}/miscellaneous/placeholders/taxa_plants.png`
+    );
+  }
+  return result;
 };

@@ -1,12 +1,20 @@
-import { Map, GeoJSONSource, Popup } from "mapbox-gl";
+import { Map, GeoJSONSource, Popup, MapMouseEvent } from "mapbox-gl";
 import { addHistoricalSatelliteSourceAndLayers } from "./sources-and-layers/historical-satellite";
 import {
   addAllSitesSourceAndLayer,
   addHighlightedSiteSourceAndLayer,
 } from "./sources-and-layers/project-sites";
-import { addMeasuredTreesSourceAndLayer } from "./sources-and-layers/measured-trees";
+import {
+  addMeasuredTreesSourceAndLayer,
+  getTreeDateOfMeasurement,
+  getTreeDBH,
+  getTreeHeight,
+  getTreePhotos,
+  getTreeSpeciesName,
+} from "./sources-and-layers/measured-trees";
 import { addProjectMarkersSourceAndLayer } from "./sources-and-layers/project-markers";
 import { ProjectSitePoints } from "./sources-and-layers/types";
+import { NormalizedTreeFeature } from "@/app/_stores/project/types";
 export const spinGlobe = (map: Map, spinEnabled: boolean) => {
   const secondsPerRevolution = 120;
   // Above zoom level 5, do not rotate.
@@ -66,7 +74,7 @@ export const addProjectMarkerHandlers = (
     closeOnClick: false,
   });
 
-  map.on("mousemove", "projectMarkerLayer", (e) => {
+  map.on("mousemove", "projectMarkerLayer", (e: MapMouseEvent) => {
     // Change the cursor style as a UI indicator.
     map.getCanvas().style.cursor = "pointer";
     const features = e.features as ProjectSitePoints["features"] | undefined;
@@ -95,7 +103,7 @@ export const addProjectMarkerHandlers = (
       .addTo(map);
   });
 
-  map.on("click", "projectMarkerLayer", (e) => {
+  map.on("click", "projectMarkerLayer", (e: MapMouseEvent) => {
     const features = e.features as ProjectSitePoints["features"] | undefined;
     if (!features || features.length === 0) return;
     console.log(features);
@@ -107,4 +115,51 @@ export const addProjectMarkerHandlers = (
     map.getCanvas().style.cursor = "";
     popup.remove();
   });
+};
+
+export const getTreeInformation = (
+  e: MapMouseEvent,
+  activeProjectId: string
+) => {
+  const features = e?.features;
+  if (!features || features.length === 0) return null;
+
+  const hoveredTreeFeature = features.find((feature) => {
+    if (!feature.properties) return false;
+    return (
+      "type" in feature.properties &&
+      feature.properties.type === "measured-tree"
+    );
+  }) as NormalizedTreeFeature | undefined;
+
+  if (!hoveredTreeFeature) return null;
+
+  const treeName = getTreeSpeciesName(hoveredTreeFeature.properties);
+  const treeHeight = getTreeHeight(hoveredTreeFeature.properties);
+  const treeDBH = getTreeDBH(hoveredTreeFeature.properties);
+  const dateOfMeasurement = getTreeDateOfMeasurement(
+    hoveredTreeFeature.properties
+  );
+
+  const fcdTreePhoto =
+    hoveredTreeFeature.properties?.["FCD-tree_records-tree_photo"];
+
+  const treeID =
+    fcdTreePhoto?.split("?id=")?.[1] ||
+    hoveredTreeFeature.properties?.ID ||
+    "unknown";
+
+  const treePhotos = getTreePhotos(
+    hoveredTreeFeature.properties,
+    activeProjectId,
+    treeID
+  );
+
+  return {
+    treeName,
+    treeHeight,
+    treeDBH,
+    treePhotos,
+    dateOfMeasurement,
+  };
 };

@@ -1,6 +1,14 @@
 import { create } from "zustand";
-import { fetchPolygonByCID, fetchProjectDetails } from "./utils";
-import { Project, ProjectPolygonAPIResponse } from "./types";
+import {
+  fetchMeasuredTreesShapefile,
+  fetchPolygonByCID,
+  fetchProjectDetails,
+} from "./utils";
+import {
+  Project,
+  ProjectPolygonAPIResponse,
+  MeasuredTreesGeoJSON,
+} from "./types";
 
 type State = {
   activeProjectId: string | undefined;
@@ -9,6 +17,10 @@ type State = {
     data: Project | null;
   };
   activeProjectPolygon: ProjectPolygonAPIResponse | null;
+  activeProjectMeasuredTreesShapefile: {
+    status: "idle" | "loading" | "success" | "error";
+    data: MeasuredTreesGeoJSON | null;
+  };
 };
 
 type Actions = {
@@ -21,6 +33,7 @@ const initialState: State = {
   activeProjectId: undefined,
   activeProjectDetails: { status: "idle", data: null },
   activeProjectPolygon: null,
+  activeProjectMeasuredTreesShapefile: { status: "idle", data: null },
 };
 
 export const useProjectStore = create<State & Actions>((set, get) => {
@@ -62,6 +75,28 @@ export const useProjectStore = create<State & Actions>((set, get) => {
         set({
           activeProjectDetails: { status: "success", data: projectDetails },
         });
+
+        // Step 4: Fetch measured trees shapefile
+        try {
+          set({
+            activeProjectMeasuredTreesShapefile: {
+              status: "loading",
+              data: null,
+            },
+          });
+          const treeShapefile = await fetchMeasuredTreesShapefile(
+            projectDetails.name
+          );
+          if (!isProjectStillActive(id)) return;
+          set({
+            activeProjectMeasuredTreesShapefile: {
+              status: "success",
+              data: treeShapefile,
+            },
+          });
+        } catch {
+          // Error doesn't occur for now because the function doesn't throw an error explicitly.
+        }
       } catch {
         // Verify that the project id state hasn't changed since then
         if (isProjectStillActive(id)) {
@@ -72,14 +107,17 @@ export const useProjectStore = create<State & Actions>((set, get) => {
       }
     },
     setActiveProjectPolygonByCID: async (polygonAWSCID) => {
-      if (!polygonAWSCID || !get().activeProjectDetails.data) {
+      if (!polygonAWSCID) {
         set({ activeProjectPolygon: null });
         return;
       }
 
       try {
         const polygon = await fetchPolygonByCID(polygonAWSCID);
-        console.log(polygon);
+        if (!get().activeProjectDetails.data) {
+          set({ activeProjectPolygon: null });
+          return;
+        }
         set({ activeProjectPolygon: polygon });
       } catch {
         set({ activeProjectPolygon: null });

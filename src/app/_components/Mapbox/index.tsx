@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef } from "react";
-import mapboxgl, { GeoJSONSource, Map } from "mapbox-gl";
+import mapboxgl, { GeoJSONSource, Map, MapMouseEvent } from "mapbox-gl";
 import "./styles.css";
 
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -13,21 +13,32 @@ import {
 import { useProjectStore } from "../../_stores/project";
 import useAppViewsStore from "../../_stores/app-views";
 import bbox from "@turf/bbox";
+import { toggleMeasuredTreesLayer } from "./sources-and-layers/measured-trees";
+import { useHoveredTreeInfo } from "./hooks/useHoveredTreeInfo";
 
 const Mapbox = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+
   const activeProjectPolygon = useProjectStore(
     (state) => state.activeProjectPolygon
   );
+
+  const activeProjectId = useProjectStore((state) => state.activeProjectId);
   const setActiveProjectId = useProjectStore(
     (actions) => actions.setActiveProjectId
   );
 
   const mapView = useAppViewsStore((state) => state.mapView);
   const setMapView = useAppViewsStore((actions) => actions.setMapView);
+
+  const activeProjectMeasuredTreesShapefile = useProjectStore(
+    (state) => state.activeProjectMeasuredTreesShapefile
+  );
+
   const setAppActiveTab = useAppViewsStore(
     (actions) => actions.setAppActiveTab
   );
+
   const projectOverlayTab = useAppViewsStore(
     (state) => state.projectOverlayTab
   );
@@ -43,6 +54,10 @@ const Mapbox = () => {
   };
 
   const mapRef = useRef<mapboxgl.Map | null>(null);
+
+  // Use our custom hook for hovered tree functionality
+  const { handleMouseMoveUnclusteredTrees, cleanup: cleanupHoveredTreeInfo } =
+    useHoveredTreeInfo();
 
   useEffect(() => {
     mapboxgl.accessToken =
@@ -95,11 +110,9 @@ const Mapbox = () => {
     };
 
     map.on("load", onLoad);
-    // map.on("styledata", onLoad);
 
     return () => {
       map.off("load", onLoad);
-      // map.off("styledata", onLoad);
       map.off("moveend", continueSpin);
       map.off("mousedown", stopSpin);
       map.off("touchstart", stopSpin);
@@ -122,10 +135,66 @@ const Mapbox = () => {
     map.fitBounds(boundingBox, {
       padding: { top: 40, bottom: 40, left: 40, right: 40 },
     });
-    (map.getSource("highlightedSite") as GeoJSONSource)?.setData(
+    (map.getSource("highlightedSite") as GeoJSONSource | undefined)?.setData(
       activeProjectPolygon
     );
   }, [mapView, activeProjectPolygon]);
+
+  useEffect(() => {
+    if (mapView !== "project") return;
+    const map = mapRef.current as Map | null;
+    if (
+      !map ||
+      activeProjectMeasuredTreesShapefile.status !== "success" ||
+      !activeProjectMeasuredTreesShapefile.data
+    )
+      return;
+
+    // TODO: Ask Sharfy a question about this
+    // if (activeProjectTreesPlanted !== normalizedData) {
+    //   map.getSource('trees')?.setData(normalizedData)
+    // }
+
+    (map.getSource("trees") as GeoJSONSource | undefined)?.setData(
+      activeProjectMeasuredTreesShapefile.data
+    );
+  }, [
+    mapView,
+    activeProjectMeasuredTreesShapefile.status,
+    activeProjectMeasuredTreesShapefile.data,
+  ]);
+
+  // Set hovered tree ID on mouse move
+  useEffect(() => {
+    if (mapView !== "project" || !activeProjectId) return;
+    const map = mapRef.current as Map | null;
+    if (!map) return;
+
+    const onClickProjectFill = () => {
+      toggleMeasuredTreesLayer(map, "visible");
+    };
+
+    const onMouseMoveUnclusteredTrees = (e: MapMouseEvent) => {
+      handleMouseMoveUnclusteredTrees(e, map, activeProjectId);
+    };
+
+    map.on("click", "projectFill", onClickProjectFill);
+    map.on("mousemove", "unclusteredTrees", onMouseMoveUnclusteredTrees);
+
+    return () => {
+      if (map) {
+        map.off("click", "projectFill", onClickProjectFill);
+        map.off("mousemove", "unclusteredTrees", onMouseMoveUnclusteredTrees);
+      }
+      // Clean up the hovered tree info
+      cleanupHoveredTreeInfo();
+    };
+  }, [
+    mapView,
+    activeProjectId,
+    handleMouseMoveUnclusteredTrees,
+    cleanupHoveredTreeInfo,
+  ]);
 
   return (
     <div
