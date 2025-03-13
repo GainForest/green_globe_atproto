@@ -3,11 +3,11 @@ import { getBigQueryClient, ensureDatasetLocation } from "../../bigquery";
 import { BigQueryError } from "../../types";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  _: Request,
+  { params }: { params: Promise<{ id: string } & Record<string, unknown>> }
 ) {
   try {
-    const userId = params.id;
+    const { id: userId } = await params;
 
     await ensureDatasetLocation();
     const bigquery = getBigQueryClient();
