@@ -1,32 +1,30 @@
 "use client";
-import { useProjectStore } from "@/app/_stores/project";
 import UIBase from "@/components/ui/ui-base";
 import React from "react";
 import { motion } from "framer-motion";
 import { Maximize2, X } from "lucide-react";
-import { getProjectSplashImageURLFromProject } from "@/app/_stores/project/utils";
 import Splash from "./Splash";
 import Loading from "./loading";
 import Error from "./error";
 import Header from "./Header";
 import TabMapper from "./TabMapper";
-import useAppViewsStore from "@/app/_stores/app-views";
+import useAppTabsStore from "../Header/AppTabs/store";
+import useProjectOverlayStore from "./store";
+import { getProjectSplashImageURLFromProject } from "./store/utils";
+
 const ProjectOverlay = () => {
-  const setAppActiveTab = useAppViewsStore(
-    (actions) => actions.setAppActiveTab
+  const setAppActiveTab = useAppTabsStore((actions) => actions.setActiveTab);
+  const projectDataStatus = useProjectOverlayStore(
+    (state) => state.projectDataStatus
   );
-  const activeProjectId = useProjectStore((state) => state.activeProjectId);
-  const activeProjectDetails = useProjectStore(
-    (state) => state.activeProjectDetails
-  );
-  if (!activeProjectId || activeProjectDetails.status === "idle") return null;
+  const projectData = useProjectOverlayStore((state) => state.projectData);
 
   const handleClose = () => {
     setAppActiveTab(undefined);
   };
 
-  const splashImageURL = activeProjectDetails.data
-    ? getProjectSplashImageURLFromProject(activeProjectDetails.data)
+  const splashImageURL = projectData
+    ? getProjectSplashImageURLFromProject(projectData)
     : null;
   return (
     <motion.div
@@ -41,20 +39,16 @@ const ProjectOverlay = () => {
         id="project-overlay"
       >
         <div className="absolute inset-0 scrollable overflow-y-auto overflow-x-hidden scrollbar-variant-1 flex flex-col">
-          {activeProjectDetails.status === "loading" ? (
+          {projectDataStatus === "loading" ? (
             <Loading />
-          ) : activeProjectDetails.status === "error" ||
-            activeProjectDetails.data === null ? (
+          ) : projectDataStatus === "error" || projectData === null ? (
             <Error />
           ) : (
             <div className="w-full relative flex flex-col flex-1">
-              <Splash
-                imageURL={splashImageURL}
-                projectDetails={activeProjectDetails.data}
-              />
-              <Header projectDetails={activeProjectDetails.data} />
+              <Splash imageURL={splashImageURL} projectDetails={projectData} />
+              <Header projectData={projectData} />
               <div className="flex flex-col gap-2 p-4 -translate-y-20 flex-1 -mb-20">
-                <TabMapper projectDetails={activeProjectDetails.data} />
+                <TabMapper projectData={projectData} />
               </div>
             </div>
           )}

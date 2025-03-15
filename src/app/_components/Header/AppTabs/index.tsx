@@ -3,24 +3,25 @@
 import { Layers, LucideProps, MapPin, Search, Trees } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useMemo, useRef } from "react";
-import { useProjectStore } from "@/app/_stores/project";
-import useAppViewsStore, {
-  State as AppViewsState,
-} from "@/app/_stores/app-views";
-import useHoveredMapDataStore from "@/app/_stores/hovered-map-data";
+import useAppTabsStore, { AppTabsState } from "./store";
+import useProjectOverlayStore from "../../ProjectOverlay/store";
+import useHoveredTreeOverlayStore from "../../HoveredTreeOverlay/store";
+
 type TabButton = {
   icon: React.FC<LucideProps>;
   label: string;
   onClick?: () => void;
   shouldBeVisible: boolean;
-  key: Exclude<AppViewsState["appActiveTab"], undefined>;
+  key: Exclude<AppTabsState["activeTab"], undefined>;
 };
 
-const Tabs = () => {
-  const appActiveTab = useAppViewsStore((state) => state.appActiveTab);
-  const setAppActiveTab = useAppViewsStore((state) => state.setAppActiveTab);
-  const activeProjectId = useProjectStore((state) => state.activeProjectId);
-  const hoveredTree = useHoveredMapDataStore((state) => state.treesInformation);
+const AppTabs = () => {
+  const activeTab = useAppTabsStore((state) => state.activeTab);
+  const setActiveTab = useAppTabsStore((state) => state.setActiveTab);
+  const activeProjectId = useProjectOverlayStore((state) => state.projectId);
+  const hoveredTree = useHoveredTreeOverlayStore(
+    (state) => state.treeInformation
+  );
 
   const underlayRef = useRef<HTMLDivElement>(null);
 
@@ -74,8 +75,12 @@ const Tabs = () => {
   };
 
   useEffect(() => {
-    updateUnderlay(appActiveTab);
-  }, [appActiveTab]);
+    const button = buttons.find((button) => button.key === activeTab);
+    if (!button) {
+      updateUnderlay(undefined);
+    }
+    updateUnderlay(activeTab);
+  }, [activeTab, buttons]);
 
   return (
     <div className="flex items-center gap-1 relative">
@@ -91,7 +96,7 @@ const Tabs = () => {
             data-button-key={button.key}
             variant={"ghost"}
             onClick={() => {
-              setAppActiveTab(button.key);
+              setActiveTab(button.key);
             }}
           >
             <button.icon /> {button.label}
@@ -102,4 +107,4 @@ const Tabs = () => {
   );
 };
 
-export default Tabs;
+export default AppTabs;

@@ -1,73 +1,21 @@
 "use client";
-import React, { useEffect, useMemo } from "react";
-import { Project, Shapefile } from "@/app/_stores/project/types";
+import React from "react";
 import { Combobox } from "@/components/ui/combobox";
-import { useProjectStore } from "@/app/_stores/project";
+import { Project } from "./store/types";
+import useProjectOverlayStore from "./store";
 
-type SiteAsset = {
-  id: string;
-  name: string;
-  shapefile: Shapefile;
-  awsCID: string;
-  classification: "Shapefiles";
-};
-
-const ProjectSitesSection = ({
-  projectDetails,
-}: {
-  projectDetails: Project;
-}) => {
-  const setActiveProjectPolygonByCID = useProjectStore(
-    (actions) => actions.setActiveProjectPolygonByCID
+const ProjectSitesSection = () => {
+  const projectSitesOptions = useProjectOverlayStore(
+    (state) => state.allSitesOptions
   );
+  const activeSite = useProjectOverlayStore((state) => state.activeSite);
+  const setActiveSite = useProjectOverlayStore((state) => state.setActiveSite);
 
-  const projectSites = useMemo(
-    () =>
-      projectDetails.assets.filter((asset) => {
-        if (asset.classification !== "Shapefiles") return false;
-        if (asset.shapefile === null) return false;
-        const shapefile = asset.shapefile;
-        return Boolean(shapefile.shortName && !shapefile.isReference);
-      }) as SiteAsset[],
-    [projectDetails.assets]
-  );
-
-  const projectSitesOptions = useMemo(
-    () =>
-      projectSites.map((site) => ({
-        value: site.awsCID,
-        label: site.shapefile.shortName,
-      })),
-    [projectSites]
-  );
-
-  const defaultSite = useMemo(
-    () => projectSites.find((site) => site.shapefile.default === true),
-    [projectSites]
-  );
-
-  const [selectedSite, setSelectedSite] = React.useState<string | undefined>(
-    defaultSite?.awsCID
-  );
-
-  const handleProjectSiteChange = (siteId: string | undefined) => {
-    setSelectedSite(siteId);
-    setActiveProjectPolygonByCID(siteId);
+  const handleProjectSiteChange = (siteId: string) => {
+    setActiveSite(siteId);
   };
 
-  useEffect(() => {
-    if (defaultSite) {
-      handleProjectSiteChange(defaultSite.awsCID);
-      return;
-    }
-    if (projectSitesOptions.length === 0) {
-      handleProjectSiteChange(undefined);
-      return;
-    }
-    handleProjectSiteChange(projectSitesOptions[0].value);
-  }, [defaultSite, projectSitesOptions]);
-
-  if (projectSitesOptions.length === 0) return null;
+  if (!projectSitesOptions || projectSitesOptions.length === 0) return null;
 
   return (
     <section className="flex items-center gap-2">
@@ -77,7 +25,7 @@ const ProjectSitesSection = ({
       {projectSitesOptions.length > 1 ? (
         <Combobox
           options={projectSitesOptions}
-          value={selectedSite}
+          value={activeSite?.id}
           onChange={handleProjectSiteChange}
           className="flex-1"
           searchIn="label"
@@ -92,11 +40,11 @@ const ProjectSitesSection = ({
 };
 
 const ProjectObjectivesSection = ({
-  projectDetails,
+  projectData,
 }: {
-  projectDetails: Project;
+  projectData: Project;
 }) => {
-  const objectives = projectDetails.objective.split(",");
+  const objectives = projectData.objective.split(",");
   return (
     <section className="flex flex-col gap-0.5">
       <span className="font-bold">Objective</span>
@@ -114,15 +62,15 @@ const ProjectObjectivesSection = ({
   );
 };
 
-const ProjectInfo = ({ projectDetails }: { projectDetails: Project }) => {
+const ProjectInfo = ({ projectData }: { projectData: Project }) => {
   return (
     <div className="flex flex-col gap-4">
-      <ProjectSitesSection projectDetails={projectDetails} />
+      <ProjectSitesSection />
       <section className="flex flex-col gap-0.5">
         <span className="font-bold">Description</span>
-        <p className="leading-snug">{projectDetails.longDescription}</p>
+        <p className="leading-snug">{projectData.longDescription}</p>
       </section>
-      <ProjectObjectivesSection projectDetails={projectDetails} />
+      <ProjectObjectivesSection projectData={projectData} />
     </div>
   );
 };

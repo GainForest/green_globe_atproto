@@ -4,7 +4,7 @@ import UIBase from "@/components/ui/ui-base";
 import { Layers, X } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import useAppViewsStore from "@/app/_stores/app-views";
+import useAppTabsStore from "../Header/AppTabs/store";
 
 const LayersOverlay = () => {
   // State for layer toggles
@@ -13,7 +13,7 @@ const LayersOverlay = () => {
   const [detectedAirstrips, setDetectedAirstrips] = useState(false);
   const [indigenousLands, setIndigenousLands] = useState(false);
 
-  const setAppActiveTab = useAppViewsStore((state) => state.setAppActiveTab);
+  const setAppActiveTab = useAppTabsStore((state) => state.setActiveTab);
 
   const handleClose = () => {
     setAppActiveTab(undefined);

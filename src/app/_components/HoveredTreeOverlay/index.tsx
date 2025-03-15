@@ -2,16 +2,18 @@
 import UIBase from "@/components/ui/ui-base";
 import { motion } from "framer-motion";
 import React from "react";
-import useHoveredMapDataStore from "@/app/_stores/hovered-map-data";
 import Image from "next/image";
 import { Leaf, MoveHorizontal, MoveVertical, X } from "lucide-react";
-import useAppViewsStore from "@/app/_stores/app-views";
+import useHoveredTreeOverlayStore from "./store";
+import useAppTabsStore from "../Header/AppTabs/store";
 const HoveredTreeOverlay = () => {
-  const hoveredTree = useHoveredMapDataStore((state) => state.treesInformation);
-  const setAppActiveTab = useAppViewsStore((state) => state.setAppActiveTab);
+  const hoveredTree = useHoveredTreeOverlayStore(
+    (state) => state.treeInformation
+  );
+  const setActiveTab = useAppTabsStore((state) => state.setActiveTab);
 
   const handleClose = () => {
-    setAppActiveTab(undefined);
+    setActiveTab(undefined);
   };
 
   if (!hoveredTree) return null;

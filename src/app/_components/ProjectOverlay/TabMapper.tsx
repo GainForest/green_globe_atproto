@@ -1,18 +1,16 @@
 "use client";
 import React from "react";
-import useAppViewsStore from "@/app/_stores/app-views";
-import { Project } from "@/app/_stores/project/types";
+import useProjectOverlayStore from "./store";
 import ProjectInfo from "./ProjectInfo";
 import AIAssistant from "./AIAssistant";
+import { Project } from "./store/types";
 
-const TabMapper = ({ projectDetails }: { projectDetails: Project }) => {
-  const projectOverlayTab = useAppViewsStore(
-    (state) => state.projectOverlayTab
-  );
+const TabMapper = ({ projectData }: { projectData: Project }) => {
+  const activeTab = useProjectOverlayStore((state) => state.activeTab);
 
-  switch (projectOverlayTab) {
+  switch (activeTab) {
     case "info":
-      return <ProjectInfo projectDetails={projectDetails} />;
+      return <ProjectInfo projectData={projectData} />;
     case "ask-ai":
       return <AIAssistant />;
     default:

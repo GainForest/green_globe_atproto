@@ -1,13 +1,13 @@
 "use client";
 
-import useAppViewsStore from "@/app/_stores/app-views";
 import ProjectOverlay from "./ProjectOverlay";
 import LayersOverlay from "./LayersOverlay";
 import { AnimatePresence } from "framer-motion";
 import HoveredTreeOverlay from "./HoveredTreeOverlay";
+import useAppTabsStore from "@/app/_components/Header/AppTabs/store";
 
 const OverlayRenderer = () => {
-  const appActiveTab = useAppViewsStore((state) => state.appActiveTab);
+  const appActiveTab = useAppTabsStore((state) => state.activeTab);
 
   let overlay = null;
   if (appActiveTab === "project") overlay = <ProjectOverlay />;

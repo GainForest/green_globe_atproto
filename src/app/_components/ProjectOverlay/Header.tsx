@@ -1,6 +1,5 @@
 import { countryToEmoji } from "@/lib/country-emojis";
 import React, { useRef, useState, useEffect } from "react";
-import { Project } from "@/app/_stores/project/types";
 import { Button } from "@/components/ui/button";
 import {
   Info,
@@ -15,9 +14,8 @@ import {
 } from "lucide-react";
 import QuickTooltip from "@/components/ui/quick-tooltip";
 import { cn } from "@/lib/utils";
-import useAppViewsStore, {
-  State as AppViewsState,
-} from "@/app/_stores/app-views";
+import useProjectOverlayStore, { ProjectOverlayState } from "./store";
+import { Project } from "./store/types";
 
 const TabButton = ({
   children,
@@ -49,7 +47,7 @@ const TabButton = ({
 const TABS_CONFIG: {
   tooltipContent: string;
   icon: React.FC<LucideProps>;
-  id: Exclude<AppViewsState["projectOverlayTab"], undefined>;
+  id: Exclude<ProjectOverlayState["activeTab"], undefined>;
 }[] = [
   {
     tooltipContent: "Project Info",
@@ -88,20 +86,16 @@ const TABS_CONFIG: {
   },
 ];
 const Tabs = () => {
-  const projectOverlayTab = useAppViewsStore(
-    (state) => state.projectOverlayTab
-  );
-  const setProjectOverlayTab = useAppViewsStore(
-    (state) => state.setProjectOverlayTab
-  );
+  const activeTab = useProjectOverlayStore((state) => state.activeTab);
+  const setActiveTab = useProjectOverlayStore((state) => state.setActiveTab);
   return (
     <div className="grid grid-cols-4 gap-2 mt-4">
       {TABS_CONFIG.map((tab) => (
         <TabButton
           key={tab.id}
           tooltipContent={tab.tooltipContent}
-          isActive={projectOverlayTab === tab.id}
-          onClick={() => setProjectOverlayTab(tab.id)}
+          isActive={activeTab === tab.id}
+          onClick={() => setActiveTab(tab.id)}
         >
           <tab.icon size={16} />
         </TabButton>
@@ -117,16 +111,15 @@ const Tabs = () => {
   );
 };
 
-const Header = ({ projectDetails }: { projectDetails: Project }) => {
+const Header = ({ projectData }: { projectData: Project }) => {
   const countryDetails = Object.keys(countryToEmoji).includes(
-    projectDetails.country
+    projectData.country
   )
-    ? countryToEmoji[projectDetails.country as keyof typeof countryToEmoji]
+    ? countryToEmoji[projectData.country as keyof typeof countryToEmoji]
     : null;
-  const area = Math.round(projectDetails.area / 10000);
+  const area = Math.round(projectData.area / 10000);
 
-  const { projectOverlayTab } = useAppViewsStore((state) => state);
-
+  const activeTab = useProjectOverlayStore((state) => state.activeTab);
   const headerRef = useRef<HTMLDivElement>(null);
   const [isStuck, setIsStuck] = useState(false);
 
@@ -146,7 +139,7 @@ const Header = ({ projectDetails }: { projectDetails: Project }) => {
 
     parent.addEventListener("scroll", handleScroll);
     return () => parent.removeEventListener("scroll", handleScroll);
-  }, [projectOverlayTab]);
+  }, [activeTab]);
 
   return (
     <div
@@ -164,7 +157,7 @@ const Header = ({ projectDetails }: { projectDetails: Project }) => {
           textShadow: "0px 0px 16px rgb(0 0 0 / 1)",
         }}
       >
-        {projectDetails.name}
+        {projectData.name}
       </h1>
       {countryDetails && (
         <div className="flex items-center gap-2 flex-wrap mt-2">

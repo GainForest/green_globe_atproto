@@ -3,7 +3,7 @@ import {
   GeoJSONSourceSpecification,
   Map,
 } from "mapbox-gl";
-import { MeasuredTreesGeoJSON, TreeFeature } from "@/app/_stores/project/types";
+import { MeasuredTreesGeoJSON, TreeFeature } from "../store/types";
 import dayjs from "dayjs";
 
 export const treesSource = (

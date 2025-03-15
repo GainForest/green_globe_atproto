@@ -4,7 +4,7 @@ import UIBase from "@/components/ui/ui-base";
 import React from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import Tabs from "./Tabs";
+import AppTabs from "./AppTabs";
 const ConnectWalletButton = dynamic(() => import("./ConnectWalletButton"), {
   ssr: false,
 });
@@ -24,7 +24,7 @@ const Header = () => {
           <span className="font-bold text-lg">GainForest</span>
         </UIBase>
         <UIBase innerClassName="p-1">
-          <Tabs />
+          <AppTabs />
         </UIBase>
       </div>
       <div className="flex items-center gap-2">

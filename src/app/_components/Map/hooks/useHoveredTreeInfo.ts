@@ -1,13 +1,16 @@
 import { useCallback, useRef } from "react";
 import { MapMouseEvent } from "mapbox-gl";
-import { NormalizedTreeFeature } from "@/app/_stores/project/types";
-import useHoveredMapDataStore, { State } from "@/app/_stores/hovered-map-data";
+
 import { getTreeInformation } from "../utils";
+import useHoveredTreeOverlayStore, {
+  HoveredTreeOverlayState,
+} from "../../HoveredTreeOverlay/store";
+import { NormalizedTreeFeature } from "../store/types";
 
 export function useHoveredTreeInfo() {
   // Get the setter from the store
-  const setTreesInformation = useHoveredMapDataStore(
-    (actions) => actions.setTreesInformation
+  const setTreesInformation = useHoveredTreeOverlayStore(
+    (actions) => actions.setTreeInformation
   );
 
   // Debounce timeout ref
@@ -18,7 +21,7 @@ export function useHoveredTreeInfo() {
 
   // Debounced version of setTreesInformation
   const debouncedSetTreesInformation = useCallback(
-    (treeInfo: State["treesInformation"]) => {
+    (treeInfo: HoveredTreeOverlayState["treeInformation"]) => {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }

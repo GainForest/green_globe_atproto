@@ -1,6 +1,10 @@
 "use client";
 import React, { useEffect, useRef } from "react";
-import mapboxgl, { GeoJSONSource, Map, MapMouseEvent } from "mapbox-gl";
+import mapboxgl, {
+  GeoJSONSource,
+  Map as MapInterface,
+  MapMouseEvent,
+} from "mapbox-gl";
 import "./styles.css";
 
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -10,50 +14,35 @@ import {
   addProjectMarkerHandlers,
   spinGlobe,
 } from "./utils";
-import { useProjectStore } from "../../_stores/project";
-import useAppViewsStore from "../../_stores/app-views";
+import useProjectOverlayStore from "../ProjectOverlay/store";
+import useAppTabsStore from "../Header/AppTabs/store";
 import bbox from "@turf/bbox";
 import { toggleMeasuredTreesLayer } from "./sources-and-layers/measured-trees";
 import { useHoveredTreeInfo } from "./hooks/useHoveredTreeInfo";
+import useMapStore from "./store";
 
-const Mapbox = () => {
+const Map = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const activeProjectPolygon = useProjectStore(
-    (state) => state.activeProjectPolygon
+  const activeProjectId = useProjectOverlayStore((state) => state.projectId);
+  const setActiveProjectId = useProjectOverlayStore(
+    (actions) => actions.setProjectId
   );
 
-  const activeProjectId = useProjectStore((state) => state.activeProjectId);
-  const setActiveProjectId = useProjectStore(
-    (actions) => actions.setActiveProjectId
-  );
+  const currentView = useMapStore((state) => state.currentView);
+  const setCurrentView = useMapStore((actions) => actions.setCurrentView);
+  const projectPolygon = useMapStore((state) => state.projectPolygon);
 
-  const mapView = useAppViewsStore((state) => state.mapView);
-  const setMapView = useAppViewsStore((actions) => actions.setMapView);
-
-  const activeProjectMeasuredTreesShapefile = useProjectStore(
-    (state) => state.activeProjectMeasuredTreesShapefile
-  );
-
-  const setAppActiveTab = useAppViewsStore(
-    (actions) => actions.setAppActiveTab
-  );
-
-  const projectOverlayTab = useAppViewsStore(
-    (state) => state.projectOverlayTab
-  );
-  const setProjectOverlayTab = useAppViewsStore(
-    (actions) => actions.setProjectOverlayTab
-  );
+  const projectTrees = useMapStore((state) => state.projectTrees);
+  const setAppActiveTab = useAppTabsStore((actions) => actions.setActiveTab);
 
   const handleProjectMarkerClick = (projectId: string) => {
-    setMapView("project");
+    setCurrentView("project");
     setAppActiveTab("project");
     setActiveProjectId(projectId);
-    if (!projectOverlayTab) setProjectOverlayTab("info");
   };
 
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapRef = useRef<MapInterface | null>(null);
 
   // Use our custom hook for hovered tree functionality
   const { handleMouseMoveUnclusteredTrees, cleanup: cleanupHoveredTreeInfo } =
@@ -64,7 +53,7 @@ const Mapbox = () => {
       "pk.eyJ1Ijoic2FkYW1hbnQiLCJhIjoiY2tuenNwdnJtMDh5MTJ3b2JlZzZ3dTFxYiJ9.NnGoRZHBZTWBxNTVKc8gOQ";
     if (mapContainerRef.current === null) return;
 
-    const map = new mapboxgl.Map({
+    const map = new MapInterface({
       container: mapContainerRef.current,
       projection: "globe",
       style: "mapbox://styles/mapbox/satellite-v9",
@@ -121,12 +110,12 @@ const Mapbox = () => {
 
   // When the active project polygon changes, fit the map to the polygon and update the highlighted site source
   useEffect(() => {
-    if (mapView !== "project") return;
-    const map = mapRef.current as Map | null;
-    if (!map || !activeProjectPolygon) return;
+    if (currentView !== "project") return;
+    const map = mapRef.current as MapInterface | null;
+    if (!map || !projectPolygon) return;
 
     // Calculate the bounding box and ensure it's 2D
-    const boundingBox = bbox(activeProjectPolygon).slice(0, 4) as [
+    const boundingBox = bbox(projectPolygon).slice(0, 4) as [
       number,
       number,
       number,
@@ -136,19 +125,14 @@ const Mapbox = () => {
       padding: { top: 40, bottom: 40, left: 40, right: 40 },
     });
     (map.getSource("highlightedSite") as GeoJSONSource | undefined)?.setData(
-      activeProjectPolygon
+      projectPolygon
     );
-  }, [mapView, activeProjectPolygon]);
+  }, [currentView, projectPolygon]);
 
   useEffect(() => {
-    if (mapView !== "project") return;
-    const map = mapRef.current as Map | null;
-    if (
-      !map ||
-      activeProjectMeasuredTreesShapefile.status !== "success" ||
-      !activeProjectMeasuredTreesShapefile.data
-    )
-      return;
+    if (currentView !== "project") return;
+    const map = mapRef.current as MapInterface | null;
+    if (!map || !projectTrees) return;
 
     // TODO: Ask Sharfy a question about this
     // if (activeProjectTreesPlanted !== normalizedData) {
@@ -156,18 +140,14 @@ const Mapbox = () => {
     // }
 
     (map.getSource("trees") as GeoJSONSource | undefined)?.setData(
-      activeProjectMeasuredTreesShapefile.data
+      projectTrees
     );
-  }, [
-    mapView,
-    activeProjectMeasuredTreesShapefile.status,
-    activeProjectMeasuredTreesShapefile.data,
-  ]);
+  }, [currentView, projectTrees]);
 
   // Set hovered tree ID on mouse move
   useEffect(() => {
-    if (mapView !== "project" || !activeProjectId) return;
-    const map = mapRef.current as Map | null;
+    if (currentView !== "project" || !activeProjectId) return;
+    const map = mapRef.current as MapInterface | null;
     if (!map) return;
 
     const onClickProjectFill = () => {
@@ -190,7 +170,7 @@ const Mapbox = () => {
       cleanupHoveredTreeInfo();
     };
   }, [
-    mapView,
+    currentView,
     activeProjectId,
     handleMouseMoveUnclusteredTrees,
     cleanupHoveredTreeInfo,
@@ -205,4 +185,4 @@ const Mapbox = () => {
   );
 };
 
-export default Mapbox;
+export default Map;
