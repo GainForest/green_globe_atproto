@@ -11,7 +11,7 @@ const UIBase = ({
   return (
     <div
       className={cn(
-        "bg-background/80 border border-black/20 backdrop-blur-lg rounded-xl shadow-xl",
+        "bg-background/90 border border-black/20 backdrop-blur-xl rounded-xl shadow-xl",
         className
       )}
       {...props}

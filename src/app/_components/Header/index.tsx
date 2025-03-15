@@ -21,7 +21,7 @@ const Header = () => {
             height={28}
             className="rounded-full"
           />
-          <span className="font-bold text-lg">Gainforest</span>
+          <span className="font-bold text-lg">GainForest</span>
         </UIBase>
         <UIBase innerClassName="p-1">
           <Tabs />
