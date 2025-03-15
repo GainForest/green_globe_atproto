@@ -1,13 +1,13 @@
 "use client";
 
-import { Layers, Leaf, LucideProps, Search } from "lucide-react";
+import { Layers, LucideProps, MapPin, Search, Trees } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useMemo, useRef } from "react";
 import { useProjectStore } from "@/app/_stores/project";
 import useAppViewsStore, {
   State as AppViewsState,
 } from "@/app/_stores/app-views";
-
+import useHoveredMapDataStore from "@/app/_stores/hovered-map-data";
 type TabButton = {
   icon: React.FC<LucideProps>;
   label: string;
@@ -20,6 +20,7 @@ const Tabs = () => {
   const appActiveTab = useAppViewsStore((state) => state.appActiveTab);
   const setAppActiveTab = useAppViewsStore((state) => state.setAppActiveTab);
   const activeProjectId = useProjectStore((state) => state.activeProjectId);
+  const hoveredTree = useHoveredMapDataStore((state) => state.treesInformation);
 
   const underlayRef = useRef<HTMLDivElement>(null);
 
@@ -38,13 +39,19 @@ const Tabs = () => {
         key: "layers",
       },
       {
-        icon: Leaf,
+        icon: MapPin,
         label: "Project",
         shouldBeVisible: activeProjectId !== undefined,
         key: "project",
       },
+      {
+        icon: Trees,
+        label: "Trees",
+        shouldBeVisible: hoveredTree !== null,
+        key: "hovered-tree",
+      },
     ],
-    [activeProjectId]
+    [activeProjectId, hoveredTree]
   );
 
   const updateUnderlay = (buttonKey: string | undefined) => {

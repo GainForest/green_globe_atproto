@@ -4,8 +4,6 @@ import "./globals.css";
 
 import { headers } from "next/headers";
 import WagmiContextProvider from "./_contexts/wagmi";
-import { getServerSession } from "next-auth";
-import { decode } from "next-auth/jwt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,24 +26,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookies = (await headers()).get("cookie");
-  const session = await getServerSession();
-
-  // Get and decode the JWT token from cookies
-  const cookieString = cookies || "";
-  const tokenCookie = cookieString
-    .split(";")
-    .find((c) => c.trim().startsWith("next-auth.session-token="));
-
-  if (tokenCookie) {
-    const token = tokenCookie.split("=")[1];
-    const decodedToken = await decode({
-      token,
-      secret: process.env.NEXTAUTH_SECRET!,
-    });
-    console.log("Decoded JWT Token:", decodedToken);
-  }
-
-  console.log("Session:", session);
 
   return (
     <html lang="en">

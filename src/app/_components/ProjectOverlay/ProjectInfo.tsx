@@ -41,20 +41,31 @@ const ProjectSitesSection = ({
     [projectSites]
   );
 
-  const [selectedSite, setSelectedSite] = React.useState<string | undefined>(
-    undefined
+  const defaultSite = useMemo(
+    () => projectSites.find((site) => site.shapefile.default === true),
+    [projectSites]
   );
 
-  const handleProjectSiteChange = (siteId: string) => {
-    console.log("siteId", siteId);
+  const [selectedSite, setSelectedSite] = React.useState<string | undefined>(
+    defaultSite?.awsCID
+  );
+
+  const handleProjectSiteChange = (siteId: string | undefined) => {
     setSelectedSite(siteId);
     setActiveProjectPolygonByCID(siteId);
   };
 
   useEffect(() => {
-    if (projectSitesOptions.length === 0) return;
+    if (defaultSite) {
+      handleProjectSiteChange(defaultSite.awsCID);
+      return;
+    }
+    if (projectSitesOptions.length === 0) {
+      handleProjectSiteChange(undefined);
+      return;
+    }
     handleProjectSiteChange(projectSitesOptions[0].value);
-  }, [projectSitesOptions]);
+  }, [defaultSite, projectSitesOptions]);
 
   if (projectSitesOptions.length === 0) return null;
 

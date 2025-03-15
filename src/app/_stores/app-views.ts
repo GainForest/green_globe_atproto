@@ -17,7 +17,7 @@ import { useProjectStore } from "./project";
 
 export type State = {
   mapView: "project" | "geojson" | undefined;
-  appActiveTab: "project" | "layers" | "search" | undefined;
+  appActiveTab: "hovered-tree" | "project" | "layers" | "search" | undefined;
   projectOverlayTab:
     | "info"
     | "ask-ai"

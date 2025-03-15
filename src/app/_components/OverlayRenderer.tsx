@@ -12,13 +12,9 @@ const OverlayRenderer = () => {
   let overlay = null;
   if (appActiveTab === "project") overlay = <ProjectOverlay />;
   if (appActiveTab === "layers") overlay = <LayersOverlay />;
+  if (appActiveTab === "hovered-tree") overlay = <HoveredTreeOverlay />;
 
-  return (
-    <AnimatePresence>
-      {overlay}
-      {<HoveredTreeOverlay />}
-    </AnimatePresence>
-  );
+  return <AnimatePresence>{overlay}</AnimatePresence>;
 };
 
 export default OverlayRenderer;
