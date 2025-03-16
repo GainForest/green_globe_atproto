@@ -60,7 +60,6 @@ const useLayersOverlayStore = create<LayersOverlayState & LayersOverlayActions>(
           },
         })),
       setDynamicLayerVisibility: (layerName, value) => {
-        console.log("========visibility setter");
         set((state) => ({
           categorizedDynamicLayers: state.categorizedDynamicLayers.map(
             (category) => ({
@@ -79,7 +78,6 @@ const useLayersOverlayStore = create<LayersOverlayState & LayersOverlayActions>(
           visible: false,
         }));
         const categorizedDynamicLayers = groupBy(dynamicLayers, "category");
-        console.log("===========================", categorizedDynamicLayers);
         set({ categorizedDynamicLayers });
       },
       setHistoricalSatelliteDate: (date) =>

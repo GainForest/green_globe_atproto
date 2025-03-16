@@ -29,31 +29,12 @@ export const groupBy = <T>(array: T[], key: keyof T): Record<string, T[]>[] => {
     }
 
     if (groupedData.has(valueStr)) {
-      // console.log(`${valueStr} already exists... adding only to map`);
       groupedData.get(valueStr)?.push(item);
-      // console.log(JSON.stringify(Object.fromEntries(groupedData)));
     } else {
-      // console.log(`${valueStr} not found... adding to array and to map`);
       groupedData.set(valueStr, [item]);
       groupedDataKeys.push(valueStr);
-      // console.log(JSON.stringify(Object.fromEntries(groupedData)));
     }
   });
-
-  // const test = [
-  //   {
-  //     something: [structuredClone(array[0])],
-  //   },
-  // ];
-  // console.log("testing yo yo:", test);
-  // return test;
-
-  // console.log(
-  //   "groupedDataKeys",
-  //   groupedDataKeys,
-  //   groupedData,
-  //   Object.fromEntries(groupedData)
-  // );
 
   return groupedDataKeys.map((key) => ({
     [key]: groupedData.get(key),

@@ -107,7 +107,6 @@ export const addProjectMarkerHandlers = (
   map.on("click", "projectMarkerLayer", (e: MapMouseEvent) => {
     const features = e.features as ProjectSitePoints["features"] | undefined;
     if (!features || features.length === 0) return;
-    console.log(features);
     const projectId = features[0].properties.projectId;
     onClick(projectId);
   });

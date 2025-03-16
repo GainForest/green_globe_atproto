@@ -131,7 +131,6 @@ const useProjectOverlayStore = create<
       const selectedSite = projectSites.find((site) => site.id === siteId);
       if (!selectedSite) return;
 
-      console.log("Setting Project Polygon", selectedSite.id);
       useMapStore.getState().setProjectPolygon(selectedSite.awsCID);
       set({ activeSite: selectedSite });
     },

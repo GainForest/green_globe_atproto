@@ -11,16 +11,15 @@ const useDynamicLayers = () => {
   const categorizedDynamicLayers = useLayersOverlayStore(
     (state) => state.categorizedDynamicLayers
   );
-  console.log("categorizedDynamicLayers", categorizedDynamicLayers);
   const flatMapLayers = useMemo(() => {
-    const layers: DynamicLayer[] = [];
+    const arr: DynamicLayer[] = [];
     categorizedDynamicLayers.forEach((category) => {
       const layers = category[Object.keys(category)[0]];
       layers.forEach((layer) => {
-        layers.push(layer);
+        arr.push(layer);
       });
     });
-    return layers;
+    return arr;
   }, [categorizedDynamicLayers]);
 
   useEffect(() => {

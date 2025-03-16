@@ -36,7 +36,6 @@ const useMapStore = create<MapState & MapActions>((set) => {
         return;
       }
       const polygon = await fetchPolygonByCID(awsCID);
-      console.log("Polygon", polygon);
       set({ projectPolygon: polygon });
     },
     setProjectTrees: async (projectName) => {
