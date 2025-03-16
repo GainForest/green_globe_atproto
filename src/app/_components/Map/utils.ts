@@ -51,16 +51,25 @@ export const addAllSourcesAndLayers = (map: Map) => {
   addProjectMarkersSourceAndLayer(map);
 };
 
-export const setProjectMarkers = async (map: Map) => {
+export const fetchProjectSites = async (): Promise<ProjectSitePoints> => {
   try {
-    const markerPointsResponse = await fetch(
+    const response = await fetch(
       `${process.env.NEXT_PUBLIC_AWS_STORAGE}/shapefiles/gainforest-all-shapefiles.geojson`
     );
+    const projects: ProjectSitePoints = await response.json();
+    return projects;
+  } catch (error) {
+    console.error("Error fetching projects", error);
+    return { type: "FeatureCollection", features: [] };
+  }
+};
 
-    const markerPoints: ProjectSitePoints = await markerPointsResponse.json();
+export const setProjectMarkers = async (map: Map) => {
+  try {
+    const projectSites = await fetchProjectSites();
 
     const source = map.getSource("projectMarkerSource") as GeoJSONSource;
-    source?.setData(markerPoints);
+    source?.setData(projectSites);
   } catch (error) {
     console.error("Error setting project markers", error);
   }
