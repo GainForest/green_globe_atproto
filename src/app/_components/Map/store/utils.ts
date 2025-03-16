@@ -1,3 +1,4 @@
+import { toKebabCase } from "@/lib/utils";
 import { getTreeSpeciesName } from "../sources-and-layers/measured-trees";
 import {
   MeasuredTreesGeoJSON,
@@ -22,12 +23,7 @@ export const fetchPolygonByCID = async (cid: string) => {
 export const fetchMeasuredTreesShapefile = async (
   projectName: string
 ): Promise<MeasuredTreesGeoJSON | null> => {
-  const kebabCaseProjectName = projectName
-    .normalize("NFD") // Normalize to decomposed form
-    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  const kebabCaseProjectName = toKebabCase(projectName);
 
   const endpoint = `shapefiles/${kebabCaseProjectName}-all-tree-plantings.geojson`;
   try {

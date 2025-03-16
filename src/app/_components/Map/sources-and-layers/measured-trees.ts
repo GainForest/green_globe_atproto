@@ -217,7 +217,7 @@ export const getTreePhotos = (
   }
   if (result.length == 0) {
     result.push(
-      `${process.env.AWS_STORAGE}/miscellaneous/placeholders/taxa_plants.png`
+      `${process.env.NEXT_PUBLIC_AWS_STORAGE}/miscellaneous/placeholders/taxa_plants.png`
     );
   }
   return result;

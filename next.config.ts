@@ -10,6 +10,7 @@ const remotePatterns = [
 ].filter((pattern) => pattern !== null);
 
 const nextConfig: NextConfig = {
+  reactStrictMode: false,
   images: {
     remotePatterns: [...remotePatterns],
   },

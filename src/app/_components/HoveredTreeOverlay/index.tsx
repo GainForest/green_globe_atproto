@@ -6,7 +6,12 @@ import Image from "next/image";
 import { Leaf, MoveHorizontal, MoveVertical, X } from "lucide-react";
 import useHoveredTreeOverlayStore from "./store";
 import useAppTabsStore from "../Header/AppTabs/store";
+import useBlurAnimate from "../hooks/useBlurAnimate";
 const HoveredTreeOverlay = () => {
+  const { animate, onAnimationComplete } = useBlurAnimate(
+    { opacity: 1, scale: 1, filter: "blur(0px)" },
+    { opacity: 1, scale: 1, filter: "unset" }
+  );
   const hoveredTree = useHoveredTreeOverlayStore(
     (state) => state.treeInformation
   );
@@ -20,9 +25,10 @@ const HoveredTreeOverlay = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 100 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 100 }}
+      initial={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+      animate={animate}
+      exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+      onAnimationComplete={onAnimationComplete}
       className="fixed top-16 left-2 w-[25%] max-w-[280px] min-w-[180px]"
     >
       <UIBase innerClassName="p-0 overflow-hidden">

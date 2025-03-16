@@ -11,6 +11,7 @@ import TabMapper from "./TabMapper";
 import useAppTabsStore from "../Header/AppTabs/store";
 import useProjectOverlayStore from "./store";
 import { getProjectSplashImageURLFromProject } from "./store/utils";
+import useBlurAnimate from "../hooks/useBlurAnimate";
 
 const ProjectOverlay = () => {
   const setAppActiveTab = useAppTabsStore((actions) => actions.setActiveTab);
@@ -18,6 +19,10 @@ const ProjectOverlay = () => {
     (state) => state.projectDataStatus
   );
   const projectData = useProjectOverlayStore((state) => state.projectData);
+  const { animate, onAnimationComplete } = useBlurAnimate(
+    { opacity: 1, scale: 1, filter: "blur(0px)" },
+    { opacity: 1, scale: 1, filter: "unset" }
+  );
 
   const handleClose = () => {
     setAppActiveTab(undefined);
@@ -26,11 +31,13 @@ const ProjectOverlay = () => {
   const splashImageURL = projectData
     ? getProjectSplashImageURLFromProject(projectData)
     : null;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 100 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 100 }}
+      initial={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+      animate={animate}
+      exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+      onAnimationComplete={onAnimationComplete}
       className="fixed top-16 bottom-2 left-2 w-[25%] max-w-[400px] min-w-[280px]"
     >
       <UIBase
