@@ -44,7 +44,7 @@ const ProjectObjectivesSection = ({
 }: {
   projectData: Project;
 }) => {
-  const objectives = projectData.objective.split(",");
+  const objectives = projectData.objective?.split(",") || [];
   return (
     <section className="flex flex-col gap-0.5">
       <span className="font-bold">Objective</span>
@@ -52,7 +52,7 @@ const ProjectObjectivesSection = ({
         {objectives.map((objective) => (
           <span
             key={objective}
-            className="px-2 py-1 bg-background/50 backdrop-blur-lg rounded-full text-sm"
+            className="px-2 py-1 bg-foreground/10 backdrop-blur-lg rounded-full text-sm"
           >
             {objective}
           </span>

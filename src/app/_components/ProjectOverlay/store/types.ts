@@ -33,7 +33,7 @@ export type Project = {
   lat: number;
   lon: number;
   area: number;
-  objective: string;
+  objective?: string;
   assets: Asset[];
   communityMembers: unknown[];
   Wallet: unknown | null;
