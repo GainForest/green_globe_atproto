@@ -9,26 +9,29 @@ import addChoroplethSourceAndLayers from "./chloropleth";
 import addShannonChoroplethSourceAndLayers from "./shannon-chloropleth";
 
 const addNamedSource = (map: Map, layer: DynamicLayer) => {
-  if (!map.getSource(layer.name) && layer.type == "geojson_points") {
-    addGeojsonPointSourceAndLayer(map, layer);
-  }
-  if (!map.getSource(layer.name) && layer.type == "geojson_line") {
-    addGeojsonLineSourceAndLayer(map, layer);
-  }
-  if (!map.getSource(layer.name) && layer.type == "tms_tile") {
-    addTMSTileSourceAndLayer(map, layer);
-  }
-  if (!map.getLayer(layer.name) && layer.type == "raster_tif") {
-    addRasterSourceAndLayer(map, layer);
-  }
-  if (!map.getSource(layer.name) && layer.type == "choropleth") {
-    addChoroplethSourceAndLayers(map, layer);
-  }
-  if (!map.getSource(layer.name) && layer.type == "choropleth_shannon") {
-    addShannonChoroplethSourceAndLayers(map, layer);
-  }
-  if (!map.getSource(layer.name) && layer.type == "geojson_points_trees") {
-    addMeasuredTreesSourceAndLayer(map);
+  if (!map.getSource(layer.name)) {
+    if (layer.type == "geojson_points") {
+      addGeojsonPointSourceAndLayer(map, layer);
+    }
+    if (layer.type == "geojson_line") {
+      addGeojsonLineSourceAndLayer(map, layer);
+    }
+    if (layer.type == "tms_tile") {
+      addTMSTileSourceAndLayer(map, layer);
+    }
+    if (layer.type == "raster_tif") {
+      addRasterSourceAndLayer(map, layer);
+    }
+    if (layer.type == "choropleth") {
+      addChoroplethSourceAndLayers(map, layer);
+    }
+    if (layer.type == "choropleth_shannon") {
+      addShannonChoroplethSourceAndLayers(map, layer);
+    }
+    if (layer.type == "geojson_points_trees") {
+      addMeasuredTreesSourceAndLayer(map);
+    }
+    return;
   }
   map.moveLayer(layer.name, "highlightedSiteOutline");
   map.moveLayer("highlightedSiteOutline", "gainforestMarkerLayer");

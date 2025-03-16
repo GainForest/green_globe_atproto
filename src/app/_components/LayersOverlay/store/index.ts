@@ -62,12 +62,16 @@ const useLayersOverlayStore = create<LayersOverlayState & LayersOverlayActions>(
       setDynamicLayerVisibility: (layerName, value) => {
         set((state) => ({
           categorizedDynamicLayers: state.categorizedDynamicLayers.map(
-            (category) => ({
-              ...category,
-              layers: category.layers.map((layer) =>
+            (categoryObj) => {
+              const categoryKey = Object.keys(categoryObj)[0];
+              const categoryLayers = categoryObj[categoryKey];
+              const newCategoryLayers = categoryLayers.map((layer) =>
                 layer.name === layerName ? { ...layer, visible: value } : layer
-              ),
-            })
+              );
+              return {
+                [categoryKey]: newCategoryLayers,
+              };
+            }
           ),
         }));
       },

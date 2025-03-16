@@ -3,7 +3,7 @@ import { EMPTY_GEOJSON } from "@/constants";
 import { Map } from "mapbox-gl";
 
 const addGeojsonPointSourceAndLayer = async (map: Map, layer: DynamicLayer) => {
-  const res = await fetch(`${process.env.AWS_STORAGE}/${layer.endpoint}`);
+  const res = await fetch(layer.endpoint);
   const pointsGeojson = await res.json();
 
   if (!map.getSource(layer.name)) {

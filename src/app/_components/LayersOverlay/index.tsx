@@ -9,7 +9,7 @@ import useBlurAnimate from "../hooks/useBlurAnimate";
 import HistoricalSatelliteControls from "./HistoricalSatelliteControls";
 import useLayersOverlayStore from "./store";
 import useProjectOverlayStore from "../ProjectOverlay/store";
-
+import { toKebabCase } from "@/lib/utils";
 const LayersOverlay = () => {
   const { animate, onAnimationComplete } = useBlurAnimate(
     { opacity: 1, scale: 1, filter: "blur(0px)" },
@@ -63,17 +63,18 @@ const LayersOverlay = () => {
               </h3>
               <div className="text-sm flex flex-col divide-y bg-neutral-50 dark:bg-neutral-950 border border-border rounded-xl">
                 {layers.map((layer) => {
+                  const id = toKebabCase(layer.name);
                   return (
                     <div
                       className="flex items-center justify-between p-4"
-                      key={layer.type}
+                      key={id}
                     >
-                      <Label htmlFor={layer.type}>{layer.name}</Label>
+                      <Label htmlFor={id}>{layer.name}</Label>
                       <Switch
-                        id={layer.type}
+                        id={id}
                         checked={layer.visible}
-                        onCheckedChange={() => {
-                          setDynamicLayerVisibility(layer.type, !layer.visible);
+                        onCheckedChange={(value) => {
+                          setDynamicLayerVisibility(layer.name, value);
                         }}
                       />
                     </div>
