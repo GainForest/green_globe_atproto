@@ -3,18 +3,30 @@ import {
   GeoJSONSourceSpecification,
   Map,
 } from "mapbox-gl";
-import { MeasuredTreesGeoJSON, TreeFeature } from "../store/types";
+import { TreeFeature } from "../store/types";
 import dayjs from "dayjs";
 
-export const treesSource = (
-  treesGeoJson: MeasuredTreesGeoJSON
-): GeoJSONSourceSpecification => ({
+export const treesSource: GeoJSONSourceSpecification = {
   type: "geojson",
-  data: treesGeoJson,
+  data: {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [0, 0],
+        },
+        properties: {
+          data: "Dummy Source for initialization",
+        },
+      },
+    ],
+  },
   cluster: true,
   clusterMaxZoom: 15, // Max zoom to cluster points on
   clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
-});
+}
 
 export const clusteredTreesLayer: CircleLayerSpecification = {
   id: "clusteredTrees",
@@ -67,24 +79,7 @@ export const unclusteredTreesLayer: CircleLayerSpecification = {
 
 export const addMeasuredTreesSourceAndLayer = (map: Map) => {
   if (!map.getSource("trees")) {
-    map.addSource("trees", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "Point",
-              coordinates: [0, 0],
-            },
-            properties: {
-              data: "Dummy Source for initialization",
-            },
-          },
-        ],
-      },
-    });
+    map.addSource("trees", treesSource);
   }
   if (!map.getLayer("clusteredTrees")) {
     map.addLayer(clusteredTreesLayer);
@@ -105,10 +100,10 @@ export const toggleMeasuredTreesLayer = (
     map.setLayoutProperty("clusteredTrees", "visibility", visibility);
   }
   if (map.getLayer("clusteredTreesCountText")) {
-    // map.setLayoutProperty("clusteredTreesCountText", "visibility", visibility);
+    map.setLayoutProperty("clusteredTreesCountText", "visibility", visibility);
   }
   if (map.getLayer("unclusteredTrees")) {
-    // map.setLayoutProperty("unclusteredTrees", "visibility", visibility);
+    map.setLayoutProperty("unclusteredTrees", "visibility", visibility);
   }
 };
 
