@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef } from "react";
 import "./styles.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useHoveredTreeInfo } from "./hooks/useHoveredTreeInfo";
 import useProjectPolygon from "./hooks/useProjectPolygon";

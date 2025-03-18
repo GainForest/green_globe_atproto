@@ -38,7 +38,7 @@ const ProjectOverlay = () => {
       animate={animate}
       exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
       onAnimationComplete={onAnimationComplete}
-      className="fixed top-16 bottom-2 left-2 w-[25%] max-w-[400px] min-w-[280px]"
+      className="fixed top-16 bottom-2 left-2 w-full max-w-[500px] min-w-[280px]"
     >
       <UIBase
         className="h-full"

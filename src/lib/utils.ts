@@ -13,6 +13,14 @@ export const toKebabCase = (str: string) => {
     .replace(/[^a-z0-9]+/g, "-");
 };
 
+export const camelCaseToTitleCase = (input: string) => {
+  return input
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, function (str: string) {
+      return str.toUpperCase();
+    });
+};
+
 export const groupBy = <T>(array: T[], key: keyof T): Record<string, T[]>[] => {
   const groupedDataKeys: string[] = [];
   const groupedData = new Map<string, T[]>();

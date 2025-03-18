@@ -31,10 +31,9 @@ const addNamedSource = (map: Map, layer: DynamicLayer) => {
     if (layer.type == "geojson_points_trees") {
       addMeasuredTreesSourceAndLayer(map);
     }
-    return;
   }
   map.moveLayer(layer.name, "highlightedSiteOutline");
-  map.moveLayer("highlightedSiteOutline", "gainforestMarkerLayer");
+  map.moveLayer("highlightedSiteOutline", "projectMarkerLayer");
 };
 
 export const removeNamedSource = (map: Map, layer: DynamicLayer) => {

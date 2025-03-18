@@ -60,7 +60,7 @@ const TABS_CONFIG: {
     id: "ask-ai" as const,
   },
   {
-    tooltipContent: "BioDiversity",
+    tooltipContent: "Biodiversity",
     icon: Leaf,
     id: "biodiversity" as const,
   },
