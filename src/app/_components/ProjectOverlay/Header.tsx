@@ -7,10 +7,10 @@ import {
   MessageCircleQuestion,
   PencilOff,
   Satellite,
-  HandHeart,
   FileClock,
   ImagePlay,
   LucideProps,
+  Users2,
 } from "lucide-react";
 import QuickTooltip from "@/components/ui/quick-tooltip";
 import { cn } from "@/lib/utils";
@@ -75,9 +75,9 @@ const TABS_CONFIG: {
     id: "remote-sensing-analysis" as const,
   },
   {
-    tooltipContent: "Community Donations",
-    icon: HandHeart,
-    id: "community-donations" as const,
+    tooltipContent: "Community",
+    icon: Users2,
+    id: "community" as const,
   },
   {
     tooltipContent: "Logbook",

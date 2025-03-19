@@ -40,7 +40,7 @@ export type ProjectOverlayState = {
     | "biodiversity"
     | "media"
     | "remote-sensing-analysis"
-    | "community-donations"
+    | "community"
     | "logbook"
     | "edit";
 } & ProjectOverlayStateVariant;
