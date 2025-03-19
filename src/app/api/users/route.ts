@@ -16,23 +16,29 @@ export async function GET(request: Request) {
     const sortOrder =
       searchParams.get("sortOrder")?.toUpperCase() === "DESC" ? "DESC" : "ASC";
 
+    // Get optional projectId filter
+    const projectId = searchParams.get("projectId");
+    const whereClause = projectId ? `WHERE project_id = '${projectId}'` : '';
+
     await ensureDatasetLocation();
     const bigquery = getBigQueryClient();
     const location = await ensureDatasetLocation();
 
-    // Build the query with pagination
+    // Build the query with pagination and optional filter
     const query = `
       SELECT *
       FROM \`ecocertain.green_globe_v2_development.users\`
+      ${whereClause}
       ORDER BY ${sortField} ${sortOrder}
       LIMIT ${pageSize}
       OFFSET ${offset}
     `;
 
-    // Query to get total count
+    // Query to get total count with optional filter
     const countQuery = `
       SELECT COUNT(*) as total
       FROM \`ecocertain.green_globe_v2_development.users\`
+      ${whereClause}
     `;
 
     // Run both queries in parallel
