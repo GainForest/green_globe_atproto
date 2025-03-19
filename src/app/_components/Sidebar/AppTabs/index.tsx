@@ -42,7 +42,7 @@ const AppTabs = () => {
       {
         icon: MapPin,
         label: "Project",
-        shouldBeDisabled: activeProjectId !== undefined,
+        shouldBeDisabled: activeProjectId === undefined,
         key: "project",
       },
     ],
