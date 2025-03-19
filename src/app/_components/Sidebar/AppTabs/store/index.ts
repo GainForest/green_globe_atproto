@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export type AppTabsState = {
-  activeTab: "project" | "hovered-tree" | "layers" | "search" | undefined;
+  activeTab: "project" | "hovered-tree" | "layers" | "search";
 };
 
 export type AppTabsActions = {
@@ -9,7 +9,7 @@ export type AppTabsActions = {
 };
 
 const useAppTabsStore = create<AppTabsState & AppTabsActions>((set) => ({
-  activeTab: undefined,
+  activeTab: "search",
   setActiveTab: (activeTab) => set({ activeTab }),
 }));
 

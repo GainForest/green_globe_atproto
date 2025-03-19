@@ -21,7 +21,7 @@ const Splash = ({ imageURL, projectDetails }: SplashProps) => {
             alt={projectDetails.name}
             width={300}
             height={300}
-            className="w-full h-[300px] object-cover object-center [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]"
+            className="w-full h-[200px] object-cover object-center [mask-image:linear-gradient(to_bottom,black_40%,transparent_100%)]"
           />
         </div>
       ) : (

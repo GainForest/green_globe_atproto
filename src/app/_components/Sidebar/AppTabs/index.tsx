@@ -1,6 +1,6 @@
 "use client";
 
-import { Layers, LucideProps, MapPin, Search, Trees } from "lucide-react";
+import { Layers, LucideProps, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useMemo, useRef } from "react";
 import useAppTabsStore, { AppTabsState } from "./store";
@@ -11,7 +11,7 @@ type TabButton = {
   icon: React.FC<LucideProps>;
   label: string;
   onClick?: () => void;
-  shouldBeVisible: boolean;
+  shouldBeDisabled: boolean;
   key: Exclude<AppTabsState["activeTab"], undefined>;
 };
 
@@ -30,26 +30,20 @@ const AppTabs = () => {
       {
         icon: Search,
         label: "Search",
-        shouldBeVisible: true,
+        shouldBeDisabled: false,
         key: "search",
       },
       {
         icon: Layers,
         label: "Layers",
-        shouldBeVisible: true,
+        shouldBeDisabled: false,
         key: "layers",
       },
       {
         icon: MapPin,
         label: "Project",
-        shouldBeVisible: activeProjectId !== undefined,
+        shouldBeDisabled: activeProjectId !== undefined,
         key: "project",
-      },
-      {
-        icon: Trees,
-        label: "Trees",
-        shouldBeVisible: hoveredTree !== null,
-        key: "hovered-tree",
       },
     ],
     [activeProjectId, hoveredTree]
@@ -88,19 +82,24 @@ const AppTabs = () => {
         className="absolute top-0 bottom-0 bg-foreground/20 rounded-md transition-all"
         ref={underlayRef}
       ></div>
-      {buttons.map((button) => {
-        if (!button.shouldBeVisible) return null;
+      {buttons.map((button, index) => {
         return (
-          <Button
-            key={button.key}
-            data-button-key={button.key}
-            variant={"ghost"}
-            onClick={() => {
-              setActiveTab(button.key);
-            }}
-          >
-            <button.icon /> {button.label}
-          </Button>
+          <React.Fragment key={button.key}>
+            <Button
+              data-button-key={button.key}
+              variant={"ghost"}
+              className="flex-1"
+              onClick={() => {
+                setActiveTab(button.key);
+              }}
+              disabled={button.shouldBeDisabled}
+            >
+              <button.icon /> {button.label}
+            </Button>
+            {index !== buttons.length - 1 && (
+              <div className="h-5 w-[2px] bg-border rounded-full" />
+            )}
+          </React.Fragment>
         );
       })}
     </div>

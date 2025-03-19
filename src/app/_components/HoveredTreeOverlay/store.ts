@@ -8,16 +8,19 @@ export type HoveredTreeOverlayState = {
     treePhotos: string[];
     dateOfMeasurement: string;
   } | null;
+  isExpanded: boolean;
 };
 
 export type HoveredTreeOverlayActions = {
   setTreeInformation: (
     treeInformation: HoveredTreeOverlayState["treeInformation"]
   ) => void;
+  setIsExpanded: (isExpanded: HoveredTreeOverlayState["isExpanded"]) => void;
 };
 
 const initialState: HoveredTreeOverlayState = {
   treeInformation: null,
+  isExpanded: false,
 };
 
 const useHoveredTreeOverlayStore = create<
@@ -27,6 +30,9 @@ const useHoveredTreeOverlayStore = create<
     ...initialState,
     setTreeInformation: (treeInformation) => {
       set({ treeInformation });
+    },
+    setIsExpanded: (isExpanded) => {
+      set({ isExpanded });
     },
   };
 });
