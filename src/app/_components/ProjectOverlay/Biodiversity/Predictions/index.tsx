@@ -6,13 +6,17 @@ import BioGalleries from "../BioGalleries";
 import BioGalleryTrigger from "../BioGalleryTrigger";
 import { AnimatePresence, motion } from "framer-motion";
 import Animals from "./Animals";
+import useProjectOverlayStore from "../../store";
+import ErrorMessage from "../../ErrorMessage";
+
 const Predictions = () => {
+  const projectId = useProjectOverlayStore((state) => state.projectId);
   const { data, dataStatus, fetchData, page, setPage } =
     useBiodiversityPredictionsStore();
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [projectId, fetchData]);
 
   // If some data for a page is missing, set the page to null
   useEffect(() => {
@@ -51,14 +55,7 @@ const Predictions = () => {
     );
   }
   if (dataStatus === "error" || !data) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full p-4 gap-2 bg-muted rounded-xl">
-        <CircleAlert size={36} className="text-muted-foreground/50" />
-        <span className="text-muted-foreground text-sm">
-          Something went wrong...
-        </span>
-      </div>
-    );
+    return <ErrorMessage />;
   }
 
   return (

@@ -56,10 +56,14 @@ const useBiodiversityPredictionsStore = create<
           set({ dataStatus: "loading", data: null });
           return;
         }
-        if (projectData.id === get().projectId) {
+        // Do not fetch data if the projectId is the same and the data is already loaded
+        if (
+          projectData.id === get().projectId &&
+          get().dataStatus === "success"
+        ) {
           return;
         } else {
-          set({ projectId: projectData.id });
+          set({ projectId: projectData.id, dataStatus: "loading", data: null });
         }
         const treesData = fetchPlantsData(projectData.name, "Trees");
         const herbsData = fetchPlantsData(projectData.name, "Herbs");
