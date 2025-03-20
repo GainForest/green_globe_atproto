@@ -7,7 +7,7 @@ import {
   spinGlobe,
 } from "../utils";
 import useProjectOverlayStore from "../../ProjectOverlay/store";
-import useAppTabsStore from "@/app/_components/Header/AppTabs/store";
+import useAppTabsStore from "@/app/_components/Sidebar/AppTabs/store";
 import mapboxgl, { Map as MapInterface } from "mapbox-gl";
 
 const useMapbox = (mapContainerRef: React.RefObject<HTMLDivElement | null>) => {
