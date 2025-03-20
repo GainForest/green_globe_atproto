@@ -1,4 +1,4 @@
-import { DynamicLayer } from "@/app/_components/LayersOverlay/store/types";
+import { DynamicLayer } from "@/app/(map-routes)/_components/LayersOverlay/store/types";
 import { EMPTY_GEOJSON } from "@/constants";
 import { Map } from "mapbox-gl";
 

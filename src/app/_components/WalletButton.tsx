@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAppKitAccount, useAppKit } from "@reown/appkit/react";
 import { Loader2, User, Wallet } from "lucide-react";
 
-const ConnectWalletButton = () => {
+const WalletButton = () => {
   const { open } = useAppKit();
   const { address, status } = useAppKitAccount();
 
@@ -44,9 +44,9 @@ const ConnectWalletButton = () => {
         ? "Connecting..."
         : status === "disconnected"
         ? "Connect Wallet"
-        : address}
+        : address?.slice(0, 6) + "..." + address?.slice(-4)}
     </Button>
   );
 };
 
-export default ConnectWalletButton;
+export default WalletButton;

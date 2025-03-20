@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 
 import { headers } from "next/headers";
 import WagmiContextProvider from "./_contexts/wagmi";
+import Providers from "./_components/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +33,11 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-screen flex-col dark`}
       >
-        <WagmiContextProvider cookies={cookies}>
-          {children}
-        </WagmiContextProvider>
+        <Providers>
+          <WagmiContextProvider cookies={cookies}>
+            {children}
+          </WagmiContextProvider>
+        </Providers>
       </body>
     </html>
   );

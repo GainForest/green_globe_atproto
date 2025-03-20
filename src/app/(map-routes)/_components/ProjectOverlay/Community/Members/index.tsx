@@ -7,10 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Loading from "./loading";
 import ErrorMessage from "../../ErrorMessage";
 const Members = () => {
-  // TODO: Ask sharfy about getting members from the project
-  // const projectData = useProjectOverlayStore((state) => state.projectData);
-  // if (!projectData) return null;
-  // const members = projectData.communityMembers;
   const projectId = useProjectOverlayStore((state) => state.projectId);
   const { data, dataStatus, fetchData } = useCommunityMembersStore();
 

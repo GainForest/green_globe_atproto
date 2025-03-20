@@ -3,7 +3,7 @@
 import ProjectOverlay from "./ProjectOverlay";
 import LayersOverlay from "./LayersOverlay";
 import { AnimatePresence } from "framer-motion";
-import useAppTabsStore from "@/app/_components/Sidebar/AppTabs/store";
+import useAppTabsStore from "@/app/(map-routes)/_components/Sidebar/AppTabs/store";
 import SearchOverlay from "./SearchOverlay";
 const OverlayRenderer = () => {
   const appActiveTab = useAppTabsStore((state) => state.activeTab);

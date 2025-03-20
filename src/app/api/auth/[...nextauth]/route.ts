@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import credentialsProvider from "next-auth/providers/credentials";
 import {
   type SIWESession,
@@ -11,6 +11,11 @@ declare module "next-auth" {
   interface Session extends SIWESession {
     address: string;
     chainId: number;
+  }
+
+  interface User {
+    address?: string;
+    chainId?: number;
   }
 }
 
@@ -59,6 +64,8 @@ const providers = [
         if (isValid) {
           return {
             id: `${chainId}:${address}`,
+            address,
+            chainId: parseInt(chainId, 10),
           };
         }
 
@@ -70,14 +77,20 @@ const providers = [
   }),
 ];
 
-const handler = NextAuth({
-  // https://next-auth.js.org/configuration/providers/oauth
+export const authOptions: NextAuthOptions = {
   secret: nextAuthSecret,
   providers,
   session: {
     strategy: "jwt",
   },
   callbacks: {
+    jwt({ token, user }) {
+      if (user) {
+        token.address = user.address;
+        token.chainId = user.chainId;
+      }
+      return token;
+    },
     session({ session, token }) {
       if (!token.sub) {
         return session;
@@ -92,6 +105,7 @@ const handler = NextAuth({
       return session;
     },
   },
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

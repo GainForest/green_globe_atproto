@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { CommunityMember } from "./types";
-import useProjectOverlayStore from "@/app/_components/ProjectOverlay/store";
+import useProjectOverlayStore from "@/app/(map-routes)/_components/ProjectOverlay/store";
 import { fetchCommunityMembers } from "./utils";
 type Data = {
   members: CommunityMember[];

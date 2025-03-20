@@ -1,5 +1,5 @@
 import { Map } from "mapbox-gl";
-import { DynamicLayer } from "@/app/_components/LayersOverlay/store/types";
+import { DynamicLayer } from "@/app/(map-routes)/_components/LayersOverlay/store/types";
 
 const addShannonChoroplethSourceAndLayers = (map: Map, layer: DynamicLayer) => {
   if (!map.getSource(layer.name)) {

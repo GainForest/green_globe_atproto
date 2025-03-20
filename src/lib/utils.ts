@@ -48,3 +48,8 @@ export const groupBy = <T>(array: T[], key: keyof T): Record<string, T[]>[] => {
     [key]: groupedData.get(key),
   })) as Record<string, T[]>[];
 };
+
+export function truncateAddress(address: string): string {
+  if (!address) return "";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}

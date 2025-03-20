@@ -26,7 +26,7 @@ export const treesSource: GeoJSONSourceSpecification = {
   cluster: true,
   clusterMaxZoom: 15, // Max zoom to cluster points on
   clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
-}
+};
 
 export const clusteredTreesLayer: CircleLayerSpecification = {
   id: "clusteredTrees",
@@ -181,7 +181,6 @@ export const getTreePhotos = (
   if (tree?.tree_photo) {
     return [tree?.tree_photo];
   }
-  // TODO: Ask the question about following from Sharfy
   if (
     activeProject ==
       "40367dfcbafa0a8d1fa26ff481d6b2609536c0e14719f8e88060a9aee8c8ab0a" &&

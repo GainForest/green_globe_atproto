@@ -1,6 +1,6 @@
 import { Map } from "mapbox-gl";
 import { addMeasuredTreesSourceAndLayer } from "../measured-trees";
-import { DynamicLayer } from "@/app/_components/LayersOverlay/store/types";
+import { DynamicLayer } from "@/app/(map-routes)/_components/LayersOverlay/store/types";
 import addGeojsonPointSourceAndLayer from "./points";
 import addGeojsonLineSourceAndLayer from "./line";
 import addTMSTileSourceAndLayer from "./tms-tile";
