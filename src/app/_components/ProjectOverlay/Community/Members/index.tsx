@@ -1,19 +1,88 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import useProjectOverlayStore from "../../store";
-
+import useCommunityMembersStore from "./store";
+import { BadgeDollarSign, CircleAlert, UserCircle2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Loading from "./loading";
+import ErrorMessage from "../../ErrorMessage";
 const Members = () => {
-  const projectData = useProjectOverlayStore((state) => state.projectData);
-  if (!projectData) return null;
-  const members = projectData.communityMembers;
+  // TODO: Ask sharfy about getting members from the project
+  // const projectData = useProjectOverlayStore((state) => state.projectData);
+  // if (!projectData) return null;
+  // const members = projectData.communityMembers;
+  const projectId = useProjectOverlayStore((state) => state.projectId);
+  const { data, dataStatus, fetchData } = useCommunityMembersStore();
+
+  useEffect(() => {
+    fetchData();
+  }, [projectId, fetchData]);
+
+  if (dataStatus === "loading") return <Loading />;
+  if (dataStatus === "error") return <ErrorMessage />;
+
+  const { members } = data;
+
+  const sortedMembers = members.sort((a, b) => {
+    return (b.display_order ?? 0) - (a.display_order ?? 0);
+  });
+
   return (
     <div>
-      <p>
-        {members.length} member{members.length === 1 ? "" : "s"} from the local
-        communities {members.length === 1 ? "is" : "are"} registered to receive
-        financial benefits from this project.
-      </p>
-      <div className="flex flex-col gap-2"></div>
+      {sortedMembers.length === 0 ? (
+        <p className="bg-foreground/10 text-muted-foreground rounded-lg p-4 flex items-center gap-4">
+          <CircleAlert size={32} className="shrink-0 opacity-50" />
+          <span>
+            No member from local communities is registered to receive financial
+            benefits from this project.
+          </span>
+        </p>
+      ) : (
+        <>
+          <p className="bg-foreground/10 text-muted-foreground rounded-lg p-4 flex items-center gap-4">
+            <BadgeDollarSign size={32} className="shrink-0 opacity-50" />
+            <span>
+              <b className="text-foreground">
+                {sortedMembers.length} member
+                {sortedMembers.length === 1 ? "" : "s"}
+              </b>{" "}
+              from the local communities{" "}
+              {sortedMembers.length === 1 ? "is" : "are"} registered to receive
+              financial benefits from this project.
+            </span>
+          </p>
+          <div className="flex flex-col gap-2 mt-4">
+            {sortedMembers.map((member) => (
+              <div
+                className="flex flex-col divide-y bg-neutral-50 dark:bg-neutral-950 border border-border rounded-xl"
+                key={member.id}
+              >
+                <div className="p-4 flex items-center gap-4">
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src={member.profile_image_url || ""} />
+                    <AvatarFallback>
+                      <UserCircle2 className="w-10 h-10 opacity-20" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <p className="font-medium">
+                      {member.first_name} {member.last_name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {member.title}
+                    </p>
+                  </div>
+                </div>
+                {member.bio && (
+                  <div className="p-4 text-sm text-muted-foreground">
+                    {member.bio}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
