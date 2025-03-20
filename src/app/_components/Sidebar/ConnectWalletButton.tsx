@@ -19,7 +19,12 @@ const ConnectWalletButton = () => {
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
+      disabled={
+        status === undefined ||
+        status === "connecting" ||
+        status === "reconnecting"
+      }
       onClick={() => {
         open();
       }}

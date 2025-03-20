@@ -16,29 +16,32 @@ export async function GET(request: Request) {
     const sortOrder =
       searchParams.get("sortOrder")?.toUpperCase() === "DESC" ? "DESC" : "ASC";
 
-    // Get optional projectId filter
-    const projectId = searchParams.get("projectId");
-    const whereClause = projectId ? `WHERE project_id = '${projectId}'` : '';
-
     await ensureDatasetLocation();
     const bigquery = getBigQueryClient();
     const location = await ensureDatasetLocation();
 
-    // Build the query with pagination and optional filter
+    // Build the query with pagination
     const query = `
-      SELECT *
-      FROM \`ecocertain.green_globe_v2_development.users\`
-      ${whereClause}
+      SELECT 
+        id,
+        country,
+        description,
+        longDescription
+        endDate,
+        startDate,
+        objective,
+        lat,
+        lon
+      FROM \`ecocertain.green_globe_v2_development.project\`
       ORDER BY ${sortField} ${sortOrder}
       LIMIT ${pageSize}
       OFFSET ${offset}
     `;
 
-    // Query to get total count with optional filter
+    // Query to get total count
     const countQuery = `
       SELECT COUNT(*) as total
-      FROM \`ecocertain.green_globe_v2_development.users\`
-      ${whereClause}
+      FROM \`ecocertain.green_globe_v2_development.project\`
     `;
 
     // Run both queries in parallel
@@ -50,13 +53,13 @@ export async function GET(request: Request) {
       query: countQuery,
       location: location || undefined,
     });
-    const totalUsers = countResults[0].total;
-    const totalPages = Math.ceil(totalUsers / pageSize);
+    const totalProjects = countResults[0].total;
+    const totalPages = Math.ceil(totalProjects / pageSize);
 
     return NextResponse.json({
       success: true,
       pagination: {
-        total: totalUsers,
+        total: totalProjects,
         page,
         pageSize,
         totalPages,
