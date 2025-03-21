@@ -20,7 +20,7 @@ const Members = () => {
   const { members } = data;
 
   const sortedMembers = members.sort((a, b) => {
-    return (b.display_order ?? 0) - (a.display_order ?? 0);
+    return (a.display_order ?? Infinity) - (b.display_order ?? Infinity);
   });
 
   return (
