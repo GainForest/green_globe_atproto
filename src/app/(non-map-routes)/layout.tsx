@@ -1,11 +1,11 @@
 import React from "react";
 import ClientAuthBoundary from "./_components/ClientAuthBoundary";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth/next";
 import UnauthorizedPage from "./_components/UnauthorizedPage";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./_components/Sidebar";
 import { Main } from "./_components/Main";
+import { authOptions } from "../api/auth/options";
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   try {

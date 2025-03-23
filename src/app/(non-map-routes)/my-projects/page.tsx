@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth/next";
 import UnauthorizedPage from "../_components/UnauthorizedPage";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Container from "@/components/Container";
 import { Project } from "@/app/api/types";
+import { authOptions } from "@/app/api/auth/options";
 export default async function Page() {
   const session = await getServerSession(authOptions);
 
