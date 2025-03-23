@@ -1,4 +1,8 @@
-import { Project, ProjectDataApiResponse } from "./types";
+import {
+  Project,
+  ProjectDataApiResponse,
+  ProjectPolygonAPIResponse,
+} from "./types";
 
 export const fetchProjectData = async (projectId: string) => {
   const endpoint = `${process.env.NEXT_PUBLIC_GAINFOREST_ENDPOINT}/api/graphql`;
@@ -67,6 +71,19 @@ export const fetchProjectData = async (projectId: string) => {
     } else {
       return null;
     }
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const fetchProjectPolygon = async (awsCID: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_AWS_STORAGE}/${awsCID}`
+    );
+    const data: ProjectPolygonAPIResponse = await response.json();
+    return data;
   } catch (error) {
     console.error(error);
     return null;

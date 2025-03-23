@@ -49,8 +49,8 @@ const Predictions = () => {
   if (dataStatus === "loading") {
     return (
       <div className="flex flex-col gap-2">
-        <div className="w-full h-32 rounded-xl bg-muted animate-pulse"></div>
-        <div className="w-full h-32 rounded-xl bg-muted animate-pulse delay-500"></div>
+        <div className="w-full h-32 rounded-xl bg-foreground/10 animate-pulse"></div>
+        <div className="w-full h-32 rounded-xl bg-foreground/10 animate-pulse delay-500"></div>
       </div>
     );
   }

@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { Project, SiteAsset } from "./types";
-import { fetchProjectData } from "./utils";
+import { fetchProjectData, fetchProjectPolygon } from "./utils";
 import useMapStore from "../../Map/store";
+import bbox from "@turf/bbox";
 
 type ProjectSiteOption = {
   value: string;
@@ -131,7 +132,19 @@ const useProjectOverlayStore = create<
       const selectedSite = projectSites.find((site) => site.id === siteId);
       if (!selectedSite) return;
 
-      useMapStore.getState().setProjectPolygon(selectedSite.awsCID);
+      useMapStore.getState().setCurrentView("project");
+      fetchProjectPolygon(selectedSite.awsCID).then((data) => {
+        if (data === null) return;
+        const boundingBox = bbox(data).slice(0, 4) as [
+          number,
+          number,
+          number,
+          number
+        ];
+        useMapStore.getState().setMapBounds(boundingBox);
+        useMapStore.getState().setHighlightedPolygon(data);
+      });
+
       set({ activeSite: selectedSite });
     },
     setActiveTab: (tab) => {

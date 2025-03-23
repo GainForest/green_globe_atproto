@@ -1,16 +1,14 @@
-import { Project } from "../../ProjectOverlay/store/types";
 import { LayersAPIResponse, Layer } from "./types";
+import { toKebabCase } from "@/lib/utils";
 
-const cleanEndpoint = (endpoint: string) => {
+export const cleanEndpoint = (endpoint: string) => {
   return endpoint.replace(
-    "${process.env.AWS_STORAGE}",
-    process.env.NEXT_PUBLIC_AWS_STORAGE ?? ""
+    /\${process\.env\.(AWS_STORAGE|TITILER_ENDPOINT)}(\/)?/g,
+    ""
   );
 };
 
-export const fetchLayers = async (
-  projectData: Project | null
-): Promise<Layer[]> => {
+export const fetchLayers = async (): Promise<Layer[]> => {
   let layersData: Layer[] = [];
 
   try {
@@ -24,29 +22,35 @@ export const fetchLayers = async (
     return [];
   }
 
-  if (!projectData) {
-  }
-
-  // TODO: Add project layers, but couldn't find any project with layers.
-
-  //   if (projectData) {
-  //     const kebabCasedProjectName = toKebabCase(projectData.name);
-  //     const projectLayersResponse = await fetch(
-  //       `${process.env.NEXT_PUBLIC_AWS_STORAGE}/layers/${kebabCasedProjectName}/layerData.json`
-  //     );
-  //     const projectLayers = await projectLayersResponse.json();
-  //     console.log("projectLayers", projectLayers);
-  //     // const filteredProjectLayers = projectLayers.layers.filter(
-  //     //   (item) =>
-  //     //     !item.name.includes('DNA') && !item.name.includes('Raft Deployment')
-  //     // )
-  //    // layersData = [...layersData, ...filteredProjectLayers];
-  //   }
-
   layersData = layersData.map((layer) => ({
     ...layer,
     endpoint: cleanEndpoint(layer.endpoint),
   }));
 
   return layersData;
+};
+
+export const fetchProjectSpecificLayers = async (projectName: string) => {
+  const kebabCasedProjectName = toKebabCase(projectName);
+  try {
+    const projectLayerDataResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_AWS_STORAGE}/layers/${kebabCasedProjectName}/layerData.json`
+    );
+    const projectLayerData: {
+      layers: Layer[];
+    } | null = await projectLayerDataResponse.json();
+    const layers = projectLayerData?.layers ?? [];
+    return layers
+      .filter(
+        (layer) =>
+          !layer.name.includes("DNA") && !layer.name.includes("Raft Deployment")
+      )
+      .map((layer) => ({
+        ...layer,
+        endpoint: cleanEndpoint(layer.endpoint),
+      }));
+  } catch (error) {
+    console.error("Error fetching project specific layers", error);
+    return null;
+  }
 };

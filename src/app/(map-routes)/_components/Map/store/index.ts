@@ -1,28 +1,31 @@
 import { create } from "zustand";
-import { fetchMeasuredTreesShapefile, fetchPolygonByCID } from "./utils";
-import { MeasuredTreesGeoJSON } from "./types";
+import { fetchMeasuredTreesShapefile } from "./utils";
+import { MeasuredTreesGeoJSON, ProjectPolygonAPIResponse } from "./types";
 import { Map } from "mapbox-gl";
 
 export type MapState = {
-  projectPolygon: GeoJSON.FeatureCollection | null;
-  projectTrees: MeasuredTreesGeoJSON | null;
   currentView: "project";
+  projectTrees: MeasuredTreesGeoJSON | null;
+  mapBounds: [number, number, number, number] | null;
   mapRef: React.RefObject<Map | null> | null;
   mapLoaded: boolean;
+  highlightedPolygon: ProjectPolygonAPIResponse | null;
 };
 
 export type MapActions = {
-  setProjectPolygon: (awsCID: string | null) => void;
+  setMapBounds: (bounds: [number, number, number, number] | null) => void;
   setProjectTrees: (projectName: string | null) => void;
   setCurrentView: (currentView: "project") => void;
   setMapRef: (mapRef: React.RefObject<Map | null>) => void;
   setMapLoaded: (mapLoaded: boolean) => void;
+  setHighlightedPolygon: (polygon: ProjectPolygonAPIResponse | null) => void;
 };
 
 const initialState: MapState = {
-  projectPolygon: null,
-  projectTrees: null,
   currentView: "project",
+  projectTrees: null,
+  highlightedPolygon: null,
+  mapBounds: null,
   mapRef: null,
   mapLoaded: false,
 };
@@ -30,13 +33,8 @@ const initialState: MapState = {
 const useMapStore = create<MapState & MapActions>((set) => {
   return {
     ...initialState,
-    setProjectPolygon: async (awsCID) => {
-      if (!awsCID) {
-        set({ projectPolygon: null });
-        return;
-      }
-      const polygon = await fetchPolygonByCID(awsCID);
-      set({ projectPolygon: polygon });
+    setMapBounds: (bounds) => {
+      set({ mapBounds: bounds });
     },
     setProjectTrees: async (projectName) => {
       if (!projectName) {
@@ -60,6 +58,9 @@ const useMapStore = create<MapState & MapActions>((set) => {
     },
     setMapLoaded: (mapLoaded) => {
       set({ mapLoaded });
+    },
+    setHighlightedPolygon: (highlightedPolygon) => {
+      set({ highlightedPolygon });
     },
   };
 });

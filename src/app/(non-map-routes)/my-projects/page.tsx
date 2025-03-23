@@ -1,7 +1,8 @@
 import { getServerSession } from "next-auth/next";
 import UnauthorizedPage from "../_components/UnauthorizedPage";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
+import Container from "@/components/Container";
+import { Project } from "@/app/api/types";
 export default async function Page() {
   const session = await getServerSession(authOptions);
 
@@ -14,14 +15,34 @@ export default async function Page() {
     );
   }
 
+  // const address = session.address;
+
+  const projects: Project[] = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        {
+          id: "1",
+          country: "United States",
+          description: "Project 1",
+          endDate: "2021-01-01",
+          startDate: "2020-01-01",
+          objective: "Project 1",
+          lat: "37.774929",
+          lon: "-122.419418",
+        },
+      ]);
+    }, 1000);
+  });
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">My Projects</h1>
-      <div className="bg-muted rounded-lg p-4">
-        <p>Connected Address: {session.address}</p>
-        <p>Chain ID: {session.chainId}</p>
-      </div>
-      {/* Add your projects content here */}
-    </div>
+    <Container>
+      {projects.map((project) => (
+        <div key={project.id}>
+          <h2>{project.country}</h2>
+          <p>{project.description}</p>
+          <p>{project.endDate}</p>
+          <p>{project.startDate}</p>
+        </div>
+      ))}
+    </Container>
   );
 }

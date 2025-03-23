@@ -32,6 +32,7 @@ const addNamedSource = (map: Map, layer: DynamicLayer) => {
       addMeasuredTreesSourceAndLayer(map);
     }
   }
+
   map.moveLayer(layer.name, "highlightedSiteOutline");
   map.moveLayer("highlightedSiteOutline", "projectMarkerLayer");
 };

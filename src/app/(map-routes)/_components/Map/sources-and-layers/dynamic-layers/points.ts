@@ -5,7 +5,9 @@ import { Map } from "mapbox-gl";
 const addGeojsonPointSourceAndLayer = async (map: Map, layer: DynamicLayer) => {
   let pointsGeojson = EMPTY_GEOJSON;
   try {
-    const res = await fetch(layer.endpoint);
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_AWS_STORAGE}/${layer.endpoint}`
+    );
     pointsGeojson = await res.json();
   } catch (error) {
     console.error("Error fetching points geojson", error);

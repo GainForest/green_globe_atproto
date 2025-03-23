@@ -4,17 +4,19 @@ import "./styles.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useHoveredTreeInfo } from "./hooks/useHoveredTreeInfo";
-import useProjectPolygon from "./hooks/useProjectPolygon";
 import useProjectTrees from "./hooks/useProjectTrees";
 import useHistoricalSatelliteLayer from "./hooks/useHistoricalSatelliteLayer";
 import useMapbox from "./hooks/useMapbox";
 import useDynamicLayers from "./hooks/useDynamicLayers";
+import useBounds from "./hooks/useBounds";
+import useHighlightedPolygon from "./hooks/useHighlightedPolygon";
 
 const Map = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
   useMapbox(mapContainerRef);
-  useProjectPolygon();
+  useBounds();
+  useHighlightedPolygon();
   useProjectTrees();
   useHoveredTreeInfo();
   useHistoricalSatelliteLayer();

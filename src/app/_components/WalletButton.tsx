@@ -8,6 +8,12 @@ const WalletButton = () => {
   const { open } = useAppKit();
   const { address, status } = useAppKitAccount();
 
+  const isConnecting =
+    status === undefined ||
+    status === "connecting" ||
+    status === "reconnecting";
+  const isConnected = status === "connected" && address !== undefined;
+
   // Only render on client side
   if (typeof window === "undefined") {
     return (
@@ -20,31 +26,23 @@ const WalletButton = () => {
   return (
     <Button
       variant="outline"
-      disabled={
-        status === undefined ||
-        status === "connecting" ||
-        status === "reconnecting"
-      }
+      disabled={isConnecting}
       onClick={() => {
         open();
       }}
     >
-      {status === undefined ||
-      status === "connecting" ||
-      status === "reconnecting" ? (
+      {isConnecting ? (
         <Loader2 className="animate-spin" />
-      ) : status === "disconnected" ? (
-        <Wallet />
-      ) : (
+      ) : isConnected ? (
         <User />
+      ) : (
+        <Wallet />
       )}
-      {status === undefined ||
-      status === "connecting" ||
-      status === "reconnecting"
+      {isConnecting
         ? "Connecting..."
-        : status === "disconnected"
-        ? "Connect Wallet"
-        : address?.slice(0, 6) + "..." + address?.slice(-4)}
+        : isConnected
+        ? address?.slice(0, 6) + "..." + address?.slice(-4)
+        : "Connect Wallet"}
     </Button>
   );
 };

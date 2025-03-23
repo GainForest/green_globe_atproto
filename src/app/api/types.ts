@@ -7,3 +7,14 @@ export interface BigQueryError extends Error {
     message?: string;
   }>;
 }
+
+export type Project = {
+  id: string;
+  country: string;
+  description: string;
+  endDate: string;
+  startDate: string;
+  objective: string;
+  lat: string;
+  lon: string;
+};

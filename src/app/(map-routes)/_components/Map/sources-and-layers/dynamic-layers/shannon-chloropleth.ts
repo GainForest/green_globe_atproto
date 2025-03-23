@@ -5,7 +5,7 @@ const addShannonChoroplethSourceAndLayers = (map: Map, layer: DynamicLayer) => {
   if (!map.getSource(layer.name)) {
     map.addSource(layer.name, {
       type: "geojson",
-      data: layer.endpoint,
+      data: `${process.env.NEXT_PUBLIC_AWS_STORAGE}/${layer.endpoint}`,
     });
   }
 

@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Layers } from "lucide-react";
+import { Layers, LocateFixed } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import useBlurAnimate from "../hooks/useBlurAnimate";
@@ -8,25 +8,67 @@ import HistoricalSatelliteControls from "./HistoricalSatelliteControls";
 import useLayersOverlayStore from "./store";
 import useProjectOverlayStore from "../ProjectOverlay/store";
 import { toKebabCase } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import QuickTooltip from "@/components/ui/quick-tooltip";
+import useMapStore from "../Map/store";
 const LayersOverlay = () => {
   const { animate, onAnimationComplete } = useBlurAnimate(
     { opacity: 1, scale: 1, filter: "blur(0px)" },
     { opacity: 1, scale: 1, filter: "unset" }
   );
+
   const projectData = useProjectOverlayStore((state) => state.projectData);
   const categorizedDynamicLayers = useLayersOverlayStore(
     (state) => state.categorizedDynamicLayers
   );
-  const setCategorizedLayers = useLayersOverlayStore(
-    (actions) => actions.setCategorizedLayers
+  const fetchCategorizedDynamicLayers = useLayersOverlayStore(
+    (actions) => actions.fetchCategorizedDynamicLayers
   );
   const setDynamicLayerVisibility = useLayersOverlayStore(
     (actions) => actions.setDynamicLayerVisibility
   );
 
+  const projectSpecificLayers = useLayersOverlayStore(
+    (state) => state.projectSpecificLayers
+  );
+  const fetchProjectSpecificLayers = useLayersOverlayStore(
+    (actions) => actions.fetchProjectSpecificLayers
+  );
+  const setProjectSpecificLayerVisibility = useLayersOverlayStore(
+    (actions) => actions.setProjectSpecificLayerVisibility
+  );
+
+  const setMapView = useMapStore((actions) => actions.setCurrentView);
+  const setMapBounds = useMapStore((actions) => actions.setMapBounds);
+
   useEffect(() => {
-    setCategorizedLayers(projectData);
+    if (categorizedDynamicLayers.length === 0) {
+      fetchCategorizedDynamicLayers();
+    }
+  }, [categorizedDynamicLayers]);
+
+  useEffect(() => {
+    fetchProjectSpecificLayers();
   }, [projectData]);
+
+  const handleZoomToProjectSpecificLayer = useCallback(
+    (layerEndpoint: string) => {
+      setMapView("project");
+      fetch(
+        `https://4dmyvh57a1.execute-api.us-east-1.amazonaws.com/cog/info?url=${process.env.NEXT_PUBLIC_AWS_STORAGE}/${layerEndpoint}`
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          if (!data) return;
+          if (!("bounds" in data)) return;
+          if (!Array.isArray(data.bounds)) return;
+          setMapBounds(data.bounds as [number, number, number, number]);
+        });
+    },
+    [setMapView, setMapBounds]
+  );
 
   return (
     <motion.div
@@ -75,6 +117,55 @@ const LayersOverlay = () => {
           </div>
         );
       })}
+      {projectSpecificLayers.status === "loading" ? (
+        <div className="flex flex-col gap-2">
+          <div className="w-full h-12 bg-foreground/10 animate-pulse rounded-xl"></div>
+          <div className="w-full h-12 bg-foreground/10 animate-pulse rounded-xl delay-500"></div>
+          <div className="w-full h-12 bg-foreground/10 animate-pulse rounded-xl delay-1000"></div>
+        </div>
+      ) : projectSpecificLayers.status === "success" &&
+        projectSpecificLayers.layers ? (
+        <div className="mb-6">
+          <h3 className="text-sm text-muted-foreground font-semibold mb-1 capitalize">
+            Project Specific Layers
+          </h3>
+          <div className="text-sm flex flex-col divide-y bg-neutral-50 dark:bg-neutral-950 border border-border rounded-xl">
+            {projectSpecificLayers.layers.map((layer) => {
+              const id = toKebabCase(layer.name);
+              return (
+                <div className="flex items-center justify-between p-4" key={id}>
+                  <Label htmlFor={id}>{layer.name}</Label>
+                  <div className="flex items-center gap-2">
+                    {layer.visible && (
+                      <QuickTooltip tooltipContent={"Zoom to layer in map"}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() =>
+                            handleZoomToProjectSpecificLayer(layer.endpoint)
+                          }
+                        >
+                          <LocateFixed size={16} />
+                        </Button>
+                      </QuickTooltip>
+                    )}
+                    <Switch
+                      id={id}
+                      checked={layer.visible}
+                      onCheckedChange={(value) => {
+                        setProjectSpecificLayerVisibility(layer.name, value);
+                        if (value) {
+                          handleZoomToProjectSpecificLayer(layer.endpoint);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </motion.div>
   );
 };

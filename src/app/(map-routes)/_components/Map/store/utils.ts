@@ -7,11 +7,9 @@ import {
   TreeFeature,
 } from "./types";
 
-export const fetchPolygonByCID = async (cid: string) => {
+export const fetchPolygonByURL = async (url: string) => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_AWS_STORAGE}/${cid}`
-    );
+    const response = await fetch(url);
     const data: ProjectPolygonAPIResponse = await response.json();
     return data;
   } catch (error) {

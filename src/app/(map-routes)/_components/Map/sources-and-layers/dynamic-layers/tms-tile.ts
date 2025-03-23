@@ -4,7 +4,7 @@ const addTMSTileSourceAndLayer = (
   map: Map,
   layer: { name: string; type: string; endpoint: string }
 ) => {
-  map.addSource(layer.endpoint, {
+  map.addSource(`${process.env.NEXT_PUBLIC_AWS_STORAGE}/${layer.endpoint}`, {
     type: "raster",
     tiles: [layer.endpoint],
     tileSize: 256, // Tile size, usually 256 or 512

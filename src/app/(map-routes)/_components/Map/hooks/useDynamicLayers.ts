@@ -11,16 +11,19 @@ const useDynamicLayers = () => {
   const categorizedDynamicLayers = useLayersOverlayStore(
     (state) => state.categorizedDynamicLayers
   );
+  const projectSpecificLayers = useLayersOverlayStore(
+    (state) => state.projectSpecificLayers
+  );
+
   const flatMapLayers = useMemo(() => {
-    const arr: DynamicLayer[] = [];
+    let arr: DynamicLayer[] = [];
     categorizedDynamicLayers.forEach((category) => {
       const layers = category[Object.keys(category)[0]];
-      layers.forEach((layer) => {
-        arr.push(layer);
-      });
+      arr = [...arr, ...structuredClone(layers)];
     });
+    arr = [...arr, ...structuredClone(projectSpecificLayers.layers ?? [])];
     return arr;
-  }, [categorizedDynamicLayers]);
+  }, [categorizedDynamicLayers, projectSpecificLayers]);
 
   useEffect(() => {
     const map = mapRef?.current;

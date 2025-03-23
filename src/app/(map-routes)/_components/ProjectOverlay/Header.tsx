@@ -19,68 +19,73 @@ import { Project } from "./store/types";
 
 const TabButton = ({
   children,
-  tooltipContent,
+  label,
   isActive,
   onClick,
   disabled,
 }: {
   children: React.ReactNode;
-  tooltipContent: string;
+  label?: string;
   isActive: boolean;
   onClick?: () => void;
   disabled?: boolean;
 }) => {
   return (
-    <QuickTooltip tooltipContent={tooltipContent}>
+    <QuickTooltip tooltipContent={label}>
       <Button
         variant={isActive ? "default" : "secondary"}
-        className="w-full"
+        className="w-full flex flex-col gap-1 items-center justify-center h-auto text-xs whitespace-normal"
+        style={{
+          fontSize: "0.6rem",
+          lineHeight: "0.75rem",
+        }}
         onClick={onClick}
         disabled={disabled}
       >
         {children}
+        {label && <span className="font-bold w-full truncate">{label}</span>}
       </Button>
     </QuickTooltip>
   );
 };
 
 const TABS_CONFIG: {
-  tooltipContent: string;
+  label: string;
   icon: React.FC<LucideProps>;
   id: Exclude<ProjectOverlayState["activeTab"], undefined>;
 }[] = [
   {
-    tooltipContent: "Project Info",
+    label: "Project Info",
     icon: Info,
     id: "info" as const,
   },
   {
-    tooltipContent: "Ask AI Assistant",
-    icon: MessageCircleQuestion,
-    id: "ask-ai" as const,
-  },
-  {
-    tooltipContent: "Biodiversity",
-    icon: Leaf,
-    id: "biodiversity" as const,
-  },
-  {
-    tooltipContent: "Media",
-    icon: ImagePlay,
-    id: "media" as const,
-  },
-  {
-    tooltipContent: "Remote Sensing Analysis",
-    icon: Satellite,
-    id: "remote-sensing-analysis" as const,
-  },
-  {
-    tooltipContent: "Community",
+    label: "Community",
     icon: Users2,
     id: "community" as const,
   },
   {
-    tooltipContent: "Logbook",
+    label: "Biodiversity",
+    icon: Leaf,
+    id: "biodiversity" as const,
+  },
+  {
+    label: "AI Assistant",
+    icon: MessageCircleQuestion,
+    id: "ask-ai" as const,
+  },
+  {
+    label: "Media",
+    icon: ImagePlay,
+    id: "media" as const,
+  },
+  {
+    label: "Remote Sensing Analysis",
+    icon: Satellite,
+    id: "remote-sensing-analysis" as const,
+  },
+  {
+    label: "Logbook",
     icon: FileClock,
     id: "logbook" as const,
   },
@@ -93,18 +98,14 @@ const Tabs = () => {
       {TABS_CONFIG.map((tab) => (
         <TabButton
           key={tab.id}
-          tooltipContent={tab.tooltipContent}
+          label={tab.label}
           isActive={activeTab === tab.id}
           onClick={() => setActiveTab(tab.id)}
         >
           <tab.icon size={16} />
         </TabButton>
       ))}
-      <TabButton
-        tooltipContent="Connect wallet to edit project"
-        isActive={false}
-        disabled
-      >
+      <TabButton isActive={false} disabled>
         <PencilOff size={16} />
       </TabButton>
     </div>
