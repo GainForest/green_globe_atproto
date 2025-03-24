@@ -33,17 +33,20 @@ type ProjectOverlayStateCatalog = {
 type ProjectOverlayStateVariant =
   ProjectOverlayStateCatalog[keyof ProjectOverlayStateCatalog];
 
+export const PROJECT_OVERLAY_TABS = [
+  "info",
+  "ask-ai",
+  "biodiversity",
+  "media",
+  "remote-sensing-analysis",
+  "community",
+  "logbook",
+  "edit",
+] as const;
+
 export type ProjectOverlayState = {
   projectId: string | undefined;
-  activeTab:
-    | "info"
-    | "ask-ai"
-    | "biodiversity"
-    | "media"
-    | "remote-sensing-analysis"
-    | "community"
-    | "logbook"
-    | "edit";
+  activeTab: (typeof PROJECT_OVERLAY_TABS)[number];
 } & ProjectOverlayStateVariant;
 
 export type ProjectOverlayActions = {
