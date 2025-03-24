@@ -124,7 +124,8 @@ const LayersOverlay = () => {
           <div className="w-full h-12 bg-foreground/10 animate-pulse rounded-xl delay-1000"></div>
         </div>
       ) : projectSpecificLayers.status === "success" &&
-        projectSpecificLayers.layers ? (
+        projectSpecificLayers.layers &&
+        projectSpecificLayers.layers.length > 0 ? (
         <div className="mb-6">
           <h3 className="text-sm text-muted-foreground font-semibold mb-1 capitalize">
             Project Specific Layers
