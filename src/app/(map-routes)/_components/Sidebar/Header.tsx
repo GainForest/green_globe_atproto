@@ -2,19 +2,14 @@
 
 import React from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
-import { useAppKitAccount, useAppKit } from "@reown/appkit/react";
-import { User2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
-const WalletButton = dynamic(() => import("@/app/_components/WalletButton"), {
-  ssr: false,
-});
+// const WalletButton = dynamic(() => import("@/app/_components/WalletButton"), {
+//   ssr: false,
+// });
 
 const Header = () => {
-  const { address } = useAppKitAccount();
-  const { open } = useAppKit();
+  // const { address } = useAppKitAccount();
+  // const { open } = useAppKit();
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -27,7 +22,9 @@ const Header = () => {
         />
         <span className="font-bold text-lg">GainForest</span>
       </div>
-      {address ? (
+
+      {/* Commenting this code to temporarily remove it */}
+      {/* {address ? (
         <div className="flex items-center gap-2">
           <Link href="/my-projects">
             <Button variant={"ghost"}>My Projects</Button>
@@ -38,7 +35,7 @@ const Header = () => {
         </div>
       ) : (
         <WalletButton />
-      )}
+      )} */}
     </div>
   );
 };

@@ -5,10 +5,6 @@ import {
   Info,
   Leaf,
   MessageCircleQuestion,
-  PencilOff,
-  Satellite,
-  FileClock,
-  ImagePlay,
   LucideProps,
   Users2,
 } from "lucide-react";
@@ -74,27 +70,34 @@ const TABS_CONFIG: {
     icon: MessageCircleQuestion,
     id: "ask-ai" as const,
   },
-  {
-    label: "Media",
-    icon: ImagePlay,
-    id: "media" as const,
-  },
-  {
-    label: "Remote Sensing Analysis",
-    icon: Satellite,
-    id: "remote-sensing-analysis" as const,
-  },
-  {
-    label: "Logbook",
-    icon: FileClock,
-    id: "logbook" as const,
-  },
+  // {
+  //   label: "Media",
+  //   icon: ImagePlay,
+  //   id: "media" as const,
+  // },
+  // {
+  //   label: "Remote Sensing Analysis",
+  //   icon: Satellite,
+  //   id: "remote-sensing-analysis" as const,
+  // },
+  // {
+  //   label: "Logbook",
+  //   icon: FileClock,
+  //   id: "logbook" as const,
+  // },
 ];
 const Tabs = () => {
   const activeTab = useProjectOverlayStore((state) => state.activeTab);
   const setActiveTab = useProjectOverlayStore((state) => state.setActiveTab);
+
+  const isMaximized = useProjectOverlayStore((state) => state.isMaximized);
   return (
-    <div className="grid grid-cols-4 gap-2 mt-4">
+    <div
+      className={cn(
+        "grid gap-2 mt-4",
+        isMaximized ? "grid-cols-8" : "grid-cols-4"
+      )}
+    >
       {TABS_CONFIG.map((tab) => (
         <TabButton
           key={tab.id}
@@ -105,9 +108,9 @@ const Tabs = () => {
           <tab.icon size={16} />
         </TabButton>
       ))}
-      <TabButton isActive={false} disabled>
+      {/* <TabButton isActive={false} disabled>
         <PencilOff size={16} />
-      </TabButton>
+      </TabButton> */}
     </div>
   );
 };

@@ -27,7 +27,7 @@ const ProjectSitesSection = () => {
           options={projectSitesOptions}
           value={activeSite?.id}
           onChange={handleProjectSiteChange}
-          className="flex-1"
+          className="flex-1 max-w-[300px]"
           searchIn="label"
         />
       ) : (

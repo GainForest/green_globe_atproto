@@ -9,17 +9,35 @@ import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import useSidebarStore from "./store";
 import { cn } from "@/lib/utils";
+import useProjectOverlayStore from "../ProjectOverlay/store";
+import useAppTabsStore from "./AppTabs/store";
+
+const SIDEBAR_WIDTH = 500;
+
 const Sidebar = () => {
   const isOpen = useSidebarStore((state) => state.isOpen);
   const setIsOpen = useSidebarStore((state) => state.setIsOpen);
+
+  const isMaximized = useProjectOverlayStore((state) => state.isMaximized);
+  const activeAppTab = useAppTabsStore((state) => state.activeTab);
+
   return (
     <motion.div
       className="fixed top-2 left-2 bottom-2 flex items-start gap-2"
-      initial={{ opacity: 0, x: -500 }}
-      animate={{ opacity: 1, x: isOpen ? 0 : -500 }}
+      initial={{ opacity: 0, x: -SIDEBAR_WIDTH }}
+      animate={{ opacity: 1, x: isOpen ? 0 : -SIDEBAR_WIDTH }}
       transition={{ duration: 0.3 }}
     >
-      <div className="w-[500px] h-full p-0">
+      <motion.div
+        className="h-full p-0"
+        animate={{
+          // maxWidth: isMaximized ? "50vw" : `${SIDEBAR_WIDTH}px`,
+          width:
+            isMaximized && activeAppTab === "project"
+              ? "50vw"
+              : `${SIDEBAR_WIDTH}px`,
+        }}
+      >
         <UIBase
           className="w-full h-full p-0"
           innerClassName="flex flex-col w-full h-full p-0 overflow-scroll"
@@ -32,7 +50,7 @@ const Sidebar = () => {
             <OverlayRenderer />
           </div>
         </UIBase>
-      </div>
+      </motion.div>
       <div className="h-full flex items-center justify-center">
         <button
           className="group rounded-full mt-4 h-80 w-8 flex items-center justify-center shadow-sm bg-transparent"

@@ -48,6 +48,7 @@ export const PROJECT_OVERLAY_TABS = [
 export type ProjectOverlayState = {
   projectId: string | undefined;
   activeTab: (typeof PROJECT_OVERLAY_TABS)[number];
+  isMaximized: boolean;
 } & ProjectOverlayStateVariant;
 
 export type ProjectOverlayActions = {
@@ -55,6 +56,7 @@ export type ProjectOverlayActions = {
   setActiveSite: (siteId: string) => void;
   setActiveTab: (tab: ProjectOverlayState["activeTab"]) => void;
   resetState: () => void;
+  setIsMaximized: (isMaximized: ProjectOverlayState["isMaximized"]) => void;
 };
 
 const initialState: ProjectOverlayState = {
@@ -64,6 +66,7 @@ const initialState: ProjectOverlayState = {
   allSitesOptions: null,
   activeSite: null,
   activeTab: "info",
+  isMaximized: false,
 };
 
 const useProjectOverlayStore = create<
@@ -162,6 +165,9 @@ const useProjectOverlayStore = create<
     },
     setActiveTab: (tab) => {
       set({ activeTab: tab });
+    },
+    setIsMaximized: (isMaximized) => {
+      set({ isMaximized });
     },
     resetState: () => set(initialState),
   };

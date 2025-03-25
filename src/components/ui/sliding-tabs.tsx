@@ -83,8 +83,10 @@ export const Underlay = ({
   const [tabElements, setTabElements] = useState<Record<string, HTMLElement>>(
     {}
   );
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const containerResizeObserverRef = useRef<ResizeObserver | null>(null);
 
-  // Use a simpler approach to find tab elements
+  // Find and track tab elements
   useEffect(() => {
     const findTabElements = () => {
       const container = underlayRef.current?.parentElement;
@@ -101,15 +103,14 @@ export const Underlay = ({
       setTabElements(elements);
     };
 
-    // Find elements immediately and after a short delay to ensure DOM is ready
+    // Find elements immediately
     findTabElements();
-    const timeout = setTimeout(findTabElements, 50);
 
-    // Also set up a mutation observer for dynamic changes
-    const observer = new MutationObserver(findTabElements);
+    // Set up mutation observer for DOM changes
+    const mutationObserver = new MutationObserver(findTabElements);
     const container = underlayRef.current?.parentElement;
     if (container) {
-      observer.observe(container, {
+      mutationObserver.observe(container, {
         childList: true,
         subtree: true,
         attributes: true,
@@ -117,13 +118,19 @@ export const Underlay = ({
       });
     }
 
+    // Set up resize observer for the container
+    containerResizeObserverRef.current = new ResizeObserver(findTabElements);
+    if (container) {
+      containerResizeObserverRef.current.observe(container);
+    }
+
     return () => {
-      clearTimeout(timeout);
-      observer.disconnect();
+      mutationObserver.disconnect();
+      containerResizeObserverRef.current?.disconnect();
     };
   }, []);
 
-  // Update underlay position when active tab changes
+  // Set up resize observers for tab elements
   useEffect(() => {
     const updateUnderlay = () => {
       const underlay = underlayRef.current;
@@ -140,9 +147,25 @@ export const Underlay = ({
       underlay.style.opacity = "1";
     };
 
+    // Clean up previous resize observer
+    if (resizeObserverRef.current) {
+      resizeObserverRef.current.disconnect();
+    }
+
+    // Create new resize observer for all tab elements
+    resizeObserverRef.current = new ResizeObserver(updateUnderlay);
+
+    // Observe all tab elements
+    Object.values(tabElements).forEach((element) => {
+      resizeObserverRef.current?.observe(element);
+    });
+
+    // Initial update
     updateUnderlay();
-    window.addEventListener("resize", updateUnderlay);
-    return () => window.removeEventListener("resize", updateUnderlay);
+
+    return () => {
+      resizeObserverRef.current?.disconnect();
+    };
   }, [activeKey, tabElements]);
 
   return (

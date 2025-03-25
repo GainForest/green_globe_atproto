@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import Splash from "./Splash";
 import Loading from "./loading";
 import Error from "./error";
@@ -16,6 +16,10 @@ const ProjectOverlay = () => {
     (state) => state.projectDataStatus
   );
   const projectData = useProjectOverlayStore((state) => state.projectData);
+  const isMaximized = useProjectOverlayStore((state) => state.isMaximized);
+  const setIsMaximized = useProjectOverlayStore(
+    (state) => state.setIsMaximized
+  );
   const { animate, onAnimationComplete } = useBlurAnimate(
     { opacity: 1, scale: 1, filter: "blur(0px)" },
     { opacity: 1, scale: 1, filter: "unset" }
@@ -52,10 +56,10 @@ const ProjectOverlay = () => {
 
       <div className="flex items-center gap-1 absolute top-2 right-2 z-10">
         <button
-          // onClick={() => setActiveProjectId(undefined)}
+          onClick={() => setIsMaximized(!isMaximized)}
           className="rounded-full p-2 flex items-center justify-center bg-neutral-800/70 backdrop-blur-lg text-white shadow-sm"
         >
-          <Maximize2 size={16} />
+          {isMaximized ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
         </button>
       </div>
     </motion.div>
