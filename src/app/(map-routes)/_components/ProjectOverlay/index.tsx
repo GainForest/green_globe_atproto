@@ -4,13 +4,12 @@ import { motion } from "framer-motion";
 import { Maximize2, Minimize2 } from "lucide-react";
 import Splash from "./Splash";
 import Loading from "./loading";
-import Error from "./error";
 import Header from "./Header";
 import TabMapper from "./TabMapper";
 import useProjectOverlayStore from "./store";
 import { getProjectSplashImageURLFromProject } from "./store/utils";
 import useBlurAnimate from "../hooks/useBlurAnimate";
-
+import ErrorMessage from "./ErrorMessage";
 const ProjectOverlay = () => {
   const projectDataStatus = useProjectOverlayStore(
     (state) => state.projectDataStatus
@@ -42,7 +41,18 @@ const ProjectOverlay = () => {
         {projectDataStatus === "loading" ? (
           <Loading />
         ) : projectDataStatus === "error" || projectData === null ? (
-          <Error />
+          <div className="p-4">
+            <ErrorMessage
+              message={
+                <p className="flex flex-col items-center text-center">
+                  <span className="text-lg font-bold">
+                    Failed to load project.
+                  </span>
+                  <span>Please check URL and retry.</span>
+                </p>
+              }
+            />
+          </div>
         ) : (
           <div className="w-full relative flex flex-col flex-1">
             <Splash imageURL={splashImageURL} projectDetails={projectData} />
@@ -54,14 +64,16 @@ const ProjectOverlay = () => {
         )}
       </div>
 
-      <div className="flex items-center gap-1 absolute top-2 right-2 z-10">
-        <button
-          onClick={() => setIsMaximized(!isMaximized)}
-          className="rounded-full p-2 flex items-center justify-center bg-neutral-800/70 backdrop-blur-lg text-white shadow-sm"
-        >
-          {isMaximized ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-        </button>
-      </div>
+      {projectData && (
+        <div className="flex items-center gap-1 absolute top-2 right-2 z-10">
+          <button
+            onClick={() => setIsMaximized(!isMaximized)}
+            className="rounded-full p-2 flex items-center justify-center bg-neutral-800/70 backdrop-blur-lg text-white shadow-sm"
+          >
+            {isMaximized ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 };

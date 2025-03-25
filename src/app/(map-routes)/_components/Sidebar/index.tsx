@@ -20,22 +20,20 @@ const Sidebar = () => {
 
   const isMaximized = useProjectOverlayStore((state) => state.isMaximized);
   const activeAppTab = useAppTabsStore((state) => state.activeTab);
+  const computedSidebarWidth =
+    isMaximized && activeAppTab === "project" ? "50vw" : `${SIDEBAR_WIDTH}px`;
 
   return (
     <motion.div
       className="fixed top-2 left-2 bottom-2 flex items-start gap-2"
-      initial={{ opacity: 0, x: -SIDEBAR_WIDTH }}
-      animate={{ opacity: 1, x: isOpen ? 0 : -SIDEBAR_WIDTH }}
+      initial={{ opacity: 0, x: `-${computedSidebarWidth}` }}
+      animate={{ opacity: 1, x: isOpen ? 0 : `-${computedSidebarWidth}` }}
       transition={{ duration: 0.3 }}
     >
       <motion.div
         className="h-full p-0"
         animate={{
-          // maxWidth: isMaximized ? "50vw" : `${SIDEBAR_WIDTH}px`,
-          width:
-            isMaximized && activeAppTab === "project"
-              ? "50vw"
-              : `${SIDEBAR_WIDTH}px`,
+          width: computedSidebarWidth,
         }}
       >
         <UIBase
