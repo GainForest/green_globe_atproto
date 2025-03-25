@@ -34,6 +34,7 @@ const useReadViews = () => {
     biodiversityTab,
     biodiversityPredictionsTab,
     communityTab,
+    normalizeViews,
   ]);
 
   return views;
