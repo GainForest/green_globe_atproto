@@ -24,7 +24,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex items-center gap-2 p-1">
           <Image
-            src="/logo.webp"
+            src="/assets/logo.webp"
             className="border border-border rounded-md"
             alt="logo"
             width={32}
