@@ -1,0 +1,24 @@
+import { PROJECT_OVERLAY_TABS } from "../../ProjectOverlay/store";
+import { AppTabsState } from "../../Sidebar/AppTabs/store";
+
+export type RouteStateCatalog = {
+  home: {
+    _routeType: "home";
+    config: null;
+  };
+  search: {
+    _routeType: "search";
+    config: {
+      q: string | null;
+    };
+  };
+  project: {
+    _routeType: "project";
+    config: {
+      "app-tab": AppTabsState["activeTab"] | null;
+      "project-id": string;
+      "site-id": string | null;
+      views: [(typeof PROJECT_OVERLAY_TABS)[number], ...string[]];
+    };
+  };
+};

@@ -3,6 +3,7 @@ import { Project, SiteAsset } from "./types";
 import { fetchProjectData, fetchProjectPolygon } from "./utils";
 import useMapStore from "../../Map/store";
 import bbox from "@turf/bbox";
+import useRouteStore from "../../RouteSynchronizer/store";
 
 type ProjectSiteOption = {
   value: string;
@@ -122,6 +123,15 @@ const useProjectOverlayStore = create<
       });
       useMapStore.getState().setProjectTrees(projectData.name);
 
+      const { _routeType, config } = useRouteStore.getState();
+      if (_routeType === "project" && config["site-id"]) {
+        const siteId = config["site-id"];
+        const site = projectSites.find((site) => site.id === siteId);
+        if (site) {
+          get().setActiveSite(siteId);
+          return;
+        }
+      }
       if (defaultSite) {
         get().setActiveSite(defaultSite.id);
       } else if (allSitesOptions.length > 0) {
