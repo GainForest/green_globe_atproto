@@ -33,6 +33,18 @@ export const verifyKeyType = <T extends readonly string[]>(
   return typeof key === "string" && allowedKeys.includes(key);
 };
 
-export const isStateChanged = (state: RouteState): boolean => {
-  return JSON.stringify(state) !== JSON.stringify(useRouteStore.getState());
+export const isStateChanged = (
+  state: Partial<RouteState>,
+  keys: (keyof RouteState)[]
+): boolean => {
+  const currentState: Record<string, unknown> = {};
+  keys.forEach((key) => {
+    currentState[key as string] = useRouteStore.getState()[key];
+  });
+  try {
+    return JSON.stringify(state) !== JSON.stringify(currentState);
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
 };

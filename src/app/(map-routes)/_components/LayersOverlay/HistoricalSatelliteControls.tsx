@@ -29,7 +29,8 @@ const HistoricalSatelliteControls = () => {
     (actions) => actions.setHistoricalSatelliteDate
   );
 
-  const { minDate, maxDate, formattedCurrentDate } = historicalSatelliteState;
+  const { minDate, maxDate, formattedCurrentDate, currentDate } =
+    historicalSatelliteState;
   const monthsBetween = maxDate.diff(minDate, "month");
 
   const controllerRef = useRef<HTMLDivElement>(null);
@@ -64,7 +65,9 @@ const HistoricalSatelliteControls = () => {
             <Slider
               min={0}
               max={monthsBetween}
-              defaultValue={[monthsBetween]}
+              defaultValue={[
+                monthsBetween - maxDate.diff(currentDate, "month"),
+              ]}
               step={1}
               onValueChange={(value) => {
                 const monthsSinceMin = value[0];

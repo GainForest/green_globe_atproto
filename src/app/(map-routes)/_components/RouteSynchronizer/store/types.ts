@@ -22,3 +22,16 @@ export type RouteStateCatalog = {
     };
   };
 };
+
+export type RouteDependentState = RouteStateCatalog[keyof RouteStateCatalog];
+
+export type RouteStoreMetadata = {
+  initialized: boolean;
+};
+
+export type LayersState = {
+  "historical-satellite-date": string | null;
+  "enabled-layers": string[];
+};
+
+export type RouteIndependentState = LayersState;

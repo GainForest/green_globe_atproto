@@ -1,4 +1,3 @@
-import { RouteState } from "..";
 import useBiodiversityPredictionsStore from "../../../ProjectOverlay/Biodiversity/Predictions/store";
 import useBiodiversityStore from "../../../ProjectOverlay/Biodiversity/store";
 import useCommunityStore from "../../../ProjectOverlay/Community/store";
@@ -9,7 +8,7 @@ import useAppTabsStore, {
   APP_TABS,
   AppTab,
 } from "../../../Sidebar/AppTabs/store";
-import { RouteStateCatalog } from "../types";
+import { RouteDependentState, RouteStateCatalog } from "../types";
 import {
   verifyKeyType,
   isStateChanged,
@@ -168,7 +167,7 @@ export const setViewsStates = (views: [ProjectOverlayTab, ...string[]]) => {
 export const dispatchProjectStatesFromURL = (
   projectId: string,
   searchParams: URLSearchParams
-): RouteState | null => {
+): RouteDependentState | null => {
   const appTabParam = searchParams.get("app-tab");
   let appTab: AppTab | null = null;
   if (verifyKeyType(appTabParam, APP_TABS)) {
@@ -189,7 +188,7 @@ export const dispatchProjectStatesFromURL = (
 
   setViewsStates(views);
 
-  const state: RouteState = {
+  const state: RouteDependentState = {
     _routeType: "project",
     config: {
       "app-tab": appTab,
@@ -198,8 +197,9 @@ export const dispatchProjectStatesFromURL = (
       views: views,
     },
   };
+  const stateKeys = Object.keys(state) as (keyof RouteDependentState)[];
 
-  return isStateChanged(state) ? state : null;
+  return isStateChanged(state, stateKeys) ? state : null;
 };
 
 export const generateURLFromProjectStates = (

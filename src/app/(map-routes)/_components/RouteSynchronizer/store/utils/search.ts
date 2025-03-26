@@ -1,10 +1,9 @@
-import { RouteState } from "..";
 import useSearchOverlayStore from "../../../SearchOverlay/store";
-import { RouteStateCatalog } from "../types";
+import { RouteDependentState, RouteStateCatalog } from "../types";
 import { generateQueryParamsFromObject, isStateChanged } from "./index";
 export const dispatchSearchStatesFromURL = (
   searchParams: URLSearchParams
-): RouteState | null => {
+): RouteDependentState | null => {
   const query = searchParams.get("q");
   if (query) {
     useSearchOverlayStore.getState().setSearchQuery(query);
@@ -15,9 +14,10 @@ export const dispatchSearchStatesFromURL = (
     config: {
       q: query,
     },
-  } satisfies RouteState;
+  } satisfies RouteDependentState;
+  const stateKeys = Object.keys(state) as (keyof RouteDependentState)[];
 
-  return isStateChanged(state) ? state : null;
+  return isStateChanged(state, stateKeys) ? state : null;
 };
 
 export const generateURLFromSearchStates = (

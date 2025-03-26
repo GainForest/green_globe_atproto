@@ -4,6 +4,7 @@ import { fetchLayers, fetchProjectSpecificLayers } from "./utils";
 import { DynamicLayer } from "./types";
 import { groupBy } from "@/lib/utils";
 import useProjectOverlayStore from "../../ProjectOverlay/store";
+import useRouteStore from "../../RouteSynchronizer/store";
 export type LayersOverlayState = {
   staticLayersVisibility: {
     historicalSatellite: boolean;
@@ -129,22 +130,26 @@ const useLayersOverlayStore = create<LayersOverlayState & LayersOverlayActions>(
           },
         });
         const layers = await fetchProjectSpecificLayers(projectData.name);
+        const enabledLayers = useRouteStore.getState()["enabled-layers"];
+        const enabledLayersSet = new Set(enabledLayers);
         set({
           projectSpecificLayers: {
             projectId: projectData.id,
             status: "success",
             layers: (layers ?? []).map((layer) => ({
               ...layer,
-              visible: false,
+              visible: enabledLayersSet.has(layer.name),
             })),
           },
         });
       },
       fetchCategorizedDynamicLayers: async () => {
         const layers = await fetchLayers();
+        const enabledLayers = useRouteStore.getState()["enabled-layers"];
+        const enabledLayersSet = new Set(enabledLayers);
         const dynamicLayers = layers.map((layer) => ({
           ...layer,
-          visible: false,
+          visible: enabledLayersSet.has(layer.name),
         }));
         const categorizedDynamicLayers = groupBy(dynamicLayers, "category");
         set({ categorizedDynamicLayers });
