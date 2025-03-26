@@ -20,6 +20,21 @@ export type SiteAsset = {
   classification: "Shapefiles";
 };
 
+export type CommunityMember = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  priority: number | null;
+  role: string | null;
+  bio: string | null;
+  fundsReceived: number | null;
+  profileUrl: string | null;
+  Wallet: {
+    CeloAccounts: string[] | null;
+    SOLAccounts: string[] | null;
+  } | null;
+};
+
 export type Project = {
   id: string;
   name: string;
@@ -35,7 +50,7 @@ export type Project = {
   area: number;
   objective?: string;
   assets: Asset[];
-  communityMembers: unknown[];
+  communityMembers: CommunityMember[];
   Wallet: unknown | null;
 };
 

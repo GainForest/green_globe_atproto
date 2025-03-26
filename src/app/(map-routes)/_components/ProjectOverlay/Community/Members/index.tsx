@@ -69,7 +69,7 @@ const Members = () => {
                     </p>
                   </div>
                 </div>
-                {member.bio && (
+                {member.bio && member.bio.trim() !== "" && (
                   <div className="p-4 text-sm text-muted-foreground">
                     {member.bio}
                   </div>
