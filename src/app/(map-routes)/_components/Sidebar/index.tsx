@@ -5,20 +5,25 @@ import React from "react";
 import AppTabs from "./AppTabs";
 import OverlayRenderer from "../OverlayRenderer";
 import Header from "./Header";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import { motion } from "framer-motion";
 import useSidebarStore from "./store";
 import { cn } from "@/lib/utils";
 import useProjectOverlayStore from "../ProjectOverlay/store";
 import useAppTabsStore from "./AppTabs/store";
-
+import { Button } from "@/components/ui/button";
 const SIDEBAR_WIDTH = 500;
 
 const Sidebar = () => {
   const isOpen = useSidebarStore((state) => state.isOpen);
   const setIsOpen = useSidebarStore((state) => state.setIsOpen);
 
+  const projectData = useProjectOverlayStore((state) => state.projectData);
   const isMaximized = useProjectOverlayStore((state) => state.isMaximized);
+  const setIsMaximized = useProjectOverlayStore(
+    (state) => state.setIsMaximized
+  );
+
   const activeAppTab = useAppTabsStore((state) => state.activeTab);
   const computedSidebarWidth =
     isMaximized && activeAppTab === "project" ? "50vw" : `${SIDEBAR_WIDTH}px`;
@@ -49,22 +54,26 @@ const Sidebar = () => {
           </div>
         </UIBase>
       </motion.div>
-      <div className="h-full flex items-center justify-center">
-        <button
-          className="group rounded-full mt-4 h-80 w-8 flex items-center justify-center shadow-sm bg-transparent"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <div className="h-16 group-hover:h-full w-full rounded-full flex items-center justify-center bg-neutral-800/40 group-hover:bg-neutral-800/60 backdrop-blur-lg text-white transition-all duration-300">
-            <ChevronLeft
-              size={16}
-              className={cn(
-                "transition-all duration-300",
-                isOpen ? "" : "rotate-180"
-              )}
-            />
-          </div>
-        </button>
-      </div>
+      <UIBase innerClassName="p-0.5 flex flex-col">
+        <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+          <ChevronLeft
+            size={16}
+            className={cn(
+              "transition-all duration-300",
+              isOpen ? "" : "rotate-180"
+            )}
+          />
+        </Button>
+        {isOpen && activeAppTab === "project" && projectData && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMaximized(!isMaximized)}
+          >
+            {isMaximized ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </Button>
+        )}
+      </UIBase>
     </motion.div>
   );
 };
