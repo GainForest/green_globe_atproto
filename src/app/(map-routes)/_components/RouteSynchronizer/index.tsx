@@ -8,6 +8,7 @@ import useProjectOverlayStore from "../ProjectOverlay/store";
 import useSearchOverlayStore from "../SearchOverlay/store";
 import useReadViews from "./hooks/useReadViews";
 import useLayersOverlayStore from "../LayersOverlay/store";
+import { RouteStateCatalog } from "./store/types";
 export default function RouteSynchronizer() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -81,12 +82,21 @@ export default function RouteSynchronizer() {
 
       if (projectId) {
         if (!views) return;
+        let siteId = activeSite?.id ?? null;
+        if (useRouteStore.getState()._routeType === "project") {
+          siteId =
+            siteId ??
+            (
+              useRouteStore.getState()
+                .config as RouteStateCatalog["project"]["config"]
+            )["site-id"];
+        }
         syncToURL({
           _routeType: "project",
           config: {
             "app-tab": appTab,
             "project-id": projectId,
-            "site-id": activeSite?.id ?? null,
+            "site-id": siteId,
             views,
           },
           ...layersStates,

@@ -186,6 +186,8 @@ export const dispatchProjectStatesFromURL = (
     projectStoreState.setProjectId(projectId);
   }
 
+  // Dedicated store states for active site id is handled in the stores themselves.
+
   setViewsStates(views);
 
   const state: RouteDependentState = {

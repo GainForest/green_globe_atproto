@@ -55,6 +55,8 @@ export const dispatchLayersStatesFromURL = (
       .setHistoricalSatelliteDate(dayjs(historicalSatelliteDate, "YYYY-MM"));
   }
 
+  // Dedicated store states for enabled layers are handled in the stores themselves.
+
   const state: LayersState = {
     "historical-satellite-date": historicalSatelliteDate,
     "enabled-layers": enabledLayers,
