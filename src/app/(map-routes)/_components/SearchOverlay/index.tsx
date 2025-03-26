@@ -61,6 +61,7 @@ const SearchOverlay = () => {
 
   const handleProjectClick = (projectId: string) => {
     setProjectId(projectId);
+    setActiveTab("project");
     setCurrentMapView("project");
   };
 
