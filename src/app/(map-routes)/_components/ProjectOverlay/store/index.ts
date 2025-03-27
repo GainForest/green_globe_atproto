@@ -141,6 +141,31 @@ const useProjectOverlayStore = create<
         },
       });
 
+      // Handle site selection first (synchronous operation)
+      const { _routeType, config } = useRouteStore.getState();
+      let siteToActivate = null;
+
+      if (_routeType === "project" && config["site-id"]) {
+        const siteId = config["site-id"];
+        const site = projectSites.find((site) => site.id === siteId);
+        if (site) {
+          siteToActivate = siteId;
+        }
+      }
+
+      if (!siteToActivate) {
+        if (defaultSite) {
+          siteToActivate = defaultSite.id;
+        } else if (allSitesOptions.length > 0) {
+          siteToActivate = allSitesOptions[0].value;
+        }
+      }
+
+      if (siteToActivate) {
+        get().setActiveSite(siteToActivate);
+      }
+
+      // Then fetch trees data (asynchronous operation)
       try {
         const data = await fetchMeasuredTreesShapefile(projectData.name);
         if (!isProjectStillActive(projectId)) return;
@@ -159,21 +184,6 @@ const useProjectOverlayStore = create<
             data: null,
           },
         });
-      }
-
-      const { _routeType, config } = useRouteStore.getState();
-      if (_routeType === "project" && config["site-id"]) {
-        const siteId = config["site-id"];
-        const site = projectSites.find((site) => site.id === siteId);
-        if (site) {
-          get().setActiveSite(siteId);
-          return;
-        }
-      }
-      if (defaultSite) {
-        get().setActiveSite(defaultSite.id);
-      } else if (allSitesOptions.length > 0) {
-        get().setActiveSite(allSitesOptions[0].value);
       }
     },
     setActiveSite: (siteId) => {
