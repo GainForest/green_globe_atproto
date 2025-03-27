@@ -170,9 +170,11 @@ const Header = ({ projectData }: { projectData: Project }) => {
             &nbsp;&nbsp;
             {countryDetails.name}
           </span>
-          <span className="px-2 py-1 bg-background/50 backdrop-blur-lg rounded-full text-sm">
-            <b>{area}</b> {area === 1 ? "hectare" : "hectares"}
-          </span>
+          {Boolean(area) && (
+            <span className="px-2 py-1 bg-background/50 backdrop-blur-lg rounded-full text-sm">
+              <b>{area}</b> {area === 1 ? "hectare" : "hectares"}
+            </span>
+          )}
         </div>
       )}
       <Tabs />
