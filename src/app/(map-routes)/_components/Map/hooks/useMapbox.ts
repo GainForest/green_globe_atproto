@@ -9,7 +9,7 @@ import {
 import useProjectOverlayStore from "../../ProjectOverlay/store";
 import useAppTabsStore from "@/app/(map-routes)/_components/Sidebar/AppTabs/store";
 import mapboxgl, { Map as MapInterface } from "mapbox-gl";
-
+import { MAP_CONFIG, MAP_FOG_CONFIG } from "../config";
 const useMapbox = (mapContainerRef: React.RefObject<HTMLDivElement | null>) => {
   const mapRef = useRef<MapInterface | null>(null);
   const setMapRef = useMapStore((state) => state.setMapRef);
@@ -33,11 +33,8 @@ const useMapbox = (mapContainerRef: React.RefObject<HTMLDivElement | null>) => {
     if (mapContainerRef.current === null) return;
 
     const map = new MapInterface({
+      ...MAP_CONFIG,
       container: mapContainerRef.current,
-      projection: "globe",
-      style: "mapbox://styles/mapbox/satellite-v9",
-      zoom: 2,
-      center: [102, 9],
     });
     mapRef.current = map;
     setMapRef(mapRef);
@@ -65,13 +62,7 @@ const useMapbox = (mapContainerRef: React.RefObject<HTMLDivElement | null>) => {
     map.on("touchstart", stopSpin);
 
     const onLoad = () => {
-      map.setFog({
-        color: "#000000",
-        "high-color": "rgb(36, 92, 223)",
-        "horizon-blend": 0.02,
-        "space-color": "rgb(11, 11, 25)",
-        "star-intensity": 0.05,
-      });
+      map.setFog(MAP_FOG_CONFIG);
       addAllSourcesAndLayers(map);
       setProjectMarkers(map).then(() => {
         addProjectMarkerHandlers(map, handleProjectMarkerClick);
