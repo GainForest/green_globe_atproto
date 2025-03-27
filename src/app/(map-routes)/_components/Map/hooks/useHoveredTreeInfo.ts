@@ -5,10 +5,10 @@ import { getTreeInformation } from "../utils";
 import useHoveredTreeOverlayStore, {
   HoveredTreeOverlayState,
 } from "../../HoveredTreeOverlay/store";
-import { NormalizedTreeFeature } from "../store/types";
 import useMapStore from "../store";
 import useProjectOverlayStore from "../../ProjectOverlay/store";
 import { toggleMeasuredTreesLayer } from "../sources-and-layers/measured-trees";
+import { NormalizedTreeFeature } from "../../ProjectOverlay/store/types";
 
 export function useHoveredTreeInfo() {
   const currentView = useMapStore((state) => state.currentView);

@@ -19,3 +19,20 @@ type PaginatedApiResponseCatalog<T> = {
 
 export type PaginatedApiResponse<T> =
   PaginatedApiResponseCatalog<T>[keyof PaginatedApiResponseCatalog<T>];
+
+export type AsyncDataCatalog<T> = {
+  loading: {
+    _status: "loading";
+    data: null;
+  };
+  success: {
+    _status: "success";
+    data: T;
+  };
+  error: {
+    _status: "error";
+    data: null;
+  };
+};
+
+export type AsyncData<T> = AsyncDataCatalog<T>[keyof AsyncDataCatalog<T>];

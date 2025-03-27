@@ -1,38 +1,45 @@
 import { create } from "zustand";
 import { Project, SiteAsset } from "./types";
-import { fetchProjectData, fetchProjectPolygon } from "./utils";
+import {
+  fetchMeasuredTreesShapefile,
+  fetchProjectData,
+  fetchProjectPolygon,
+} from "./utils";
 import useMapStore from "../../Map/store";
 import bbox from "@turf/bbox";
 import useRouteStore from "../../RouteSynchronizer/store";
-
+import { MeasuredTreesGeoJSON } from "./types";
+import { AsyncData } from "@/lib/types";
 type ProjectSiteOption = {
   value: string;
   label: string;
 };
 
-type ProjectOverlayStateCatalog = {
+type ProjectStateCatalog = {
   loading: {
     projectData: null;
     projectDataStatus: "loading";
     allSitesOptions: null;
     activeSite: null;
+    treesAsync: null;
   };
   success: {
     projectData: Project;
     projectDataStatus: "success";
     allSitesOptions: ProjectSiteOption[];
     activeSite: SiteAsset | null;
+    treesAsync: AsyncData<MeasuredTreesGeoJSON | null>;
   };
   error: {
     projectData: null;
     projectDataStatus: "error";
     allSitesOptions: null;
     activeSite: null;
+    treesAsync: null;
   };
 };
 
-type ProjectOverlayStateVariant =
-  ProjectOverlayStateCatalog[keyof ProjectOverlayStateCatalog];
+type ProjectState = ProjectStateCatalog[keyof ProjectStateCatalog];
 
 export const PROJECT_OVERLAY_TABS = [
   "info",
@@ -49,7 +56,7 @@ export type ProjectOverlayState = {
   projectId: string | undefined;
   activeTab: (typeof PROJECT_OVERLAY_TABS)[number];
   isMaximized: boolean;
-} & ProjectOverlayStateVariant;
+} & ProjectState;
 
 export type ProjectOverlayActions = {
   setProjectId: (projectId: ProjectOverlayState["projectId"]) => void;
@@ -59,12 +66,17 @@ export type ProjectOverlayActions = {
   setIsMaximized: (isMaximized: ProjectOverlayState["isMaximized"]) => void;
 };
 
-const initialState: ProjectOverlayState = {
-  projectId: undefined,
+const initialProjectState: ProjectState = {
   projectDataStatus: "loading",
   projectData: null,
+  treesAsync: null,
   allSitesOptions: null,
   activeSite: null,
+};
+
+const initialState: ProjectOverlayState = {
+  projectId: undefined,
+  ...initialProjectState,
   activeTab: "info",
   isMaximized: false,
 };
@@ -95,7 +107,7 @@ const useProjectOverlayStore = create<
       // Set initial loading state
       set({
         projectId: projectId,
-        projectDataStatus: "loading",
+        ...initialProjectState,
       });
 
       // Fetch project data
@@ -123,8 +135,31 @@ const useProjectOverlayStore = create<
         projectDataStatus: "success",
         projectData: projectData,
         allSitesOptions: allSitesOptions,
+        treesAsync: {
+          _status: "loading",
+          data: null,
+        },
       });
-      useMapStore.getState().setProjectTrees(projectData.name);
+
+      try {
+        const data = await fetchMeasuredTreesShapefile(projectData.name);
+        if (!isProjectStillActive(projectId)) return;
+        set({
+          treesAsync: {
+            _status: "success",
+            data,
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching measured trees shapefile", error);
+        if (!isProjectStillActive(projectId)) return;
+        set({
+          treesAsync: {
+            _status: "error",
+            data: null,
+          },
+        });
+      }
 
       const { _routeType, config } = useRouteStore.getState();
       if (_routeType === "project" && config["site-id"]) {

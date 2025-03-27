@@ -32,6 +32,7 @@ type ComboboxProps = {
   emptyMessage?: string;
   className?: string;
   searchIn?: "value" | "label" | "both";
+  allowNoSelection?: boolean;
 };
 
 export function Combobox({
@@ -42,6 +43,7 @@ export function Combobox({
   searchPlaceholder = "Search options...",
   emptyMessage = "No option found.",
   className,
+  allowNoSelection = false,
   searchIn = "both",
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
@@ -94,7 +96,11 @@ export function Combobox({
                   key={option.value}
                   value={option.value}
                   onSelect={(currentValue) => {
-                    onChange?.(currentValue === value ? "" : currentValue);
+                    if (currentValue === value && allowNoSelection) {
+                      onChange?.("");
+                    } else {
+                      onChange?.(currentValue);
+                    }
                     setSearchQuery("");
                     setOpen(false);
                   }}

@@ -14,7 +14,7 @@ import {
 } from "./sources-and-layers/measured-trees";
 import { addProjectMarkersSourceAndLayer } from "./sources-and-layers/project-markers";
 import { ProjectSitePoints } from "./sources-and-layers/types";
-import { NormalizedTreeFeature } from "./store/types";
+import { NormalizedTreeFeature } from "../ProjectOverlay/store/types";
 
 export const spinGlobe = (map: Map, spinEnabled: boolean) => {
   const secondsPerRevolution = 120;

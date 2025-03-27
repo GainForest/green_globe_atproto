@@ -3,8 +3,8 @@ import {
   GeoJSONSourceSpecification,
   Map,
 } from "mapbox-gl";
-import { TreeFeature } from "../store/types";
 import dayjs from "dayjs";
+import { TreeFeature } from "../../ProjectOverlay/store/types";
 
 export const treesSource: GeoJSONSourceSpecification = {
   type: "geojson",
