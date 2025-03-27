@@ -3,9 +3,7 @@ import { Map } from "mapbox-gl";
 
 export const generatePlanetSource = (planetDate: string) => ({
   type: "raster" as const,
-  tiles: [
-    `https://tiles3.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_${planetDate}_mosaic/gmap/{z}/{x}/{y}.png?api_key=${process.env.NEXT_PUBLIC_NICFI_API_KEY}`,
-  ],
+  tiles: [`/api/planet-tiles?date=${planetDate}&z={z}&x={x}&y={y}`],
   tileSize: 256,
   attribution: `<a target="_top" rel="noopener" href="https://gainforest.earth">Mosaic Date: ${planetDate}</a> | <a target="_top" rel="noopener" href="https://www.planet.com/nicfi/">Imagery ©2023 Planet Labs Inc</a> | <a target="_top" rel="noopener" href="https://gainforest.earth">©2023 GainForest</a>`,
 });
