@@ -176,7 +176,7 @@ export const fetchCeloPayments = async (
   for (const address of wallets.Celo) {
     try {
       const res = await fetch(
-        `https://explorer.celo.org/mainnet/api?module=account&action=tokentx&address=${address}`
+        `https://celo.blockscout.com/api?module=account&action=tokentx&address=${address}`
       );
 
       const data: {

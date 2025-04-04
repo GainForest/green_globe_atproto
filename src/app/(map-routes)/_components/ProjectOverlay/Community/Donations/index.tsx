@@ -96,7 +96,7 @@ const DonationCard = ({ payment }: { payment: FiatPayment | Payment }) => {
               <a
                 href={
                   payment.blockchain?.toLowerCase() === "celo"
-                    ? `https://explorer.celo.org/mainnet/tx/${payment.hash}`
+                    ? `https://celo.blockscout.com//tx/${payment.hash}`
                     : `https://explorer.solana.com/tx/${payment.hash}`
                 }
                 target="_blank"
