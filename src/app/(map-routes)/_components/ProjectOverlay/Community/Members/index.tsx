@@ -29,8 +29,7 @@ const Members = () => {
         <p className="bg-foreground/10 text-muted-foreground rounded-lg p-4 flex items-center gap-4">
           <CircleAlert size={32} className="shrink-0 opacity-50" />
           <span>
-            No member from local communities is registered to receive financial
-            benefits from this project.
+            No community members have been publicly registered to be displayed.
           </span>
         </p>
       ) : (
