@@ -2,7 +2,7 @@ import { FogSpecification, MapOptions } from "mapbox-gl";
 
 export const MAP_CONFIG = {
   projection: "globe",
-  style: "mapbox://styles/mapbox/satellite-v9",
+  style: "mapbox://styles/mapbox/satellite-streets-v12",
   zoom: 2,
   center: [102, 9],
 } as MapOptions;
