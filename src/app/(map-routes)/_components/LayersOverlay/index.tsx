@@ -11,6 +11,8 @@ import { toKebabCase } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import QuickTooltip from "@/components/ui/quick-tooltip";
 import useMapStore from "../Map/store";
+import LandcoverControls from "./LandcoverControls";
+
 const LayersOverlay = () => {
   const { animate, onAnimationComplete } = useBlurAnimate(
     { opacity: 1, scale: 1, filter: "blur(0px)" },
@@ -85,6 +87,9 @@ const LayersOverlay = () => {
 
       {/* Monthly Satellite Layer */}
       <HistoricalSatelliteControls />
+
+      {/* Land Cover Layer */}
+      <LandcoverControls />
 
       {categorizedDynamicLayers.map((layerCategory) => {
         const key = Object.keys(layerCategory)[0];

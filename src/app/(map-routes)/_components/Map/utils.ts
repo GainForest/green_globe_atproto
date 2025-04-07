@@ -15,6 +15,7 @@ import {
 import { addProjectMarkersSourceAndLayer } from "./sources-and-layers/project-markers";
 import { ProjectSitePoints } from "./sources-and-layers/types";
 import { NormalizedTreeFeature } from "../ProjectOverlay/store/types";
+import { addLandcoverSourceAndLayer } from "./sources-and-layers/historical-satellite";
 
 export const spinGlobe = (map: Map, spinEnabled: boolean) => {
   const secondsPerRevolution = 120;
@@ -45,6 +46,7 @@ export const spinGlobe = (map: Map, spinEnabled: boolean) => {
 
 export const addAllSourcesAndLayers = (map: Map) => {
   addHistoricalSatelliteSourceAndLayers(map);
+  addLandcoverSourceAndLayer(map);
   addAllSitesSourceAndLayer(map);
   addHighlightedSiteSourceAndLayer(map);
   addMeasuredTreesSourceAndLayer(map);

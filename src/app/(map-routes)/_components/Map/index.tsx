@@ -10,6 +10,7 @@ import useMapbox from "./hooks/useMapbox";
 import useDynamicLayers from "./hooks/useDynamicLayers";
 import useBounds from "./hooks/useBounds";
 import useHighlightedPolygon from "./hooks/useHighlightedPolygon";
+import useLandcoverLayer from "./hooks/useLandcoverLayer";
 
 const Map = () => {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -20,6 +21,7 @@ const Map = () => {
   useProjectTrees();
   useHoveredTreeInfo();
   useHistoricalSatelliteLayer();
+  useLandcoverLayer();
   useDynamicLayers();
 
   return (
