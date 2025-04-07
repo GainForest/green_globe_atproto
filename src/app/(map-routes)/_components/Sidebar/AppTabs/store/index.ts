@@ -1,11 +1,6 @@
 import { create } from "zustand";
 
-export const APP_TABS = [
-  "project",
-  "hovered-tree",
-  "layers",
-  "search",
-] as const;
+export const APP_TABS = ["project", "layers", "search"] as const;
 
 export type AppTab = (typeof APP_TABS)[number];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import UIBase from "@/components/ui/ui-base";
-import React from "react";
+import React, { useRef } from "react";
 import AppTabs from "./AppTabs";
 import OverlayRenderer from "../OverlayRenderer";
 import Header from "./Header";
@@ -13,6 +13,133 @@ import useProjectOverlayStore from "../ProjectOverlay/store";
 import useAppTabsStore from "./AppTabs/store";
 import { Button } from "@/components/ui/button";
 const SIDEBAR_WIDTH = 500;
+
+const SmallerDeviceSidebar = () => {
+  const overlayTouchBar = useRef<HTMLDivElement>(null);
+  const [totalDisplacement, setTotalDisplacement] = React.useState(0);
+  const [startY, setStartY] = React.useState(0);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [isMaximized, setIsMaximized] = React.useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    console.log("Touch Start:", {
+      clientY: e.touches[0].clientY,
+      pageY: e.touches[0].pageY,
+      screenY: e.touches[0].screenY,
+      target: e.target,
+    });
+    setStartY(e.touches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - startY;
+    const newDisplacement = Math.min(
+      0,
+      Math.max(-window.innerHeight + 100, totalDisplacement + deltaY)
+    );
+
+    console.log("Touch Move:", {
+      currentY,
+      startY,
+      deltaY,
+      currentDisplacement: totalDisplacement,
+      newDisplacement,
+      isDragging,
+    });
+
+    setTotalDisplacement(newDisplacement);
+    setStartY(currentY);
+  };
+
+  const handleTouchEnd = () => {
+    console.log("Touch End:", {
+      finalDisplacement: totalDisplacement,
+      isDragging,
+    });
+    if (totalDisplacement <= -window.innerHeight + 100) {
+      setIsMaximized(true);
+    } else {
+      setIsMaximized(false);
+    }
+    setIsDragging(false);
+  };
+
+  return (
+    <>
+      {!isMaximized && (
+        <motion.div className="fixed -top-1 -left-1 -right-1 z-10">
+          <UIBase innerClassName="p-3 rounded-none" className="rounded-none">
+            <Header />
+          </UIBase>
+        </motion.div>
+      )}
+      <div
+        className="fixed left-0 right-0 z-10 flex flex-col items-center"
+        style={{
+          top: isMaximized
+            ? "0"
+            : `calc(100% - 4.2rem + ${totalDisplacement}px)`,
+        }}
+      >
+        <UIBase
+          className={cn(
+            "w-full max-w-xl",
+            isMaximized ? "border-none max-w-full" : ""
+          )}
+          innerClassName={cn(
+            "h-screen overflow-y-auto p-0",
+            isMaximized ? "border-none" : ""
+          )}
+        >
+          {isMaximized && (
+            <div className="p-2 pb-0 flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setIsMaximized(false);
+                  setTotalDisplacement(0);
+                }}
+              >
+                <ChevronLeft size={16} />
+              </Button>
+              <Header showBrandName={false} />
+            </div>
+          )}
+          <div
+            className="w-full flex flex-col border-b border-b-border p-2"
+            ref={overlayTouchBar}
+            {...(!isMaximized && {
+              onTouchStart: handleTouchStart,
+              onTouchMove: handleTouchMove,
+              onTouchEnd: handleTouchEnd,
+            })}
+            style={{
+              cursor: isDragging ? "grabbing" : "grab",
+              touchAction: "none",
+            }}
+          >
+            {!isMaximized && (
+              <div className="w-full flex items-center justify-center mt-1">
+                <button className="h-auto w-full p-1 flex items-center justify-center -mt-1">
+                  <div className="h-1 w-8 rounded-full bg-foreground/20" />
+                </button>
+              </div>
+            )}
+            <AppTabs />
+          </div>
+          <div className="w-full flex-1 h-full">
+            <OverlayRenderer />
+          </div>
+        </UIBase>
+      </div>
+    </>
+  );
+};
 
 const Sidebar = () => {
   const isOpen = useSidebarStore((state) => state.isOpen);
@@ -27,6 +154,12 @@ const Sidebar = () => {
   const activeAppTab = useAppTabsStore((state) => state.activeTab);
   const computedSidebarWidth =
     isMaximized && activeAppTab === "project" ? "50vw" : `${SIDEBAR_WIDTH}px`;
+
+  const isSmallerDevice = false;
+
+  if (isSmallerDevice) {
+    return <SmallerDeviceSidebar />;
+  }
 
   return (
     <motion.div
