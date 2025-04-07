@@ -8,6 +8,7 @@ import useRouteStore from "../../RouteSynchronizer/store";
 export type LayersOverlayState = {
   staticLayersVisibility: {
     historicalSatellite: boolean;
+    landcover: boolean;
   };
   categorizedDynamicLayers: Record<string, DynamicLayer[]>[];
   projectSpecificLayers: {
@@ -43,6 +44,7 @@ export type LayersOverlayActions = {
 const initialState: LayersOverlayState = {
   staticLayersVisibility: {
     historicalSatellite: false,
+    landcover: false,
   },
   categorizedDynamicLayers: [],
   projectSpecificLayers: {
