@@ -105,4 +105,11 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  logger: {
+    error: (code, ...message) => {
+      if (code !== "CLIENT_FETCH_ERROR") {
+        console.error(code, message);
+      }
+    },
+  },
 };
