@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import useRouteStore from "./store";
-import useAppTabsStore from "../Sidebar/AppTabs/store";
+import useOverlayTabsStore from "../Overlay/OverlayTabs/store";
 import useProjectOverlayStore from "../ProjectOverlay/store";
 import useSearchOverlayStore from "../SearchOverlay/store";
 import useReadViews from "./hooks/useReadViews";
@@ -18,7 +18,7 @@ export default function RouteSynchronizer() {
   const syncFromURL = useRouteStore((state) => state.syncFromURL);
 
   // Get values from Dedicated Stores
-  const appTab = useAppTabsStore((state) => state.activeTab);
+  const overlayTab = useOverlayTabsStore((state) => state.activeTab);
   const projectId = useProjectOverlayStore((state) => state.projectId);
   const searchQuery = useSearchOverlayStore((state) => state.searchQuery);
   const activeSite = useProjectOverlayStore((state) => state.activeSite);
@@ -94,7 +94,7 @@ export default function RouteSynchronizer() {
         syncToURL({
           _routeType: "project",
           config: {
-            "app-tab": appTab,
+            "app-tab": overlayTab,
             "project-id": projectId,
             "site-id": siteId,
             views,
@@ -124,7 +124,7 @@ export default function RouteSynchronizer() {
 
     // DEPENDENCIES:
     [
-      appTab,
+      overlayTab,
       projectId,
       activeSite,
       //  projectOverlayTab,

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import useProjectOverlayStore from "../ProjectOverlay/store";
 import useMapStore from "../Map/store";
 import { ChevronRight, CircleAlert, Loader2, X } from "lucide-react";
-import useAppTabsStore from "../Sidebar/AppTabs/store";
+import useOverlayTabsStore from "../Overlay/OverlayTabs/store";
 import { cn } from "@/lib/utils";
 const SearchOverlay = () => {
   const { animate, onAnimationComplete } = useBlurAnimate(
@@ -18,7 +18,7 @@ const SearchOverlay = () => {
   );
 
   const setCurrentMapView = useMapStore((state) => state.setCurrentView);
-  const setActiveTab = useAppTabsStore((state) => state.setActiveTab);
+  const setActiveTab = useOverlayTabsStore((state) => state.setActiveTab);
 
   const projectId = useProjectOverlayStore((state) => state.projectId);
   const setProjectId = useProjectOverlayStore((state) => state.setProjectId);

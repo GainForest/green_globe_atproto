@@ -7,7 +7,7 @@ import {
   spinGlobe,
 } from "../utils";
 import useProjectOverlayStore from "../../ProjectOverlay/store";
-import useAppTabsStore from "@/app/(map-routes)/_components/Sidebar/AppTabs/store";
+import useOverlayTabsStore from "@/app/(map-routes)/_components/Overlay/OverlayTabs/store";
 import mapboxgl, { Map as MapInterface } from "mapbox-gl";
 import { MAP_CONFIG, MAP_FOG_CONFIG } from "../config";
 const useMapbox = (mapContainerRef: React.RefObject<HTMLDivElement | null>) => {
@@ -17,7 +17,9 @@ const useMapbox = (mapContainerRef: React.RefObject<HTMLDivElement | null>) => {
   const setMapLoaded = useMapStore((state) => state.setMapLoaded);
 
   const setCurrentView = useMapStore((state) => state.setCurrentView);
-  const setAppActiveTab = useAppTabsStore((actions) => actions.setActiveTab);
+  const setAppActiveTab = useOverlayTabsStore(
+    (actions) => actions.setActiveTab
+  );
   const setActiveProjectId = useProjectOverlayStore(
     (actions) => actions.setProjectId
   );

@@ -3,7 +3,7 @@
 import { Layers, LucideProps, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React, { useMemo } from "react";
-import useAppTabsStore, { AppTabsState } from "./store";
+import useOverlayTabsStore, { OverlayTabsState } from "./store";
 import useProjectOverlayStore from "../../ProjectOverlay/store";
 import useHoveredTreeOverlayStore from "../../HoveredTreeOverlay/store";
 import { SlidingTabs, Underlay, Tab } from "@/components/ui/sliding-tabs";
@@ -12,12 +12,12 @@ type TabButton = {
   icon: React.FC<LucideProps>;
   label: string;
   shouldBeDisabled: boolean;
-  key: Exclude<AppTabsState["activeTab"], undefined>;
+  key: Exclude<OverlayTabsState["activeTab"], undefined>;
 };
 
-const AppTabs = () => {
-  const activeTab = useAppTabsStore((state) => state.activeTab);
-  const setActiveTab = useAppTabsStore((state) => state.setActiveTab);
+const OverlayTabs = () => {
+  const activeTab = useOverlayTabsStore((state) => state.activeTab);
+  const setActiveTab = useOverlayTabsStore((state) => state.setActiveTab);
   const activeProjectId = useProjectOverlayStore((state) => state.projectId);
   const hoveredTree = useHoveredTreeOverlayStore(
     (state) => state.treeInformation
@@ -50,7 +50,7 @@ const AppTabs = () => {
   return (
     <SlidingTabs
       activeKey={activeTab}
-      onTabChange={(key) => setActiveTab(key as AppTabsState["activeTab"])}
+      onTabChange={(key) => setActiveTab(key as OverlayTabsState["activeTab"])}
     >
       <Underlay />
 
@@ -76,4 +76,4 @@ const AppTabs = () => {
   );
 };
 
-export default AppTabs;
+export default OverlayTabs;

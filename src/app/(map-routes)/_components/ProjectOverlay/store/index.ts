@@ -7,7 +7,6 @@ import {
 } from "./utils";
 import useMapStore from "../../Map/store";
 import bbox from "@turf/bbox";
-import useRouteStore from "../../RouteSynchronizer/store";
 import { MeasuredTreesGeoJSON } from "./types";
 import { AsyncData } from "@/lib/types";
 type ProjectSiteOption = {
@@ -59,7 +58,10 @@ export type ProjectOverlayState = {
 } & ProjectState;
 
 export type ProjectOverlayActions = {
-  setProjectId: (projectId: ProjectOverlayState["projectId"]) => void;
+  setProjectId: (
+    projectId: ProjectOverlayState["projectId"],
+    siteId?: string
+  ) => void;
   setActiveSite: (siteId: string) => void;
   setActiveTab: (tab: ProjectOverlayState["activeTab"]) => void;
   resetState: () => void;
@@ -97,7 +99,7 @@ const useProjectOverlayStore = create<
 
   return {
     ...initialState,
-    setProjectId: async (projectId) => {
+    setProjectId: async (projectId, siteId) => {
       // Reset state if no id provided
       if (!projectId) {
         get().resetState();
@@ -125,7 +127,11 @@ const useProjectOverlayStore = create<
       // Compute project site options
       const projectSites = getAllSiteAssets(projectData);
 
-      const defaultSite = projectSites.find((site) => site.shapefile.default);
+      const defaultSite =
+        projectSites.find((site) => site.shapefile.default) ??
+        projectSites.length > 0
+          ? projectSites[0]
+          : null;
       const allSitesOptions = projectSites.map((site) => ({
         value: site.id,
         label: site.shapefile.shortName,
@@ -141,28 +147,14 @@ const useProjectOverlayStore = create<
         },
       });
 
-      // Handle site selection first (synchronous operation)
-      const { _routeType, config } = useRouteStore.getState();
-      let siteToActivate = null;
+      if (allSitesOptions.length > 0) {
+        const defaultSiteId = defaultSite?.id;
+        const siteIdFromArg = allSitesOptions.find(
+          (site) => site.value === siteId
+        )?.value;
 
-      if (_routeType === "project" && config["site-id"]) {
-        const siteId = config["site-id"];
-        const site = projectSites.find((site) => site.id === siteId);
-        if (site) {
-          siteToActivate = siteId;
-        }
-      }
-
-      if (!siteToActivate) {
-        if (defaultSite) {
-          siteToActivate = defaultSite.id;
-        } else if (allSitesOptions.length > 0) {
-          siteToActivate = allSitesOptions[0].value;
-        }
-      }
-
-      if (siteToActivate) {
-        get().setActiveSite(siteToActivate);
+        const siteIdToActivate = siteIdFromArg ?? defaultSiteId;
+        if (siteIdToActivate) get().setActiveSite(siteIdToActivate);
       }
 
       // Then fetch trees data (asynchronous operation)

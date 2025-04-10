@@ -2,7 +2,7 @@
 
 import UIBase from "@/components/ui/ui-base";
 import React from "react";
-import AppTabs from "./AppTabs";
+import OverlayTabs from "./OverlayTabs";
 import OverlayRenderer from "../OverlayRenderer";
 import Header from "./Header";
 import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import useSidebarStore from "./store";
 import { cn } from "@/lib/utils";
 import useProjectOverlayStore from "../ProjectOverlay/store";
-import useAppTabsStore from "./AppTabs/store";
+import useOverlayTabsStore from "./OverlayTabs/store";
 import { Button } from "@/components/ui/button";
 const SIDEBAR_WIDTH = 500;
 
@@ -24,9 +24,11 @@ const Sidebar = () => {
     (state) => state.setIsMaximized
   );
 
-  const activeAppTab = useAppTabsStore((state) => state.activeTab);
+  const activeOverlayTab = useOverlayTabsStore((state) => state.activeTab);
   const computedSidebarWidth =
-    isMaximized && activeAppTab === "project" ? "50vw" : `${SIDEBAR_WIDTH}px`;
+    isMaximized && activeOverlayTab === "project"
+      ? "50vw"
+      : `${SIDEBAR_WIDTH}px`;
 
   return (
     <motion.div
@@ -47,7 +49,7 @@ const Sidebar = () => {
         >
           <div className="sticky top-0 flex flex-col gap-4 p-4 border-b border-b-border bg-background/50 backdrop-blur-lg shadow-lg z-10">
             <Header />
-            <AppTabs />
+            <OverlayTabs />
           </div>
           <div className="w-full flex-1">
             <OverlayRenderer />
@@ -64,7 +66,7 @@ const Sidebar = () => {
             )}
           />
         </Button>
-        {isOpen && activeAppTab === "project" && projectData && (
+        {isOpen && activeOverlayTab === "project" && projectData && (
           <Button
             variant="ghost"
             size="icon"

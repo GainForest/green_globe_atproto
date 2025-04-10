@@ -1,5 +1,5 @@
 import { PROJECT_OVERLAY_TABS } from "../../ProjectOverlay/store";
-import { AppTabsState } from "../../Sidebar/AppTabs/store";
+import { OverlayTabsState } from "../../Overlay/OverlayTabs/store";
 
 export type RouteStateCatalog = {
   home: {
@@ -15,7 +15,7 @@ export type RouteStateCatalog = {
   project: {
     _routeType: "project";
     config: {
-      "app-tab": AppTabsState["activeTab"] | null;
+      "app-tab": OverlayTabsState["activeTab"] | null;
       "project-id": string;
       "site-id": string | null;
       views: [(typeof PROJECT_OVERLAY_TABS)[number], ...string[]];

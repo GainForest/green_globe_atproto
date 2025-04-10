@@ -4,10 +4,10 @@ import useCommunityStore from "../../../ProjectOverlay/Community/store";
 import useProjectOverlayStore, {
   PROJECT_OVERLAY_TABS,
 } from "../../../ProjectOverlay/store";
-import useAppTabsStore, {
+import useOverlayTabsStore, {
   APP_TABS,
-  AppTab,
-} from "../../../Sidebar/AppTabs/store";
+  OverlayTab,
+} from "../../../Overlay/OverlayTabs/store";
 import { RouteDependentState, RouteStateCatalog } from "../types";
 import {
   verifyKeyType,
@@ -168,17 +168,17 @@ export const dispatchProjectStatesFromURL = (
   projectId: string,
   searchParams: URLSearchParams
 ): RouteDependentState | null => {
-  const appTabParam = searchParams.get("app-tab");
-  let appTab: AppTab | null = null;
-  if (verifyKeyType(appTabParam, APP_TABS)) {
-    appTab = appTabParam as AppTab;
+  const overlayTabParam = searchParams.get("app-tab");
+  let overlayTab: OverlayTab | null = null;
+  if (verifyKeyType(overlayTabParam, APP_TABS)) {
+    overlayTab = overlayTabParam as OverlayTab;
   }
   const siteId = searchParams.get("site-id");
   const views = generateViewsArrayFromSearchParams(searchParams);
 
-  const appTabsStoreState = useAppTabsStore.getState();
-  if (appTab && appTabsStoreState.activeTab !== appTab) {
-    appTabsStoreState.setActiveTab(appTab);
+  const overlayTabsStoreState = useOverlayTabsStore.getState();
+  if (overlayTab && overlayTabsStoreState.activeTab !== overlayTab) {
+    overlayTabsStoreState.setActiveTab(overlayTab);
   }
 
   const projectStoreState = useProjectOverlayStore.getState();
@@ -193,7 +193,7 @@ export const dispatchProjectStatesFromURL = (
   const state: RouteDependentState = {
     _routeType: "project",
     config: {
-      "app-tab": appTab,
+      "app-tab": overlayTab,
       "project-id": projectId,
       "site-id": siteId,
       views: views,
