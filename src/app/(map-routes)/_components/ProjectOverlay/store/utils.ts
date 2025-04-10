@@ -125,7 +125,8 @@ export const fetchMeasuredTreesShapefile = async (
           ...feature,
           properties: {
             ...feature.properties,
-            species: getTreeSpeciesName(feature.properties).trim(),
+            species:
+              getTreeSpeciesName(feature.properties)?.trim() ?? "Unknown",
             type: "measured-tree",
           },
           id: index,
