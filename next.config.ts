@@ -11,6 +11,10 @@ const remotePatterns = [
     protocol: "https" as const,
     hostname: "gainforest-transparency-dashboard.s3.us-east-1.amazonaws.com",
   },
+  {
+    protocol: "https" as const,
+    hostname: "*",
+  },
 ].filter((pattern) => pattern !== null);
 
 const nextConfig: NextConfig = {
