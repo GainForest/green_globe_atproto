@@ -16,6 +16,7 @@ import { addProjectMarkersSourceAndLayer } from "./sources-and-layers/project-ma
 import { ProjectSitePoints } from "./sources-and-layers/types";
 import { NormalizedTreeFeature } from "../ProjectOverlay/store/types";
 import { addLandcoverSourceAndLayer } from "./sources-and-layers/historical-satellite";
+import { HoveredTreeOverlayState } from "../HoveredTreeOverlay/store";
 
 export const spinGlobe = (map: Map, spinEnabled: boolean) => {
   const secondsPerRevolution = 120;
@@ -131,7 +132,7 @@ export const addProjectMarkerHandlers = (
 export const getTreeInformation = (
   e: MapMouseEvent,
   activeProjectId: string
-) => {
+): HoveredTreeOverlayState["treeInformation"] | null => {
   const features = e?.features;
   if (!features || features.length === 0) return null;
 
@@ -145,7 +146,8 @@ export const getTreeInformation = (
 
   if (!hoveredTreeFeature) return null;
 
-  const treeName = getTreeSpeciesName(hoveredTreeFeature.properties);
+  const treeSpecies = getTreeSpeciesName(hoveredTreeFeature.properties);
+  const treeCommonName = hoveredTreeFeature.properties?.commonName;
   const treeHeight = getTreeHeight(hoveredTreeFeature.properties);
   const treeDBH = getTreeDBH(hoveredTreeFeature.properties);
   const dateOfMeasurement = getTreeDateOfMeasurement(
@@ -165,9 +167,11 @@ export const getTreeInformation = (
     activeProjectId,
     treeID
   );
+  console.log(treeSpecies, treeCommonName);
 
   return {
-    treeName,
+    treeSpecies,
+    treeCommonName,
     treeHeight,
     treeDBH,
     treePhotos,

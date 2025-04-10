@@ -70,6 +70,7 @@ export const convertFromGFTreeFeatureToNormalizedTreeFeature = (
         ? feature.properties.measurements_in_cm.diameter.toString()
         : undefined,
       species: feature.properties.taxonomy?.species ?? "",
+      commonName: feature.properties.taxonomy?.common_name ?? "",
       dateMeasured: feature.properties.measurements_in_cm?.date_measured
         ? new Date(
             feature.properties.measurements_in_cm.date_measured
