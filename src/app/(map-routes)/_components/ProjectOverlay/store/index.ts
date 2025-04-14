@@ -9,6 +9,10 @@ import useMapStore from "../../Map/store";
 import bbox from "@turf/bbox";
 import { MeasuredTreesGeoJSON } from "./types";
 import { AsyncData } from "@/lib/types";
+import {
+  type GFTreeFeature,
+  convertFromGFTreeFeatureToNormalizedTreeFeature,
+} from "./ayyoweca-uganda";
 type ProjectSiteOption = {
   value: string;
   label: string;
@@ -112,8 +116,8 @@ const useProjectOverlayStore = create<
         ...initialProjectState,
       });
 
-      // Fetch project data
       const projectData = await fetchProjectData(projectId);
+
       if (!isProjectStillActive(projectId)) return;
 
       if (!projectData) {
@@ -159,7 +163,27 @@ const useProjectOverlayStore = create<
 
       // Then fetch trees data (asynchronous operation)
       try {
-        const data = await fetchMeasuredTreesShapefile(projectData.name);
+        let data: MeasuredTreesGeoJSON | null = null;
+        if (
+          projectId ===
+          "49bbaba0d8980989ce9b3988a45c375a42206239d6bc930c2357035e670838e0"
+        ) {
+          const gfTreeFeatures = (await fetchMeasuredTreesShapefile(
+            projectData.name
+          )) as unknown as {
+            type: "FeatureCollection";
+            features: GFTreeFeature[];
+          };
+          data = {
+            type: "FeatureCollection",
+            features: gfTreeFeatures.features.map(
+              convertFromGFTreeFeatureToNormalizedTreeFeature
+            ),
+          };
+          console.log("data", data);
+        } else {
+          data = await fetchMeasuredTreesShapefile(projectData.name);
+        }
         if (!isProjectStillActive(projectId)) return;
         set({
           treesAsync: {

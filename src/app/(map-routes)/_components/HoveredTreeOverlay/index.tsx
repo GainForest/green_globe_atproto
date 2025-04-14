@@ -50,9 +50,19 @@ const HoveredTreeOverlay = () => {
               <div className="flex flex-col gap-1 items-start">
                 <span className="bg-muted/70 backdrop-blur-lg text-muted-foreground text-sm px-3 py-1 rounded-full flex items-center gap-2">
                   <Leaf size={16} />
-                  <span>Species</span>
+                  <span>
+                    {hoveredTree.treeSpecies
+                      ? "Species"
+                      : hoveredTree.treeCommonName
+                      ? "Common Name"
+                      : "Species"}
+                  </span>
                 </span>
-                <h1 className="text-xl font-bold">{hoveredTree.treeName}</h1>
+                <h1 className="text-xl font-bold">
+                  {hoveredTree.treeSpecies ??
+                    hoveredTree.treeCommonName ??
+                    "Unknown"}
+                </h1>
               </div>
               <div className="flex items-center justify-stretch gap-2">
                 <div className="flex-1 flex flex-col bg-muted rounded-xl p-2 gap-1">
@@ -121,7 +131,9 @@ const HoveredTreeOverlay = () => {
                 </div>
               </div>
               <span className="font-bold text-xs text-center p-1 leading-tight text-balance">
-                {hoveredTree.treeName}
+                {hoveredTree.treeSpecies ??
+                  hoveredTree.treeCommonName ??
+                  "Unknown"}
               </span>
             </button>
           </UIBase>
