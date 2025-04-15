@@ -1,10 +1,11 @@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import useLayersOverlayStore from "./store";
 import autoAnimate from "@formkit/auto-animate";
 import dayjs from "dayjs";
+import useNavigation from "../../_features/navigation/use-navigation";
 const HistoricalSatelliteControls = () => {
   const thisLayerView = useLayersOverlayStore(
     (state) => state.staticLayersVisibility.historicalSatellite
@@ -12,14 +13,9 @@ const HistoricalSatelliteControls = () => {
   const setStaticLayerVisibility = useLayersOverlayStore(
     (actions) => actions.setStaticLayerVisibility
   );
-  const setThisLayerView = useCallback(
-    (value: boolean) => {
-      setStaticLayerVisibility("historicalSatellite", value);
-    },
-    [setStaticLayerVisibility]
-  );
+  const navigate = useNavigation();
   const handleToggle = (value: boolean) => {
-    setThisLayerView(value);
+    setStaticLayerVisibility("historicalSatellite", value, navigate);
   };
 
   const historicalSatelliteState = useLayersOverlayStore(
@@ -72,7 +68,7 @@ const HistoricalSatelliteControls = () => {
               onValueChange={(value) => {
                 const monthsSinceMin = value[0];
                 const newDate = minDate.add(monthsSinceMin, "month");
-                setHistoricalSatelliteDate(newDate);
+                setHistoricalSatelliteDate(newDate, navigate);
               }}
             />
             <span className="font-bold text-center">

@@ -10,24 +10,26 @@ import useProjectOverlayStore from "../../ProjectOverlay/store";
 import useOverlayTabsStore from "@/app/(map-routes)/_components/Overlay/OverlayTabs/store";
 import mapboxgl, { Map as MapInterface } from "mapbox-gl";
 import { MAP_CONFIG, MAP_FOG_CONFIG } from "../config";
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
+
 const useMapbox = (mapContainerRef: React.RefObject<HTMLDivElement | null>) => {
   const mapRef = useRef<MapInterface | null>(null);
   const setMapRef = useMapStore((state) => state.setMapRef);
 
+  const navigate = useNavigation();
+
   const setMapLoaded = useMapStore((state) => state.setMapLoaded);
 
   const setCurrentView = useMapStore((state) => state.setCurrentView);
-  const setAppActiveTab = useOverlayTabsStore(
-    (actions) => actions.setActiveTab
-  );
+  const setOverlayTab = useOverlayTabsStore((actions) => actions.setActiveTab);
   const setActiveProjectId = useProjectOverlayStore(
     (actions) => actions.setProjectId
   );
 
   const handleProjectMarkerClick = (projectId: string) => {
     setCurrentView("project");
-    setAppActiveTab("project");
-    setActiveProjectId(projectId);
+    setOverlayTab("project", navigate);
+    setActiveProjectId(projectId, navigate);
   };
 
   useEffect(() => {

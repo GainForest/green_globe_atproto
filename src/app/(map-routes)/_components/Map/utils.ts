@@ -167,7 +167,6 @@ export const getTreeInformation = (
     activeProjectId,
     treeID
   );
-  console.log(treeSpecies, treeCommonName);
 
   return {
     treeSpecies,

@@ -3,16 +3,20 @@ import React from "react";
 import { Combobox } from "@/components/ui/combobox";
 import { Project } from "./store/types";
 import useProjectOverlayStore from "./store";
+import useNavigation from "../../_features/navigation/use-navigation";
 
 const ProjectSitesSection = () => {
   const projectSitesOptions = useProjectOverlayStore(
     (state) => state.allSitesOptions
   );
-  const activeSite = useProjectOverlayStore((state) => state.activeSite);
-  const setActiveSite = useProjectOverlayStore((state) => state.setActiveSite);
+  const navigate = useNavigation();
+  const siteId = useProjectOverlayStore((state) => state.siteId);
+  const setSiteId = useProjectOverlayStore((state) => state.setSiteId);
+  const activateSite = useProjectOverlayStore((state) => state.activateSite);
 
   const handleProjectSiteChange = (siteId: string) => {
-    setActiveSite(siteId);
+    setSiteId(siteId, navigate);
+    activateSite();
   };
 
   if (!projectSitesOptions || projectSitesOptions.length === 0) return null;
@@ -25,7 +29,7 @@ const ProjectSitesSection = () => {
       {projectSitesOptions.length > 1 ? (
         <Combobox
           options={projectSitesOptions}
-          value={activeSite?.id}
+          value={siteId ?? undefined}
           onChange={handleProjectSiteChange}
           className="flex-1 max-w-[300px]"
           searchIn="label"

@@ -7,6 +7,7 @@ import useOverlayTabsStore, { OverlayTabsState } from "./store";
 import useProjectOverlayStore from "../../ProjectOverlay/store";
 import useHoveredTreeOverlayStore from "../../HoveredTreeOverlay/store";
 import { SlidingTabs, Underlay, Tab } from "@/components/ui/sliding-tabs";
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 
 type TabButton = {
   icon: React.FC<LucideProps>;
@@ -22,6 +23,7 @@ const OverlayTabs = () => {
   const hoveredTree = useHoveredTreeOverlayStore(
     (state) => state.treeInformation
   );
+  const navigate = useNavigation();
 
   const buttons: TabButton[] = useMemo(
     () => [
@@ -50,7 +52,9 @@ const OverlayTabs = () => {
   return (
     <SlidingTabs
       activeKey={activeTab}
-      onTabChange={(key) => setActiveTab(key as OverlayTabsState["activeTab"])}
+      onTabChange={(key) =>
+        setActiveTab(key as OverlayTabsState["activeTab"], navigate)
+      }
     >
       <Underlay />
 
@@ -60,7 +64,7 @@ const OverlayTabs = () => {
             <Button
               variant="ghost"
               className="flex-1"
-              onClick={() => setActiveTab(button.key)}
+              onClick={() => setActiveTab(button.key, navigate)}
               disabled={button.shouldBeDisabled}
             >
               <button.icon /> {button.label}

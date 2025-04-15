@@ -1,26 +1,45 @@
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 import { create } from "zustand";
 
-export const APP_TABS = [
-  "project",
-  "hovered-tree",
-  "layers",
-  "search",
+export const OVERLAY_TABS = ["project", "layers", "search"] as const;
+export const OVERLAY_DISPLAY_STATES = [
+  "hidden",
+  "normal",
+  "maximized",
 ] as const;
 
-export type OverlayTab = (typeof APP_TABS)[number];
-
 export type OverlayTabsState = {
-  activeTab: OverlayTab;
+  activeTab: (typeof OVERLAY_TABS)[number];
+  display: (typeof OVERLAY_DISPLAY_STATES)[number];
 };
 
 export type OverlayTabsActions = {
-  setActiveTab: (activeTab: OverlayTabsState["activeTab"]) => void;
+  setActiveTab: (
+    activeTab: OverlayTabsState["activeTab"],
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
+  setDisplay: (
+    display: OverlayTabsState["display"],
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
 };
 
 const useOverlayTabsStore = create<OverlayTabsState & OverlayTabsActions>(
   (set) => ({
     activeTab: "search",
-    setActiveTab: (activeTab) => set({ activeTab }),
+    display: "normal",
+    setActiveTab: (activeTab, navigate) => {
+      set({ activeTab });
+      navigate?.((draft) => {
+        draft.overlay["active-tab"] = activeTab;
+      });
+    },
+    setDisplay: (display, navigate) => {
+      set({ display });
+      navigate?.((draft) => {
+        draft.overlay["display"] = display;
+      });
+    },
   })
 );
 

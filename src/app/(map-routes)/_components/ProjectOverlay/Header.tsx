@@ -12,7 +12,7 @@ import QuickTooltip from "@/components/ui/quick-tooltip";
 import { cn } from "@/lib/utils";
 import useProjectOverlayStore, { ProjectOverlayState } from "./store";
 import { Project } from "./store/types";
-
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 const TabButton = ({
   children,
   label,
@@ -89,6 +89,7 @@ const TABS_CONFIG: {
 const Tabs = () => {
   const activeTab = useProjectOverlayStore((state) => state.activeTab);
   const setActiveTab = useProjectOverlayStore((state) => state.setActiveTab);
+  const navigate = useNavigation();
 
   const isMaximized = useProjectOverlayStore((state) => state.isMaximized);
   return (
@@ -103,7 +104,7 @@ const Tabs = () => {
           key={tab.id}
           label={tab.label}
           isActive={activeTab === tab.id}
-          onClick={() => setActiveTab(tab.id)}
+          onClick={() => setActiveTab(tab.id, navigate)}
         >
           <tab.icon size={16} />
         </TabButton>

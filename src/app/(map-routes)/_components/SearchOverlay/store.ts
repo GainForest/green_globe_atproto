@@ -1,13 +1,16 @@
 import { create } from "zustand";
 import { Feature } from "../Map/sources-and-layers/types";
-
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 export type SearchOverlayState = {
   allProjects: Feature[];
   searchQuery: string;
 };
 
 export type SearchOverlayActions = {
-  setSearchQuery: (searchQuery: string) => void;
+  setSearchQuery: (
+    searchQuery: string,
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
   setAllProjects: (projects: Feature[]) => void;
 };
 
@@ -20,7 +23,12 @@ const useSearchOverlayStore = create<SearchOverlayState & SearchOverlayActions>(
   (set) => {
     return {
       ...initialState,
-      setSearchQuery: (searchQuery) => set({ searchQuery }),
+      setSearchQuery: (searchQuery, navigate) => {
+        set({ searchQuery });
+        navigate?.((draft) => {
+          draft.search["q"] = searchQuery;
+        });
+      },
       setAllProjects: (projects) => set({ allProjects: projects }),
     };
   }
