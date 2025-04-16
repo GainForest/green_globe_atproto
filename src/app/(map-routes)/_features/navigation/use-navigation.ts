@@ -4,6 +4,7 @@ import { generateQueryStringFromOverlay } from "./utils/overlay";
 import { generateQueryStringFromLayers } from "./utils/layers";
 import { generateQueryStringFromSearch } from "./utils/search";
 import { generateQueryStringFromProject } from "./utils/project";
+import { generateQueryStringFromMap } from "./utils/map";
 import { produce } from "immer";
 
 const useNavigation = () => {
@@ -22,18 +23,20 @@ const useNavigation = () => {
             Object.assign(draft, state);
           });
 
-    const { overlay, layers, search, project } = newState;
+    const { overlay, layers, search, project, map } = newState;
 
     const overlayQueryString = generateQueryStringFromOverlay(overlay);
     const layersQueryString = generateQueryStringFromLayers(layers);
     const searchQueryString = generateQueryStringFromSearch(search);
     const projectQueryString = generateQueryStringFromProject(project);
+    const mapQueryString = generateQueryStringFromMap(map);
 
     const queryString = [
       overlayQueryString,
       layersQueryString,
       searchQueryString,
       projectQueryString,
+      mapQueryString,
     ]
       .filter((str) => str.trim() !== "")
       .join("&");

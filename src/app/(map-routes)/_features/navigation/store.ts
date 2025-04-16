@@ -25,11 +25,16 @@ export type SearchNavigationState = {
   q: string | null;
 };
 
+export type MapNavigationState = {
+  bounds: [number, number, number, number] | null;
+};
+
 export type NavigationState = {
   overlay: OverlayNavigationState;
   project: ProjectNavigationState | null;
   layers: LayersNavigationState;
   search: SearchNavigationState;
+  map: MapNavigationState;
 };
 
 export type NavigationActions = {
@@ -51,6 +56,9 @@ export const DEFAULT_NAVIGATION_STATE: NavigationState = {
   },
   search: {
     q: null,
+  },
+  map: {
+    bounds: null,
   },
 };
 

@@ -6,6 +6,7 @@ import {
   OverlayNavigationState,
   LayersNavigationState,
   SearchNavigationState,
+  MapNavigationState,
 } from "../store";
 type NestedObject = {
   [key: string]:
@@ -145,10 +146,19 @@ export const generateNavigationStateFromURL = (
     q: searchQ ?? DEFAULT_NAVIGATION_STATE.search.q,
   } satisfies SearchNavigationState;
 
+  // Map
+  const mapBounds = params.get("map-bounds");
+  const map = {
+    bounds: mapBounds
+      ? (mapBounds.split(",").map(Number) as [number, number, number, number])
+      : DEFAULT_NAVIGATION_STATE.map.bounds,
+  } satisfies MapNavigationState;
+
   return {
     overlay,
     project,
     layers,
     search,
+    map,
   };
 };

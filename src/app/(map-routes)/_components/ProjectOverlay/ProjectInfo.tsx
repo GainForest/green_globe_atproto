@@ -16,7 +16,7 @@ const ProjectSitesSection = () => {
 
   const handleProjectSiteChange = (siteId: string) => {
     setSiteId(siteId, navigate);
-    activateSite();
+    activateSite(true, navigate);
   };
 
   if (!projectSitesOptions || projectSitesOptions.length === 0) return null;

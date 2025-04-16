@@ -68,13 +68,17 @@ export type ProjectOverlayState = {
 export type ProjectOverlayActions = {
   setProjectId: (
     projectId: ProjectOverlayState["projectId"],
-    navigate?: ReturnType<typeof useNavigation>
+    navigate?: ReturnType<typeof useNavigation>,
+    zoomToSite?: boolean
   ) => void;
   setSiteId: (
     siteId: string | null,
     navigate?: ReturnType<typeof useNavigation>
   ) => void;
-  activateSite: () => void;
+  activateSite: (
+    zoomToSite?: boolean,
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
   setActiveTab: (
     tab: ProjectOverlayState["activeTab"],
     navigate?: ReturnType<typeof useNavigation>
@@ -115,7 +119,8 @@ const useProjectOverlayStore = create<
 
   return {
     ...initialState,
-    setProjectId: async (projectId, navigate) => {
+    setProjectId: async (projectId, navigate, zoomToSite) => {
+      console.log("setProjectId", projectId, navigate, zoomToSite);
       // Reset state if no id provided
       if (!projectId) {
         get().resetState();
@@ -182,7 +187,7 @@ const useProjectOverlayStore = create<
       } else {
         get().setSiteId(null, navigate);
       }
-      get().activateSite();
+      get().activateSite(zoomToSite ?? true, navigate);
 
       // Then fetch trees data (asynchronous operation)
       try {
@@ -241,7 +246,7 @@ const useProjectOverlayStore = create<
         }
       });
     },
-    activateSite: () => {
+    activateSite: (zoomToSite, navigate) => {
       const projectData = get().projectData;
       if (!projectData) return;
       const projectSites = getAllSiteAssets(projectData);
@@ -259,7 +264,14 @@ const useProjectOverlayStore = create<
           number,
           number
         ];
-        useMapStore.getState().setMapBounds(boundingBox);
+        if (zoomToSite) {
+          useMapStore.getState().setMapBounds(boundingBox);
+        }
+        navigate?.((draft) => {
+          if (draft.map.bounds !== null) {
+            draft.map.bounds = null;
+          }
+        });
         useMapStore.getState().setHighlightedPolygon(data);
       });
 

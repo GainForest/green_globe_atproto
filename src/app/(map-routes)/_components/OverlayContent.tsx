@@ -5,7 +5,7 @@ import LayersOverlay from "./LayersOverlay";
 import { AnimatePresence } from "framer-motion";
 import useOverlayTabsStore from "@/app/(map-routes)/_components/Overlay/OverlayTabs/store";
 import SearchOverlay from "./SearchOverlay";
-const OverlayRenderer = () => {
+const OverlayContent = () => {
   const appActiveTab = useOverlayTabsStore((state) => state.activeTab);
 
   let overlay = null;
@@ -16,4 +16,4 @@ const OverlayRenderer = () => {
   return <AnimatePresence>{overlay}</AnimatePresence>;
 };
 
-export default OverlayRenderer;
+export default OverlayContent;

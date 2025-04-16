@@ -29,7 +29,9 @@ const useMapbox = (mapContainerRef: React.RefObject<HTMLDivElement | null>) => {
   const handleProjectMarkerClick = (projectId: string) => {
     setCurrentView("project");
     setOverlayTab("project", navigate);
-    setActiveProjectId(projectId, navigate);
+    setTimeout(() => {
+      setActiveProjectId(projectId, navigate);
+    }, 250);
   };
 
   useEffect(() => {

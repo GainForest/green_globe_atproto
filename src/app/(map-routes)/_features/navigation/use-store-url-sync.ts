@@ -8,6 +8,7 @@ import useLayersOverlayStore from "../../_components/LayersOverlay/store";
 import dayjs from "dayjs";
 import useSearchOverlayStore from "../../_components/SearchOverlay/store";
 import { updateDedicatedStoresFromViews } from "../../_features/navigation/utils/project";
+import useMapStore from "../../_components/Map/store";
 
 const useStoreUrlSync = (
   queryParams: ReadonlyURLSearchParams,
@@ -25,6 +26,7 @@ const useStoreUrlSync = (
     );
     useNavigationStore.getState().updateNavigationState(navigationState);
 
+    // Overlay
     const overlay = useNavigationStore.getState().overlay;
     const { activeTab, setActiveTab, display, setDisplay } =
       useOverlayTabsStore.getState();
@@ -37,11 +39,17 @@ const useStoreUrlSync = (
 
     // Project
     const project = useNavigationStore.getState().project;
+    let map = useNavigationStore.getState().map;
     if (project) {
       const { projectId, setProjectId } = useProjectOverlayStore.getState();
-      console.log("navigating to <REASON>", project["project-id"], projectId);
+
+      // Project & Map bounds
       if (project["project-id"] !== projectId) {
-        setProjectId(project["project-id"]);
+        setProjectId(
+          project["project-id"],
+          undefined,
+          map["bounds"] === null || map["bounds"].length !== 4
+        );
       }
 
       const { siteId, setSiteId } = useProjectOverlayStore.getState();
@@ -93,6 +101,14 @@ const useStoreUrlSync = (
     const { searchQuery, setSearchQuery } = useSearchOverlayStore.getState();
     if (search["q"] !== null && search["q"] !== searchQuery) {
       setSearchQuery(search["q"]);
+    }
+
+    // Map
+    // Map bounds are also being handled above in the project handling
+    map = useNavigationStore.getState().map;
+    const { setMapBounds } = useMapStore.getState();
+    if (map["bounds"] !== null && map["bounds"].length === 4) {
+      setMapBounds(map["bounds"]);
     }
   }, [projectIdParam, queryParams]);
 };
