@@ -60,7 +60,7 @@ const ShareDialog = ({ children }: { children: React.ReactNode }) => {
   const project = useProjectOverlayStore((state) => state.projectData);
   const getMapBounds = useMapStore((state) => state.getMapBounds);
 
-  const [shouldShareLayers, setShouldShareLayers] = useState(true);
+  const [shouldShareOtherConfigs, setShouldShareOtherConfigs] = useState(true);
   const [sharingOption, setSharingOption] = useState<"bounds" | "project">(
     "bounds"
   );
@@ -86,7 +86,7 @@ const ShareDialog = ({ children }: { children: React.ReactNode }) => {
     });
 
     // Layers
-    if (shouldShareLayers) {
+    if (shouldShareOtherConfigs) {
       searchParamsArray.forEach(([key, value]) => {
         if (key.startsWith("layer")) {
           generatedParams.set(key, value);
@@ -96,11 +96,20 @@ const ShareDialog = ({ children }: { children: React.ReactNode }) => {
 
     // Project
     if (project) {
-      searchParamsArray.forEach(([key, value]) => {
-        if (key.startsWith("project")) {
-          generatedParams.set(key, value);
+      if (shouldShareOtherConfigs) {
+        searchParamsArray.forEach(([key, value]) => {
+          if (key.startsWith("project")) {
+            generatedParams.set(key, value);
+          }
+        });
+      } else {
+        if (searchParams.get("project-site-id")) {
+          generatedParams.set(
+            "project-site-id",
+            searchParams.get("project-site-id")!
+          );
         }
-      });
+      }
     }
 
     // Search
@@ -119,7 +128,7 @@ const ShareDialog = ({ children }: { children: React.ReactNode }) => {
     }
 
     return `${window.location.origin}${pathname}?${generatedParams.toString()}`;
-  }, [searchParams, pathname, shouldShareLayers, project]);
+  }, [searchParams, pathname, shouldShareOtherConfigs, project]);
 
   return (
     <Dialog>
@@ -164,11 +173,11 @@ const ShareDialog = ({ children }: { children: React.ReactNode }) => {
           )}
           <div className="flex items-center gap-2">
             <Switch
-              checked={shouldShareLayers}
-              onCheckedChange={setShouldShareLayers}
-              id="share-layers-switch"
+              checked={shouldShareOtherConfigs}
+              onCheckedChange={setShouldShareOtherConfigs}
+              id="share-other-configs-switch"
             />
-            <Label htmlFor="share-layers-switch" className="text-sm">
+            <Label htmlFor="share-other-configs-switch" className="text-sm">
               Share layer settings {project && "and project views"}
             </Label>
           </div>
