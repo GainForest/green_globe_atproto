@@ -128,7 +128,7 @@ const ShareDialog = ({ children }: { children: React.ReactNode }) => {
     }
 
     return `${window.location.origin}${pathname}?${generatedParams.toString()}`;
-  }, [searchParams, pathname, shouldShareOtherConfigs, project]);
+  }, [searchParams, pathname, shouldShareOtherConfigs, project, sharingOption]);
 
   return (
     <Dialog>
@@ -142,15 +142,15 @@ const ShareDialog = ({ children }: { children: React.ReactNode }) => {
           {project ? (
             <div className="flex flex-col gap-2">
               <ShareOption
-                title="Share what you see"
-                description="Share the exact location coordinates of what you are viewing on the map."
+                title="Share visible map area"
+                description="Share the exact area and zoom level currently displayed on your screen."
                 Icon={LocateFixed}
                 checked={sharingOption === "bounds"}
                 onCheckedChange={() => setSharingOption("bounds")}
               />
               <ShareOption
                 title="Share the project"
-                description="Share the current project and it's location on the map."
+                description="Share the current project with its default location and zoom level"
                 Icon={MapPin}
                 checked={sharingOption === "project"}
                 onCheckedChange={() => setSharingOption("project")}
@@ -163,10 +163,10 @@ const ShareDialog = ({ children }: { children: React.ReactNode }) => {
                 size={40}
               />
               <div className="flex flex-col items-center">
-                <b>You are sharing what you see.</b>
+                <b>You are sharing the visible map area.</b>
                 <p className="text-sm text-center text-balance text-muted-foreground">
-                  You are sharing the exact location coordinates of what you are
-                  viewing on the map.
+                  You are sharing the exact area and zoom level currently
+                  displayed on your screen.
                 </p>
               </div>
             </div>
