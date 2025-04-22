@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const HeaderWhenFullHeight = ({ onBack }: { onBack: () => void }) => {
   return (
-    <div className="sticky top-0 z-[25] p-2 bg-background/90 backdrop-blur-lg flex flex-col gap-2">
+    <div className="sticky top-0 z-[25] p-2 bg-background/90 backdrop-blur-lg flex flex-col gap-2 border-b border-b-border">
       <div className="pb-0 flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ChevronLeft size={16} />
