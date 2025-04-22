@@ -4,8 +4,9 @@ import { fetchLayers, fetchProjectSpecificLayers } from "./utils";
 import { DynamicLayer } from "./types";
 import { groupBy } from "@/lib/utils";
 import useProjectOverlayStore from "../../ProjectOverlay/store";
-import useRouteStore from "../../RouteSynchronizer/store";
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 export type LayersOverlayState = {
+  toggledOnLayerIds: Set<string>;
   staticLayersVisibility: {
     historicalSatellite: boolean;
     landcover: boolean;
@@ -27,21 +28,25 @@ export type LayersOverlayState = {
 };
 
 export type LayersOverlayActions = {
-  setHistoricalSatelliteDate: (date: dayjs.Dayjs) => void;
+  setToggledOnLayerIds: (
+    layers: string[],
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
+  setHistoricalSatelliteDate: (
+    date: dayjs.Dayjs,
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
   setStaticLayerVisibility: (
     layerView: keyof LayersOverlayState["staticLayersVisibility"],
-    value: boolean
-  ) => void;
-  setDynamicLayerVisibility: (layerName: string, value: boolean) => void;
-  setProjectSpecificLayerVisibility: (
-    layerName: string,
-    value: boolean
+    value: boolean,
+    navigate?: ReturnType<typeof useNavigation>
   ) => void;
   fetchCategorizedDynamicLayers: () => Promise<void>;
   fetchProjectSpecificLayers: () => Promise<void>;
 };
 
 const initialState: LayersOverlayState = {
+  toggledOnLayerIds: new Set<string>(),
   staticLayersVisibility: {
     historicalSatellite: false,
     landcover: false,
@@ -69,45 +74,62 @@ const useLayersOverlayStore = create<LayersOverlayState & LayersOverlayActions>(
   (set, get) => {
     return {
       ...initialState,
-      setStaticLayerVisibility: (layerName, value) =>
+
+      setToggledOnLayerIds: (layers, navigate) => {
+        const layersSet = new Set(layers);
+        set((state) => {
+          // Update the categorized dynamic layers
+          const categorizedDynamicLayers = state.categorizedDynamicLayers.map(
+            (categoryObj) => {
+              const categoryKey = Object.keys(categoryObj)[0];
+              const categoryLayers = categoryObj[categoryKey];
+              const newCategoryLayers = categoryLayers.map((layer) => ({
+                ...layer,
+                visible: layersSet.has(layer.name),
+              }));
+              return {
+                [categoryKey]: newCategoryLayers,
+              };
+            }
+          );
+          // Update the project specific layers
+          const projectSpecificLayers = state.projectSpecificLayers.layers?.map(
+            (layer) => ({ ...layer, visible: layersSet.has(layer.name) })
+          );
+          return {
+            categorizedDynamicLayers,
+            projectSpecificLayers: {
+              ...state.projectSpecificLayers,
+              layers: projectSpecificLayers ?? null,
+            },
+            toggledOnLayerIds: new Set(layers),
+          };
+        });
+
+        navigate?.((draft) => {
+          draft.layers["enabled-layers"] = [...layers];
+        });
+      },
+      setStaticLayerVisibility: (layerName, value, navigate) => {
+        if (layerName === "landcover") {
+          navigate?.((draft) => {
+            draft.layers["landcover"] = value;
+          });
+        } else if (layerName === "historicalSatellite") {
+          navigate?.((draft) => {
+            draft.layers["historical-satellite"] = value
+              ? {
+                  date: get().historicalSatelliteState.formattedCurrentDate,
+                }
+              : null;
+          });
+        }
         set((state) => ({
           staticLayersVisibility: {
             ...state.staticLayersVisibility,
             [layerName]: value,
           },
-        })),
-      setDynamicLayerVisibility: (layerName, value) => {
-        set((state) => ({
-          categorizedDynamicLayers: state.categorizedDynamicLayers.map(
-            (categoryObj) => {
-              const categoryKey = Object.keys(categoryObj)[0];
-              const categoryLayers = categoryObj[categoryKey];
-              const newCategoryLayers = categoryLayers.map((layer) =>
-                layer.name === layerName ? { ...layer, visible: value } : layer
-              );
-              return {
-                [categoryKey]: newCategoryLayers,
-              };
-            }
-          ),
         }));
-      },
-      setProjectSpecificLayerVisibility: (layerName, value) => {
-        set((state) => {
-          const layers = state.projectSpecificLayers.layers;
-          if (!layers) {
-            return state;
-          }
-          const newLayers = layers.map((layer) =>
-            layer.name === layerName ? { ...layer, visible: value } : layer
-          );
-          return {
-            projectSpecificLayers: {
-              ...state.projectSpecificLayers,
-              layers: newLayers,
-            },
-          };
-        });
       },
       fetchProjectSpecificLayers: async () => {
         const projectData = useProjectOverlayStore.getState().projectData;
@@ -132,31 +154,32 @@ const useLayersOverlayStore = create<LayersOverlayState & LayersOverlayActions>(
           },
         });
         const layers = await fetchProjectSpecificLayers(projectData.name);
-        const enabledLayers = useRouteStore.getState()["enabled-layers"];
-        const enabledLayersSet = new Set(enabledLayers);
         set({
           projectSpecificLayers: {
             projectId: projectData.id,
             status: "success",
             layers: (layers ?? []).map((layer) => ({
               ...layer,
-              visible: enabledLayersSet.has(layer.name),
+              visible: get().toggledOnLayerIds.has(layer.name),
             })),
           },
         });
       },
       fetchCategorizedDynamicLayers: async () => {
         const layers = await fetchLayers();
-        const enabledLayers = useRouteStore.getState()["enabled-layers"];
-        const enabledLayersSet = new Set(enabledLayers);
         const dynamicLayers = layers.map((layer) => ({
           ...layer,
-          visible: enabledLayersSet.has(layer.name),
+          visible: get().toggledOnLayerIds.has(layer.name),
         }));
         const categorizedDynamicLayers = groupBy(dynamicLayers, "category");
         set({ categorizedDynamicLayers });
       },
-      setHistoricalSatelliteDate: (date) =>
+      setHistoricalSatelliteDate: (date, navigate) => {
+        navigate?.((draft) => {
+          draft.layers["historical-satellite"] = {
+            date: date.format("YYYY-MM"),
+          };
+        });
         set((state) => ({
           historicalSatelliteState: {
             ...state.historicalSatelliteState,
@@ -166,7 +189,8 @@ const useLayersOverlayStore = create<LayersOverlayState & LayersOverlayActions>(
             currentDate: date,
             formattedCurrentDate: date.format("YYYY-MM"),
           },
-        })),
+        }));
+      },
     };
   }
 );

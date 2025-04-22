@@ -9,16 +9,19 @@ import { Button } from "@/components/ui/button";
 import useProjectOverlayStore from "../ProjectOverlay/store";
 import useMapStore from "../Map/store";
 import { ChevronRight, CircleAlert, Loader2, X } from "lucide-react";
-import useAppTabsStore from "../Sidebar/AppTabs/store";
+import useOverlayTabsStore from "../Overlay/OverlayTabs/store";
 import { cn } from "@/lib/utils";
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
+
 const SearchOverlay = () => {
   const { animate, onAnimationComplete } = useBlurAnimate(
     { opacity: 1, scale: 1, filter: "blur(0px)" },
     { opacity: 1, scale: 1, filter: "unset" }
   );
+  const navigate = useNavigation();
 
   const setCurrentMapView = useMapStore((state) => state.setCurrentView);
-  const setActiveTab = useAppTabsStore((state) => state.setActiveTab);
+  const setActiveTab = useOverlayTabsStore((state) => state.setActiveTab);
 
   const projectId = useProjectOverlayStore((state) => state.projectId);
   const setProjectId = useProjectOverlayStore((state) => state.setProjectId);
@@ -60,8 +63,10 @@ const SearchOverlay = () => {
   }, []);
 
   const handleProjectClick = (projectId: string) => {
-    setProjectId(projectId);
-    setActiveTab("project");
+    setProjectId(projectId, navigate);
+    setTimeout(() => {
+      setActiveTab("project", navigate);
+    }, 250);
     setCurrentMapView("project");
   };
 
@@ -77,13 +82,13 @@ const SearchOverlay = () => {
         <div className="flex items-center relative">
           <Input
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value, navigate)}
             placeholder="Search projects"
             className="rounded-xl bg-foreground/10 h-10"
           />
           {searchQuery.length > 0 && (
             <button
-              onClick={() => setSearchQuery("")}
+              onClick={() => setSearchQuery("", navigate)}
               className="absolute right-2 h-6 w-6 p-1 rounded-full bg-background/40 flex items-center justify-center"
             >
               <X />
@@ -138,7 +143,7 @@ const SearchOverlay = () => {
                       <Button
                         variant={"outline"}
                         size={"icon"}
-                        onClick={() => setActiveTab("project")}
+                        onClick={() => setActiveTab("project", navigate)}
                         disabled={projectDataStatus !== "success"}
                         className="text-muted-foreground"
                       >
@@ -171,7 +176,10 @@ const SearchOverlay = () => {
                 Try searching for a different project
               </span>
             </div>
-            <Button variant={"secondary"} onClick={() => setSearchQuery("")}>
+            <Button
+              variant={"secondary"}
+              onClick={() => setSearchQuery("", navigate)}
+            >
               Clear search
             </Button>
           </div>

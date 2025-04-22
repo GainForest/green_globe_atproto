@@ -78,8 +78,9 @@ export type TreeFeatureProperties = {
   lon: number;
   Height?: string;
   height?: string;
-  diameter: string;
+  diameter?: string;
   species: string;
+  commonName?: string;
   dateMeasured?: string;
   dateOfMeasurement?: string;
   datePlanted?: string;

@@ -107,8 +107,7 @@ export const authOptions: NextAuthOptions = {
   },
   logger: {
     error: (code, ...message) => {
-      // Don't log CLIENT_FETCH_ERROR as it's usually just noise in development
-      if (code !== "CLIENT_FETCH_ERROR") {
+      if (code === "CLIENT_FETCH_ERROR") {
         console.error(code, message);
       }
     },

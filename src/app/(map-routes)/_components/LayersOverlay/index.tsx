@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import QuickTooltip from "@/components/ui/quick-tooltip";
 import useMapStore from "../Map/store";
 import LandcoverControls from "./LandcoverControls";
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 
 const LayersOverlay = () => {
   const { animate, onAnimationComplete } = useBlurAnimate(
@@ -20,14 +21,32 @@ const LayersOverlay = () => {
   );
 
   const projectData = useProjectOverlayStore((state) => state.projectData);
+  const toggledOnLayerIds = useLayersOverlayStore(
+    (state) => state.toggledOnLayerIds
+  );
+  const setToggledOnLayerIds = useLayersOverlayStore(
+    (actions) => actions.setToggledOnLayerIds
+  );
+
+  const navigate = useNavigation();
+  const toggleLayer = useCallback(
+    (layerName: string, value: boolean) => {
+      const tempToggledOnLayerIds = new Set(toggledOnLayerIds);
+      if (value) {
+        tempToggledOnLayerIds.add(layerName);
+      } else {
+        tempToggledOnLayerIds.delete(layerName);
+      }
+      setToggledOnLayerIds([...tempToggledOnLayerIds], navigate);
+    },
+    [toggledOnLayerIds, setToggledOnLayerIds]
+  );
+
   const categorizedDynamicLayers = useLayersOverlayStore(
     (state) => state.categorizedDynamicLayers
   );
   const fetchCategorizedDynamicLayers = useLayersOverlayStore(
     (actions) => actions.fetchCategorizedDynamicLayers
-  );
-  const setDynamicLayerVisibility = useLayersOverlayStore(
-    (actions) => actions.setDynamicLayerVisibility
   );
 
   const projectSpecificLayers = useLayersOverlayStore(
@@ -35,9 +54,6 @@ const LayersOverlay = () => {
   );
   const fetchProjectSpecificLayers = useLayersOverlayStore(
     (actions) => actions.fetchProjectSpecificLayers
-  );
-  const setProjectSpecificLayerVisibility = useLayersOverlayStore(
-    (actions) => actions.setProjectSpecificLayerVisibility
   );
 
   const setMapView = useMapStore((actions) => actions.setCurrentView);
@@ -112,7 +128,7 @@ const LayersOverlay = () => {
                       id={id}
                       checked={layer.visible}
                       onCheckedChange={(value) => {
-                        setDynamicLayerVisibility(layer.name, value);
+                        toggleLayer(layer.name, value);
                       }}
                     />
                   </div>
@@ -159,7 +175,7 @@ const LayersOverlay = () => {
                       id={id}
                       checked={layer.visible}
                       onCheckedChange={(value) => {
-                        setProjectSpecificLayerVisibility(layer.name, value);
+                        toggleLayer(layer.name, value);
                         if (value) {
                           handleZoomToProjectSpecificLayer(layer.endpoint);
                         }

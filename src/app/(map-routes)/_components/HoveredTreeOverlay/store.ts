@@ -2,7 +2,8 @@ import { create } from "zustand";
 
 export type HoveredTreeOverlayState = {
   treeInformation: {
-    treeName: string;
+    treeSpecies?: string;
+    treeCommonName?: string;
     treeHeight: string;
     treeDBH: string;
     treePhotos: string[];

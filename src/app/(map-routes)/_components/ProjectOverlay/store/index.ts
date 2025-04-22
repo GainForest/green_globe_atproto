@@ -7,9 +7,13 @@ import {
 } from "./utils";
 import useMapStore from "../../Map/store";
 import bbox from "@turf/bbox";
-import useRouteStore from "../../RouteSynchronizer/store";
 import { MeasuredTreesGeoJSON } from "./types";
 import { AsyncData } from "@/lib/types";
+import {
+  type GFTreeFeature,
+  convertFromGFTreeFeatureToNormalizedTreeFeature,
+} from "./ayyoweca-uganda";
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 type ProjectSiteOption = {
   value: string;
   label: string;
@@ -20,6 +24,7 @@ type ProjectStateCatalog = {
     projectData: null;
     projectDataStatus: "loading";
     allSitesOptions: null;
+    siteId: null;
     activeSite: null;
     treesAsync: null;
   };
@@ -27,6 +32,7 @@ type ProjectStateCatalog = {
     projectData: Project;
     projectDataStatus: "success";
     allSitesOptions: ProjectSiteOption[];
+    siteId: string | null;
     activeSite: SiteAsset | null;
     treesAsync: AsyncData<MeasuredTreesGeoJSON | null>;
   };
@@ -34,6 +40,7 @@ type ProjectStateCatalog = {
     projectData: null;
     projectDataStatus: "error";
     allSitesOptions: null;
+    siteId: null;
     activeSite: null;
     treesAsync: null;
   };
@@ -59,9 +66,23 @@ export type ProjectOverlayState = {
 } & ProjectState;
 
 export type ProjectOverlayActions = {
-  setProjectId: (projectId: ProjectOverlayState["projectId"]) => void;
-  setActiveSite: (siteId: string) => void;
-  setActiveTab: (tab: ProjectOverlayState["activeTab"]) => void;
+  setProjectId: (
+    projectId: ProjectOverlayState["projectId"],
+    navigate?: ReturnType<typeof useNavigation>,
+    zoomToSite?: boolean
+  ) => void;
+  setSiteId: (
+    siteId: string | null,
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
+  activateSite: (
+    zoomToSite?: boolean,
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
+  setActiveTab: (
+    tab: ProjectOverlayState["activeTab"],
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
   resetState: () => void;
   setIsMaximized: (isMaximized: ProjectOverlayState["isMaximized"]) => void;
 };
@@ -71,6 +92,7 @@ const initialProjectState: ProjectState = {
   projectData: null,
   treesAsync: null,
   allSitesOptions: null,
+  siteId: null,
   activeSite: null,
 };
 
@@ -97,21 +119,32 @@ const useProjectOverlayStore = create<
 
   return {
     ...initialState,
-    setProjectId: async (projectId) => {
+    setProjectId: async (projectId, navigate, zoomToSite) => {
+      console.log("setProjectId", projectId, navigate, zoomToSite);
       // Reset state if no id provided
       if (!projectId) {
         get().resetState();
+        navigate?.({
+          project: null,
+        });
         return;
       }
 
       // Set initial loading state
       set({
-        projectId: projectId,
+        projectId,
         ...initialProjectState,
       });
+      navigate?.({
+        project: {
+          "project-id": projectId,
+          "site-id": null,
+          views: ["info"],
+        },
+      });
 
-      // Fetch project data
       const projectData = await fetchProjectData(projectId);
+
       if (!isProjectStillActive(projectId)) return;
 
       if (!projectData) {
@@ -124,8 +157,8 @@ const useProjectOverlayStore = create<
 
       // Compute project site options
       const projectSites = getAllSiteAssets(projectData);
-
       const defaultSite = projectSites.find((site) => site.shapefile.default);
+
       const allSitesOptions = projectSites.map((site) => ({
         value: site.id,
         label: site.shapefile.shortName,
@@ -141,33 +174,43 @@ const useProjectOverlayStore = create<
         },
       });
 
-      // Handle site selection first (synchronous operation)
-      const { _routeType, config } = useRouteStore.getState();
-      let siteToActivate = null;
-
-      if (_routeType === "project" && config["site-id"]) {
-        const siteId = config["site-id"];
-        const site = projectSites.find((site) => site.id === siteId);
-        if (site) {
-          siteToActivate = siteId;
+      if (allSitesOptions.length > 0) {
+        const siteId = get().siteId;
+        if (
+          siteId === null ||
+          allSitesOptions.find((site) => site.value === siteId) === undefined
+        ) {
+          const defaultSiteId = defaultSite?.id;
+          const siteIdToActivate = defaultSiteId ?? allSitesOptions[0].value;
+          get().setSiteId(siteIdToActivate, navigate);
         }
+      } else {
+        get().setSiteId(null, navigate);
       }
-
-      if (!siteToActivate) {
-        if (defaultSite) {
-          siteToActivate = defaultSite.id;
-        } else if (allSitesOptions.length > 0) {
-          siteToActivate = allSitesOptions[0].value;
-        }
-      }
-
-      if (siteToActivate) {
-        get().setActiveSite(siteToActivate);
-      }
+      get().activateSite(zoomToSite ?? true, navigate);
 
       // Then fetch trees data (asynchronous operation)
       try {
-        const data = await fetchMeasuredTreesShapefile(projectData.name);
+        let data: MeasuredTreesGeoJSON | null = null;
+        if (
+          projectId ===
+          "49bbaba0d8980989ce9b3988a45c375a42206239d6bc930c2357035e670838e0"
+        ) {
+          const gfTreeFeatures = (await fetchMeasuredTreesShapefile(
+            projectData.name
+          )) as unknown as {
+            type: "FeatureCollection";
+            features: GFTreeFeature[];
+          };
+          data = {
+            type: "FeatureCollection",
+            features: gfTreeFeatures.features.map(
+              convertFromGFTreeFeatureToNormalizedTreeFeature
+            ),
+          };
+        } else {
+          data = await fetchMeasuredTreesShapefile(projectData.name);
+        }
         if (!isProjectStillActive(projectId)) return;
         set({
           treesAsync: {
@@ -186,11 +229,30 @@ const useProjectOverlayStore = create<
         });
       }
     },
-    setActiveSite: (siteId) => {
+    setSiteId: (siteId, navigate) => {
+      const projectId = get().projectId;
+      if (!projectId) return;
+      set({ siteId });
+      navigate?.((draft) => {
+        const project = draft.project;
+        if (!project) {
+          draft.project = {
+            "project-id": projectId,
+            "site-id": siteId,
+            views: [],
+          };
+        } else {
+          project["site-id"] = siteId;
+        }
+      });
+    },
+    activateSite: (zoomToSite, navigate) => {
       const projectData = get().projectData;
       if (!projectData) return;
       const projectSites = getAllSiteAssets(projectData);
-      const selectedSite = projectSites.find((site) => site.id === siteId);
+      const selectedSite = projectSites.find(
+        (site) => site.id === get().siteId
+      );
       if (!selectedSite) return;
 
       useMapStore.getState().setCurrentView("project");
@@ -202,14 +264,26 @@ const useProjectOverlayStore = create<
           number,
           number
         ];
-        useMapStore.getState().setMapBounds(boundingBox);
+        if (zoomToSite) {
+          useMapStore.getState().setMapBounds(boundingBox);
+        }
+        navigate?.((draft) => {
+          if (draft.map.bounds !== null) {
+            draft.map.bounds = null;
+          }
+        });
         useMapStore.getState().setHighlightedPolygon(data);
       });
 
       set({ activeSite: selectedSite });
     },
-    setActiveTab: (tab) => {
+    setActiveTab: (tab, navigate) => {
       set({ activeTab: tab });
+      navigate?.((draft) => {
+        const project = draft.project;
+        if (!project) return;
+        project.views = [tab];
+      });
     },
     setIsMaximized: (isMaximized) => {
       set({ isMaximized });

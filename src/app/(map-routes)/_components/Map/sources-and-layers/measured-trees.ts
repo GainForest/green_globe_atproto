@@ -115,7 +115,7 @@ export const getTreeSpeciesName = (tree: TreeFeature["properties"]) => {
   } else if (tree?.species) {
     return tree?.species;
   } else {
-    return "unknown";
+    return undefined;
   }
 };
 

@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { useAppKit } from "@reown/appkit/react";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect } from "react";
 import { Loader2, Lock, AlertCircle, RefreshCw } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 export default function UnauthorizedPage() {
   const { open } = useAppKit();
   const { isConnected, status: appKitStatus } = useAppKitAccount();
   const { status } = useSession();
-  const [isAttemptingConnect, setIsAttemptingConnect] = useState(false);
+  const router = useRouter();
 
   // Handle inconsistent state (wallet connected but session not authenticated)
   const inconsistentState =
@@ -25,11 +25,21 @@ export default function UnauthorizedPage() {
     window.location.reload();
   };
 
-  const isLoading =
-    appKitStatus === "connecting" ||
-    appKitStatus === "reconnecting" ||
-    isAttemptingConnect;
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.refresh();
+    }
+  }, [status]);
 
+  // const [mounted, setMounted] = useState(false);
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
+
+  // if (!mounted) return null;
+
+  const isLoading =
+    appKitStatus === "connecting" || appKitStatus === "reconnecting";
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-4">
       <div className="max-w-md w-full bg-card border border-border rounded-lg shadow-lg p-8">
@@ -79,7 +89,6 @@ export default function UnauthorizedPage() {
             className="w-full"
             size="lg"
             onClick={() => {
-              setIsAttemptingConnect(true);
               open();
             }}
             disabled={isLoading || status === "loading"}

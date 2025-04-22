@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import useMapStore from "../store";
-import useSidebarStore from "../../Sidebar/store";
+import useSidebarStore from "../../Overlay/store";
 
 /**
  * When the active project polygon changes, fit the map to the polygon and update the highlighted site source
