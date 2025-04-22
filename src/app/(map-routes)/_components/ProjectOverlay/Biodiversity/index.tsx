@@ -6,18 +6,14 @@ import { SlidingTabs, Underlay, Tab } from "@/components/ui/sliding-tabs";
 import Predictions from "./Predictions";
 import Observations from "./Observations";
 import autoAnimate from "@formkit/auto-animate";
-
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 const Biodiversity = () => {
   const activeTab = useBiodiversityStore((state) => state.activeTab);
   const setActiveTab = useBiodiversityStore((state) => state.setActiveTab);
+  const navigate = useNavigation();
   const tabRendererRef = useRef<HTMLDivElement>(null);
 
   // Ensure we have an active tab on initial render
-  useEffect(() => {
-    if (!activeTab) {
-      setActiveTab("predictions");
-    }
-  }, [activeTab, setActiveTab]);
 
   useEffect(() => {
     if (tabRendererRef.current) {
@@ -33,7 +29,7 @@ const Biodiversity = () => {
           <Button
             variant="ghost"
             className="relative z-10 flex-1 disabled:opacity-100"
-            onClick={() => setActiveTab("predictions")}
+            onClick={() => setActiveTab("predictions", navigate)}
             disabled={activeTab === "predictions"}
           >
             Predictions
@@ -43,7 +39,7 @@ const Biodiversity = () => {
           <Button
             variant="ghost"
             className="relative z-10 flex-1 disabled:opacity-100"
-            onClick={() => setActiveTab("observations")}
+            onClick={() => setActiveTab("observations", navigate)}
             disabled={activeTab === "observations"}
           >
             Observations

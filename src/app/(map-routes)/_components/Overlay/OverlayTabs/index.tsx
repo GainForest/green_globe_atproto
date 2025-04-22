@@ -3,25 +3,27 @@
 import { Layers, LucideProps, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import React, { useMemo } from "react";
-import useAppTabsStore, { AppTabsState } from "./store";
+import useOverlayTabsStore, { OverlayTabsState } from "./store";
 import useProjectOverlayStore from "../../ProjectOverlay/store";
 import useHoveredTreeOverlayStore from "../../HoveredTreeOverlay/store";
 import { SlidingTabs, Underlay, Tab } from "@/components/ui/sliding-tabs";
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 
 type TabButton = {
   icon: React.FC<LucideProps>;
   label: string;
   shouldBeDisabled: boolean;
-  key: Exclude<AppTabsState["activeTab"], undefined>;
+  key: Exclude<OverlayTabsState["activeTab"], undefined>;
 };
 
-const AppTabs = () => {
-  const activeTab = useAppTabsStore((state) => state.activeTab);
-  const setActiveTab = useAppTabsStore((state) => state.setActiveTab);
+const OverlayTabs = () => {
+  const activeTab = useOverlayTabsStore((state) => state.activeTab);
+  const setActiveTab = useOverlayTabsStore((state) => state.setActiveTab);
   const activeProjectId = useProjectOverlayStore((state) => state.projectId);
   const hoveredTree = useHoveredTreeOverlayStore(
     (state) => state.treeInformation
   );
+  const navigate = useNavigation();
 
   const buttons: TabButton[] = useMemo(
     () => [
@@ -50,7 +52,9 @@ const AppTabs = () => {
   return (
     <SlidingTabs
       activeKey={activeTab}
-      onTabChange={(key) => setActiveTab(key as AppTabsState["activeTab"])}
+      onTabChange={(key) =>
+        setActiveTab(key as OverlayTabsState["activeTab"], navigate)
+      }
     >
       <Underlay />
 
@@ -60,7 +64,7 @@ const AppTabs = () => {
             <Button
               variant="ghost"
               className="flex-1"
-              onClick={() => setActiveTab(button.key)}
+              onClick={() => setActiveTab(button.key, navigate)}
               disabled={button.shouldBeDisabled}
             >
               <button.icon /> {button.label}
@@ -76,4 +80,4 @@ const AppTabs = () => {
   );
 };
 
-export default AppTabs;
+export default OverlayTabs;

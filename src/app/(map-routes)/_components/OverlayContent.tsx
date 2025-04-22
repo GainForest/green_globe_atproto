@@ -3,10 +3,10 @@
 import ProjectOverlay from "./ProjectOverlay";
 import LayersOverlay from "./LayersOverlay";
 import { AnimatePresence } from "framer-motion";
-import useAppTabsStore from "@/app/(map-routes)/_components/Sidebar/AppTabs/store";
+import useOverlayTabsStore from "@/app/(map-routes)/_components/Overlay/OverlayTabs/store";
 import SearchOverlay from "./SearchOverlay";
-const OverlayRenderer = () => {
-  const appActiveTab = useAppTabsStore((state) => state.activeTab);
+const OverlayContent = () => {
+  const appActiveTab = useOverlayTabsStore((state) => state.activeTab);
 
   let overlay = null;
   if (appActiveTab === "search") overlay = <SearchOverlay />;
@@ -16,4 +16,4 @@ const OverlayRenderer = () => {
   return <AnimatePresence>{overlay}</AnimatePresence>;
 };
 
-export default OverlayRenderer;
+export default OverlayContent;

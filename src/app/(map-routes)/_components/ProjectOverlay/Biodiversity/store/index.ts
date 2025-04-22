@@ -1,3 +1,4 @@
+import useNavigation from "@/app/(map-routes)/_features/navigation/use-navigation";
 import { create } from "zustand";
 
 export type BiodiversityState = {
@@ -5,7 +6,10 @@ export type BiodiversityState = {
 };
 
 export type BiodiversityActions = {
-  setActiveTab: (tab: "predictions" | "observations") => void;
+  setActiveTab: (
+    tab: "predictions" | "observations",
+    navigate?: ReturnType<typeof useNavigation>
+  ) => void;
 };
 
 const initialState: BiodiversityState = {
@@ -15,8 +19,14 @@ const initialState: BiodiversityState = {
 const useBiodiversityStore = create<BiodiversityState & BiodiversityActions>(
   (set) => ({
     ...initialState,
-    setActiveTab: (tab) => set({ activeTab: tab }),
+    setActiveTab: (tab, navigate) => {
+      set({ activeTab: tab });
+      navigate?.((draft) => {
+        const project = draft.project;
+        if (!project) return;
+        project.views = ["biodiversity", tab];
+      });
+    },
   })
 );
-
 export default useBiodiversityStore;
