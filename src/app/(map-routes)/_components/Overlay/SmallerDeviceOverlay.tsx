@@ -137,7 +137,11 @@ const SmallerDeviceOverlay = () => {
                 </button>
               </div>
               <div className="p-1">
-                <OverlayTabs />
+                <OverlayTabs
+                  onTabClick={() => {
+                    setIsFullHeight(true);
+                  }}
+                />
               </div>
             </div>
           )}
