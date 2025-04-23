@@ -7,7 +7,7 @@ import Image from "next/image";
 //   ssr: false,
 // });
 
-const Header = () => {
+const Header = ({ showBrandName = true }: { showBrandName?: boolean }) => {
   // const { address } = useAppKitAccount();
   // const { open } = useAppKit();
   return (
@@ -20,7 +20,7 @@ const Header = () => {
           height={28}
           className="rounded-full"
         />
-        <span className="font-bold text-lg">GainForest</span>
+        {showBrandName && <span className="font-bold text-lg">GainForest</span>}
       </div>
 
       {/* Commenting this code to temporarily remove it */}
