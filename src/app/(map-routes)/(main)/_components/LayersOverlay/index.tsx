@@ -73,7 +73,7 @@ const LayersOverlay = () => {
     (layerEndpoint: string) => {
       setMapView("project");
       fetch(
-        `${process.env.NEXT_PUBLIC_TITILER_ENDPOINT}/cog/info?url=${process.env.NEXT_PUBLIC_AWS_STORAGE}/${layerEndpoint}`
+        `${process.env.NEXT_PUBLIC_TITILER_ENDPOINT}/cog/bounds?url=${process.env.NEXT_PUBLIC_AWS_STORAGE}/${layerEndpoint}`
       )
         .then((response) => {
           return response.json();
