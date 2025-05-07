@@ -1,13 +1,7 @@
 import { countryToEmoji } from "@/lib/country-emojis";
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Info,
-  Leaf,
-  MessageCircleQuestion,
-  LucideProps,
-  Users2,
-} from "lucide-react";
+import { Info, Leaf, LucideProps, Users2 } from "lucide-react";
 import QuickTooltip from "@/components/ui/quick-tooltip";
 import { cn } from "@/lib/utils";
 import useProjectOverlayStore, { ProjectOverlayState } from "./store";
@@ -65,11 +59,11 @@ const TABS_CONFIG: {
     icon: Leaf,
     id: "biodiversity" as const,
   },
-  {
-    label: "AI Assistant",
-    icon: MessageCircleQuestion,
-    id: "ask-ai" as const,
-  },
+  // {
+  //   label: "AI Assistant",
+  //   icon: MessageCircleQuestion,
+  //   id: "ask-ai" as const,
+  // },
   // {
   //   label: "Media",
   //   icon: ImagePlay,
