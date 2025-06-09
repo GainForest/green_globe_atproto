@@ -76,6 +76,7 @@ const ProjectForm = ({
 }: ProjectFormProps) => {
   const {
     privy: { accessToken },
+    refetch,
   } = useUserContext();
 
   const [showSuccess, setShowSuccess] = useState(false);
@@ -165,6 +166,7 @@ const ProjectForm = ({
     onSuccess: () => {
       setShowSuccess(true);
       setShowFailure(false);
+      refetch();
       onSuccess?.();
       setTimeout(() => {
         setShowSuccess(false);
