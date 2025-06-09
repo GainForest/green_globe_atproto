@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { useUserContext } from "@/app/_contexts/User";
+import { backendApiURL } from "@/config/endpoints";
 
 const projectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
@@ -139,7 +140,7 @@ const ProjectForm = ({
         // project id is not allowed to be updated
       };
 
-      const baseURL = `https://green-globe-backend-1d6172057f67.herokuapp.com/api/projects`;
+      const baseURL = `${backendApiURL}/projects`;
       const endpoint =
         mode === "edit" ? `/${initialProjectData.project_id}` : "/";
 

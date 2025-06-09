@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Project } from "./ProjectForm";
 import ErrorPage from "../../../_components/ErrorPage";
 import ProjectFormSkeleton from "./ProjectFormSkeleton";
+import { backendApiURL } from "@/config/endpoints";
 
 const ProjectEditor = ({ projectId }: { projectId: string }) => {
   const [resetKey, setResetKey] = useState(0);
@@ -23,14 +24,11 @@ const ProjectEditor = ({ projectId }: { projectId: string }) => {
     queryKey: ["project", accessToken, projectId],
     enabled: !!accessToken && !!projectId,
     queryFn: async () => {
-      const res = await fetch(
-        `https://green-globe-backend-1d6172057f67.herokuapp.com/api/projects/${projectId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const res = await fetch(`${backendApiURL}/projects/${projectId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       if (!res.ok) {
         throw new Error("Failed to fetch project");
       }

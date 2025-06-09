@@ -1,5 +1,6 @@
 "use client";
 
+import { backendApiURL } from "@/config/endpoints";
 import { usePrivy } from "@privy-io/react-auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -61,14 +62,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     queryKey: ["me", token],
     enabled: !!token,
     queryFn: async () => {
-      const res = await fetch(
-        "https://green-globe-backend-1d6172057f67.herokuapp.com/api/user/me",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${backendApiURL}/user/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!res.ok) {
         throw new Error("Failed to fetch user");
       }

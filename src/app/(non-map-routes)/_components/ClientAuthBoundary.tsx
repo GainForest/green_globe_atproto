@@ -4,6 +4,7 @@ import UnauthorizedPage from "./UnauthorizedPage";
 import { usePrivy } from "@privy-io/react-auth";
 import { useEffect } from "react";
 import Container from "@/components/Container";
+import { backendApiURL } from "@/config/endpoints";
 
 export default function ClientAuthBoundary({
   children,
@@ -17,14 +18,11 @@ export default function ClientAuthBoundary({
     getAccessToken().then((token) => {
       console.log("token", token);
       if (!token) return;
-      fetch(
-        "https://green-globe-backend-1d6172057f67.herokuapp.com/api/user/me/",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      fetch(`${backendApiURL}/user/me/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
         .then((res) => {
           console.log(res);
         })

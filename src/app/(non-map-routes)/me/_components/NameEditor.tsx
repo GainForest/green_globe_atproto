@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ChevronLeft } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useUserContext } from "@/app/_contexts/User";
+import { backendApiURL } from "@/config/endpoints";
 
 const NameEditor = ({ closeEditMode }: { closeEditMode: () => void }) => {
   const {
@@ -29,19 +30,16 @@ const NameEditor = ({ closeEditMode }: { closeEditMode: () => void }) => {
     const firstNameTrimmed = firstName.trim();
     const lastNameTrimmed = lastName.trim();
 
-    const updateNamePromise = fetch(
-      "https://green-globe-backend-1d6172057f67.herokuapp.com/api/user/me",
-      {
-        method: "PUT",
-        body: JSON.stringify({
-          first_name: firstNameTrimmed,
-          last_name: lastNameTrimmed,
-        }),
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    const updateNamePromise = fetch(`${backendApiURL}/user/me/`, {
+      method: "PUT",
+      body: JSON.stringify({
+        first_name: firstNameTrimmed,
+        last_name: lastNameTrimmed,
+      }),
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
 
     try {
       setStatus("loading");

@@ -15,6 +15,7 @@ import { useUserContext } from "@/app/_contexts/User";
 import ErrorPage from "@/app/(non-map-routes)/_components/ErrorPage";
 import { Combobox } from "@/components/ui/combobox";
 import { cn } from "@/lib/utils";
+import { backendApiURL } from "@/config/endpoints";
 
 const ProjectMembersListSkeleton = () => {
   return (
@@ -298,7 +299,7 @@ const ProjectMembersList = ({ projectId }: ProjectMembersListProps) => {
     enabled: !!accessToken && !!debouncedSearch && debouncedSearch.length > 0,
     queryFn: async () => {
       const res = await fetch(
-        `https://green-globe-backend-1d6172057f67.herokuapp.com/api/users/?search=${debouncedSearch}&page=1&page_size=5`,
+        `${backendApiURL}/users/?search=${debouncedSearch}&page=1&page_size=5`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -321,7 +322,7 @@ const ProjectMembersList = ({ projectId }: ProjectMembersListProps) => {
     enabled: !!accessToken && !!projectId,
     queryFn: async () => {
       const res = await fetch(
-        `https://green-globe-backend-1d6172057f67.herokuapp.com/api/projects/${projectId}/list_members/`,
+        `${backendApiURL}/projects/${projectId}/list_members/`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -365,7 +366,7 @@ const ProjectMembersList = ({ projectId }: ProjectMembersListProps) => {
 
     try {
       // Determine API endpoint and method based on the operation
-      let baseProjectEndpoint = `https://green-globe-backend-1d6172057f67.herokuapp.com/api/projects/${projectId}/`;
+      let baseProjectEndpoint = `${backendApiURL}/projects/${projectId}/`;
       let method: string;
 
       if (currentRole === null && permission_level !== null) {
