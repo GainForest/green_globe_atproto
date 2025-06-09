@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { useUserContext } from "@/app/_contexts/User";
 import { useStackedDialog } from "@/components/ui/StackedDialog/context";
 import { User2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
