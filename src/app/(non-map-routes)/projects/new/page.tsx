@@ -3,10 +3,12 @@ import React, { useEffect } from "react";
 import ProjectForm from "../[projectId]/_components/ProjectForm";
 import Container from "@/components/Container";
 import { useBreadcrumbs } from "../../_contexts/Breadcrumbs";
+import { useRouter } from "next/navigation";
 
 const NewProjectPage = () => {
   const today = new Date().toISOString().split("T")[0];
   const { setBreadcrumbs } = useBreadcrumbs();
+  const router = useRouter();
 
   useEffect(() => {
     setBreadcrumbs([
@@ -33,6 +35,7 @@ const NewProjectPage = () => {
             website: null,
             objective: "",
           }}
+          onSuccess={() => router.push("/projects")}
         />
       </div>
     </Container>

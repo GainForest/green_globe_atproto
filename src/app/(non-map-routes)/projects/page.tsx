@@ -9,6 +9,7 @@ import LoadingProjectsPage from "./loading";
 import { useUserContext } from "@/app/_contexts/User";
 import { useBreadcrumbs } from "../_contexts/Breadcrumbs";
 import { ProjectMinified } from "@/app/_contexts/User";
+import { Plus } from "lucide-react";
 
 const ProjectsGrid = ({ projects }: { projects: ProjectMinified[] }) => {
   const getCountryDetails = (country: string) =>
@@ -94,7 +95,15 @@ export default function ProjectsPage() {
         <p className="text-sm text-muted-foreground">Manage your projects</p>
       </div>
 
-      <h2 className="text-lg font-semibold mt-8">My Projects</h2>
+      <h2 className="text-lg font-semibold mt-8 flex items-center justify-between">
+        <span>My Projects</span>
+        <Link href="/projects/new">
+          <Button size={"sm"}>
+            <Plus />
+            New Project
+          </Button>
+        </Link>
+      </h2>
       <ProjectsGrid projects={adminProjects} />
 
       <h2 className="text-lg font-semibold mt-8">External Projects</h2>
