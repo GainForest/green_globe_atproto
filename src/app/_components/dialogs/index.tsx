@@ -4,6 +4,7 @@ import Onboarding from "./Onboarding";
 import SignInEmail from "./SignInEmail";
 import Account from "./Account";
 import SignInExternalWallet from "./SignInExternalWallet";
+import SignInBluesky from "./SignInBluesky";
 const dialogDefinitions = [
   {
     id: "onboarding",
@@ -20,6 +21,10 @@ const dialogDefinitions = [
   {
     id: "sign-in-external-wallet",
     dialog: SignInExternalWallet,
+  },
+  {
+    id: "sign-in-bluesky",
+    dialog: SignInBluesky,
   },
 ];
 

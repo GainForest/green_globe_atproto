@@ -2,6 +2,7 @@
 
 import { backendApiURL } from "@/config/endpoints";
 import { usePrivy } from "@privy-io/react-auth";
+import { useAtproto } from "../_components/Providers/AtprotoProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -36,6 +37,11 @@ type User = {
   privy: {
     accessToken: string | null;
   };
+  bluesky: {
+    isAuthenticated: boolean;
+    profile: any | null;
+    isInitialized: boolean;
+  };
   isPending: boolean;
   error: Error | null;
   refetch: () => void;
@@ -45,6 +51,7 @@ const UserContext = createContext<User | null>(null);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { getAccessToken } = usePrivy();
+  const { isAuthenticated: blueskyAuthenticated, userProfile, isInitialized: blueskyInitialized } = useAtproto();
   const [token, setToken] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -78,6 +85,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     backend: data,
     privy: {
       accessToken: token,
+    },
+    bluesky: {
+      isAuthenticated: blueskyAuthenticated,
+      profile: userProfile,
+      isInitialized: blueskyInitialized,
     },
     isPending,
     error,

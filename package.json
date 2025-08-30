@@ -10,6 +10,8 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@atproto/api": "^0.16.6",
+    "@atproto/oauth-client-browser": "^0.3.31",
     "@formkit/auto-animate": "^0.8.2",
     "@google-cloud/bigquery": "^7.9.2",
     "@hookform/resolvers": "^5.0.1",

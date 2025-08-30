@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogContent } from "@/components/ui/StackedDialog";
 import { StackedDialogContext } from "@/components/ui/StackedDialog/context";
-import { Mail, Wallet } from "lucide-react";
+import { Mail, Wallet, Bird } from "lucide-react";
 import Image from "next/image";
 
 const Onboarding = ({ pushDialog }: StackedDialogContext) => {
@@ -39,6 +39,13 @@ const Onboarding = ({ pushDialog }: StackedDialogContext) => {
           >
             <Wallet className="size-5" />
             Connect Wallet
+          </Button>
+          <Button
+            className="h-auto p-2 py-4 flex-1 flex flex-col items-center"
+            onClick={() => pushDialog("sign-in-bluesky")}
+          >
+            <Bird className="size-5" />
+            Sign in with Bluesky
           </Button>
         </div>
         <DialogClose asChild>

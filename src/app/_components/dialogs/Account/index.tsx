@@ -3,12 +3,17 @@ import { Button } from "@/components/ui/button";
 import { DialogClose, DialogContent } from "@/components/ui/StackedDialog";
 import { StackedDialogContext } from "@/components/ui/StackedDialog/context";
 import { usePrivy } from "@privy-io/react-auth";
-import { Loader2, LogOut, User, Wallet } from "lucide-react";
+import { useUserContext } from "@/app/_contexts/User";
+import { useAtproto } from "../../Providers/AtprotoProvider";
+import { Loader2, LogOut, User, Wallet, Bird } from "lucide-react";
 import { useState } from "react";
 
 const Account = ({ openDialog }: StackedDialogContext) => {
   const { ready, authenticated, user, logout } = usePrivy();
+  const { bluesky } = useUserContext();
+  const { signOut: blueskySignOut } = useAtproto();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isBlueskyLoggingOut, setIsBlueskyLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -21,6 +26,20 @@ const Account = ({ openDialog }: StackedDialogContext) => {
       });
     } finally {
       setIsLoggingOut(false);
+    }
+  };
+
+  const handleBlueskyLogout = async () => {
+    try {
+      setIsBlueskyLoggingOut(true);
+      await blueskySignOut();
+    } catch (error) {
+      console.error("[Account] Bluesky logout failed:", {
+        error,
+        timestamp: new Date().toISOString(),
+      });
+    } finally {
+      setIsBlueskyLoggingOut(false);
     }
   };
 
@@ -39,8 +58,9 @@ const Account = ({ openDialog }: StackedDialogContext) => {
     );
   }
 
-  // Redirect to sign in if not authenticated
-  if (!authenticated) {
+  // Redirect to sign in if not authenticated with either Privy or Bluesky
+  const hasAnyAuth = authenticated || bluesky.isAuthenticated;
+  if (!hasAnyAuth) {
     openDialog("onboarding");
     return null;
   }
@@ -89,27 +109,66 @@ const Account = ({ openDialog }: StackedDialogContext) => {
               </div>
             </div>
           )}
+
+          {/* Bluesky Section */}
+          {bluesky.isAuthenticated && bluesky.profile && (
+            <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+              <Bird className="size-5 text-muted-foreground" />
+              <div className="flex flex-col flex-1 min-w-0">
+                <span className="text-sm font-medium">Bluesky Account</span>
+                <span className="text-xs text-muted-foreground">
+                  @{bluesky.profile.handle}
+                </span>
+                {bluesky.profile.displayName && (
+                  <span className="text-xs text-muted-foreground">
+                    {bluesky.profile.displayName}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Actions Section */}
         <div className="flex flex-col w-full items-center gap-1">
-          <Button
-            variant="destructive"
-            className="w-full"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            {isLoggingOut ? (
-              <>
-                <Loader2 className="size-4 mr-2 animate-spin" />{" "}
-                Disconnecting...
-              </>
-            ) : (
-              <>
-                <LogOut className="size-4 mr-2" /> Disconnect
-              </>
-            )}
-          </Button>
+          {authenticated && (
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="size-4 mr-2 animate-spin" />{" "}
+                  Disconnecting...
+                </>
+              ) : (
+                <>
+                  <LogOut className="size-4 mr-2" /> Disconnect Wallet/Email
+                </>
+              )}
+            </Button>
+          )}
+          {bluesky.isAuthenticated && (
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={handleBlueskyLogout}
+              disabled={isBlueskyLoggingOut}
+            >
+              {isBlueskyLoggingOut ? (
+                <>
+                  <Loader2 className="size-4 mr-2 animate-spin" />{" "}
+                  Disconnecting...
+                </>
+              ) : (
+                <>
+                  <LogOut className="size-4 mr-2" /> Disconnect Bluesky
+                </>
+              )}
+            </Button>
+          )}
           <DialogClose asChild>
             <Button variant="outline" className="w-full">
               Close
