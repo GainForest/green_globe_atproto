@@ -6,6 +6,13 @@ export const fetchCommunityMembers = async (
   projectId: string,
   agent?: Agent | null
 ): Promise<CommunityMember[] | null> => {
+  console.log('[fetchCommunityMembers] Called with:', {
+    projectId,
+    isDidProject: projectId.startsWith('did:plc:'),
+    hasAgent: !!agent,
+    agentAccountDid: agent?.accountDid
+  });
+
   // For DID-based projects (ATproto), use ATproto directly
   if (projectId.startsWith('did:plc:')) {
     if (!agent) {
@@ -16,20 +23,14 @@ export const fetchCommunityMembers = async (
     try {
       console.log('[fetchCommunityMembers] Fetching community members from ATproto for DID project:', projectId);
       const members = await listCommunityMemberRecords(agent, projectId);
+      console.log('[fetchCommunityMembers] ATproto fetch result:', {
+        membersCount: members?.length || 0,
+        members: members
+      });
       return members;
     } catch (error) {
-      console.error('[fetchCommunityMembers] ATproto fetch failed, returning mock data:', error);
-      return [{
-        id: '1',
-        wallet_address_id: null,
-        project_id: 1,
-        first_name: 'Project',
-        last_name: 'Owner',
-        title: 'Project Lead',
-        bio: 'This is a decentralized project managed through ATproto.',
-        profile_image_url: null,
-        display_order: 1,
-      }];
+      console.error('[fetchCommunityMembers] ATproto fetch failed, returning empty array:', error);
+      return []; // Return empty array instead of mock data
     }
   }
 

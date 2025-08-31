@@ -39,6 +39,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
   useEffect(() => {
     if (member) {
       setFormData({
+        id: member.id, // Include the ID when editing
         first_name: member.first_name || "",
         last_name: member.last_name || "",
         title: member.title || "",
