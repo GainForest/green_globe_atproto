@@ -1,5 +1,5 @@
 "use client";
-import { AnimatePresence, AnimationProps, motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { Dialog, VisuallyHidden } from "radix-ui";
@@ -110,7 +110,7 @@ const ActiveDialogWrapper = ({
   isActive,
 }: {
   children: React.ReactNode;
-  animationVariants: AnimationProps;
+  animationVariants: Record<string, unknown>;
   isActive: boolean;
 }) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null);

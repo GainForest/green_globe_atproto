@@ -37,9 +37,7 @@ const projectSchema = z.object({
   long_description: z
     .string()
     .min(100, "Long description must be at least 100 characters"),
-  start_date: z.date({
-    required_error: "Start date is required",
-  }),
+  start_date: z.date({ message: "Start date is required" }),
   website: z
     .string()
     .url("Must be a valid URL")

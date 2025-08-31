@@ -35,6 +35,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "2mb",
     },
   },
+
   // Add proper API route configuration
   async headers() {
     return [
