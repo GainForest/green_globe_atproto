@@ -90,7 +90,7 @@ export default function UserProfilePage() {
         repo: decodedDid,
         collection: 'app.gainforest.profile',
         rkey: 'self',
-        record: updatedProfile as GainForestProfileRecord,
+        record: updatedProfile as unknown as { [x: string]: unknown },
       });
 
       // Update local state
@@ -112,13 +112,11 @@ export default function UserProfilePage() {
     const fetchProfiles = async () => {
       if (!did || !agent) {
         setLoading(false);
-        setGainForestLoading(false);
         return;
       }
 
       try {
         setLoading(true);
-        setGainForestLoading(true);
         setError(null);
 
         // Fetch both profiles in parallel
@@ -167,7 +165,6 @@ export default function UserProfilePage() {
         setError('Error loading profile');
       } finally {
         setLoading(false);
-        setGainForestLoading(false);
       }
     };
 

@@ -1,25 +1,26 @@
-// import { Tab } from "@/components/ui/sliding-tabs";
-// import { SlidingTabs, Underlay } from "@/components/ui/sliding-tabs";
-import React from "react";
-// import useCommunityStore from "./store";
-// import { Button } from "@/components/ui/button";
+import { Tab } from "@/components/ui/sliding-tabs";
+import { SlidingTabs, Underlay } from "@/components/ui/sliding-tabs";
+import React, { useRef, useEffect } from "react";
+import useCommunityStore from "./store";
+import { Button } from "@/components/ui/button";
 import Members from "./Members";
-// import Donations from "./Donations";
-// import autoAnimate from "@formkit/auto-animate";
+import Donations from "./Donations";
+import autoAnimate from "@formkit/auto-animate";
 
 const Community = () => {
-  // const activeTab = useCommunityStore((state) => state.activeTab);
-  // const setActiveTab = useCommunityStore((state) => state.setActiveTab);
-  // const tabRendererRef = useRef<HTMLDivElement>(null);
+  const activeTab = useCommunityStore((state) => state.activeTab);
+  const setActiveTab = useCommunityStore((state) => state.setActiveTab);
+  const tabRendererRef = useRef<HTMLDivElement>(null);
 
-  // useEffect(() => {
-  //   if (tabRendererRef.current) {
-  //     autoAnimate(tabRendererRef.current);
-  //   }
-  // }, [activeTab]);
+  useEffect(() => {
+    if (tabRendererRef.current) {
+      autoAnimate(tabRendererRef.current);
+    }
+  }, [activeTab]);
+
   return (
     <div className="flex flex-col gap-4">
-      {/* <SlidingTabs activeKey={activeTab} className="gap-2">
+      <SlidingTabs activeKey={activeTab} className="gap-2">
         <Underlay />
         <Tab tabKey="members" asChild>
           <Button
@@ -42,10 +43,10 @@ const Community = () => {
           </Button>
         </Tab>
       </SlidingTabs>
-      <section ref={tabRendererRef}> */}
-       <Members />
-        {/* {activeTab === "donations" && <Donations />}
-      </section> */}
+      <section ref={tabRendererRef}>
+        {activeTab === "members" && <Members />}
+        {activeTab === "donations" && <Donations />}
+      </section>
     </div>
   );
 };

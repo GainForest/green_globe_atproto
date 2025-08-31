@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { CommunityMember } from "./types";
 import useProjectOverlayStore from "@/app/(map-routes)/(main)/_components/ProjectOverlay/store";
 import { fetchCommunityMembers } from "./utils";
+import { Agent } from '@atproto/api';
 type Data = {
   members: CommunityMember[];
 };
@@ -28,7 +29,7 @@ export type CommunityMembersState = {
 } & DataVariant;
 
 export type CommunityMembersActions = {
-  fetchData: () => Promise<void>;
+  fetchData: (agent?: Agent | null) => Promise<void>;
 };
 
 const useCommunityMembersStore = create<
@@ -37,7 +38,7 @@ const useCommunityMembersStore = create<
   data: null,
   projectId: null,
   dataStatus: "loading",
-  fetchData: async () => {
+  fetchData: async (agent) => {
     const projectId = useProjectOverlayStore.getState().projectId;
     if (!projectId) return;
 
@@ -48,7 +49,7 @@ const useCommunityMembersStore = create<
 
     set({ projectId, dataStatus: "loading", data: null });
     try {
-      const membersPromise = fetchCommunityMembers(projectId);
+      const membersPromise = fetchCommunityMembers(projectId, agent);
       const allPromises = [membersPromise];
       const [members] = await Promise.all(allPromises);
 

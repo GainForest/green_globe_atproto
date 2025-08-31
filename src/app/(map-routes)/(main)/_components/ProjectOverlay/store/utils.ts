@@ -147,13 +147,23 @@ export const fetchProjectData = async (projectId: string) => {
     return {
       id: decodedProjectId,
       name: `${decodedProjectId} Project`,
-      longDescription: '',
-      objective: '',
       country: '',
+      dataDownloadUrl: '',
+      dataDownloadInfo: '',
+      description: '',
+      longDescription: '',
+      stripeUrl: '',
+      discordId: null,
+      lat: 0,
+      lon: 0,
+      area: 0,
+      objective: '',
       assets: [],
       communityMembers: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      Wallet: {
+        CeloAccounts: [],
+        SOLAccounts: [],
+      },
     };
   }
 

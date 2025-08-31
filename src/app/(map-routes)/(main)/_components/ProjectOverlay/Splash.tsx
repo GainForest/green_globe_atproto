@@ -69,7 +69,11 @@ const Splash = ({ imageURL, projectDetails }: SplashProps) => {
 
       let currentData: GainForestProfileRecord = {} as GainForestProfileRecord;
       if (currentResponse.success) {
-        currentData = currentResponse.data.value as GainForestProfileRecord;
+        currentData = {
+          $type: 'app.gainforest.profile',
+          createdAt: new Date().toISOString(),
+          ...currentResponse.data.value
+        } as GainForestProfileRecord;
       }
 
       // Update the field

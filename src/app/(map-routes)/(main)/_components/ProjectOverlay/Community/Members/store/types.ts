@@ -9,3 +9,20 @@ export type CommunityMember = {
   profile_image_url: string | null;
   display_order: number | null;
 };
+
+// ATproto record structure for community members
+export interface CommunityMemberRecord {
+  $type: 'app.gainforest.community';
+  id: string;
+  projectId: string; // DID of the project
+  firstName: string;
+  lastName: string;
+  title: string;
+  bio?: string;
+  profileImageUrl?: string | null;
+  displayOrder?: number | null;
+  walletAddressId?: number | null;
+  isActive: boolean;
+  joinedAt: string; // ISO date string
+  lastActiveAt?: string; // ISO date string
+}

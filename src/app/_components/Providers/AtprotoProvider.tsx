@@ -285,7 +285,7 @@ export default function AtprotoProvider({
       setIsAuthenticated(false);
       setUserProfile(null);
       // Clear global references
-      window.__atprotoAgent = null;
+      window.__atprotoAgent = undefined;
     };
 
     client.addEventListener('deleted', handleSessionDeleted);
@@ -325,7 +325,7 @@ export default function AtprotoProvider({
           setAgent(null);
           setIsAuthenticated(false);
           setUserProfile(null);
-          window.__atprotoAgent = null;
+          window.__atprotoAgent = undefined;
         }
       }
     };
@@ -365,7 +365,7 @@ export default function AtprotoProvider({
       setError(null);
 
       // Clear global references
-      window.__atprotoAgent = null;
+      window.__atprotoAgent = undefined;
 
       // The client handles session cleanup automatically
       console.log('Bluesky sign out completed successfully');
