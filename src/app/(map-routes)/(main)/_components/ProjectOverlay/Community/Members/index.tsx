@@ -1,16 +1,30 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import useProjectOverlayStore from "../../store";
 import { BadgeDollarSign, CircleAlert, UserCircle2, Plus, Edit2, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import ErrorMessage from "../../ErrorMessage";
-import MemberForm from "./MemberForm";
 import { CommunityMember } from "./store/types";
+import MemberForm from "./MemberForm";
 import { useAtproto } from "@/app/_components/Providers/AtprotoProvider";
 import { useStackedDialog } from "@/components/ui/StackedDialog/context";
 import { createCommunityMemberRecord, updateCommunityMemberRecord, deleteCommunityMemberRecord } from "./atproto-utils";
+
+interface AtprotoRecordValue {
+  $type: string;
+  id: string;
+  projectId: string;
+  firstName: string;
+  lastName: string;
+  title: string;
+  bio?: string;
+  profileImageUrl?: string;
+  displayOrder?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const Members = () => {
   const projectId = useProjectOverlayStore((state) => state.projectId);
   const { agent, isAuthenticated, userProfile, restoreSession } = useAtproto();
@@ -26,7 +40,7 @@ const Members = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Fetch community members similar to profile page - simple and direct
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     if (!projectId || !agent) {
       setLoading(false);
       return;
@@ -36,35 +50,29 @@ const Members = () => {
       setLoading(true);
       setError(null);
 
-      console.log('[Members] Fetching community records for project:', projectId);
-
       // Get all community records from user's repository (similar to profile)
       const response = await agent.api.com.atproto.repo.listRecords({
         repo: agent.accountDid,
         collection: 'app.gainforest.community',
       });
 
-      console.log('[Members] Found', response.data.records.length, 'community records');
-
       // Filter records for this project
       const decodedProjectId = decodeURIComponent(projectId);
       const projectMembers: CommunityMember[] = response.data.records
         .filter(record => {
-          const value = record.value as any;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const value = record.value as any as AtprotoRecordValue;
           // Check if this record belongs to our project
           const recordProjectId = value.projectId;
           const matches = recordProjectId === projectId ||
                          recordProjectId === decodedProjectId ||
                          decodeURIComponent(recordProjectId || '') === decodedProjectId;
 
-          if (value.$type === 'app.gainforest.community') {
-            console.log('[Members] Record:', value.id, 'project:', recordProjectId, 'matches:', matches);
-          }
-
           return matches;
         })
         .map(record => {
-          const value = record.value as any;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const value = record.value as any as AtprotoRecordValue;
           return {
             id: value.id,
             wallet_address_id: null,
@@ -79,25 +87,18 @@ const Members = () => {
         })
         .sort((a, b) => (a.display_order || Infinity) - (b.display_order || Infinity));
 
-      console.log('[Members] Filtered to', projectMembers.length, 'members for this project');
       setMembers(projectMembers);
 
-    } catch (err) {
-      console.error('[Members] Failed to fetch members:', err);
+    } catch {
       setError('Failed to load community members');
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId, agent]);
 
   useEffect(() => {
     fetchMembers();
-  }, [projectId, agent]);
-
-  // Make fetchMembers available globally for debugging
-  useEffect(() => {
-    (window as any).refreshMembers = fetchMembers;
-  }, [projectId, agent]);
+  }, [projectId, agent, fetchMembers]);
 
   // Show loading skeleton while fetching data (similar to profile page)
   if (loading) {
@@ -222,7 +223,7 @@ const Members = () => {
           }
         }
 
-        console.log('[Members] Agent authenticated with DID:', agent.accountDid, 'Bluesky handle:', userProfile.handle);
+        console.log('[Members] Agent authenticated with DID:', agent.accountDid, 'Bluesky handle:', userProfile?.handle);
 
         if (editingMember) {
           console.log('[Members] Updating existing member:', editingMember.id);
@@ -266,8 +267,6 @@ const Members = () => {
   };
 
   const handleDeleteMember = async (memberId: string) => {
-    console.log('[Members] handleDeleteMember called with:', { memberId, projectId });
-
     if (!confirm('Are you sure you want to delete this community member?')) {
       return;
     }
@@ -275,14 +274,11 @@ const Members = () => {
     try {
       // For DID-based projects, use ATproto directly
       if (projectId?.startsWith('did:plc:')) {
-        console.log('[Members] Deleting member from ATproto:', { memberId, projectId });
-
         if (!agent) {
           throw new Error('ATproto agent not available');
         }
 
         await deleteCommunityMemberRecord(agent, projectId, memberId);
-        console.log('[Members] ATproto delete completed successfully');
       } else {
         // For traditional database projects, use the API
         const response = await fetch(`/api/projects/${projectId}/members/${memberId}`, {
@@ -332,30 +328,7 @@ const Members = () => {
 
 
 
-      {/* Status indicator */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-        <span>
-          Status: {loading ? 'loading' : error ? 'error' : 'success'} • Members: {members?.length || 0} • Agent: {agent ? '✅' : '❌'}
-        </span>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => {
-            console.log('=== Manual Status Check ===');
-            console.log('Loading:', loading);
-            console.log('Error:', error);
-            console.log('Members count:', members?.length || 0);
-            console.log('Has agent:', !!agent);
-            console.log('Project ID:', projectId);
-            if ((window as any).quickStatus) {
-              (window as any).quickStatus();
-            }
-          }}
-          className="text-xs h-6 px-2"
-        >
-          🔍 Status
-        </Button>
-      </div>
+
 
       {/* Error message */}
       {errorMessage && (
