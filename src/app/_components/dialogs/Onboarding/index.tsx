@@ -7,53 +7,66 @@ import Image from "next/image";
 const Onboarding = ({ pushDialog }: StackedDialogContext) => {
   return (
     <DialogContent
-      title={<span>Welcome</span>}
-      description="Get started by signing in..."
+      title={<span className="text-center">Welcome to GainForest</span>}
+      description=""
       showCloseButton={false}
+      className="max-w-md mx-auto"
     >
-      <div className="flex flex-col items-center my-6">
-        <div className="h-20 w-20 border border-border rounded-xl shadow-lg bg-background flex items-center justify-center">
+      {/* Logo Section */}
+      <div className="flex flex-col items-center mb-8">
+        <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 border border-green-200/50 flex items-center justify-center mb-4">
           <Image
-            src="/assets/logo.webp"
-            alt="Ecocertain"
-            width={32}
-            height={32}
+            src="/assets/logo_transparent.png"
+            alt="GainForest"
+            width={40}
+            height={40}
+            className="opacity-90"
           />
         </div>
-        <b className="text-2xl drop-shadow-lg text-muted-foreground mt-2">
-          Sign in to GainForest.
-        </b>
+        <p className="text-sm text-muted-foreground text-center">
+          Choose your preferred sign-in method
+        </p>
       </div>
-      <div className="flex flex-col w-full items-center gap-1">
-        <div className="flex items-center gap-1 w-full">
-          <Button
-            className="h-auto p-2 py-4 flex-1 flex flex-col items-center"
-            onClick={() => pushDialog("sign-in-email")}
-          >
-            <Mail className="size-5" />
-            Sign in using Email
-          </Button>
-          <Button
-            className="h-auto p-2 py-4 flex-1 flex flex-col items-center"
-            onClick={() => pushDialog("sign-in-external-wallet")}
-          >
-            <Wallet className="size-5" />
-            Connect Wallet
-          </Button>
-          <Button
-            className="h-auto p-2 py-4 flex-1 flex flex-col items-center"
-            onClick={() => pushDialog("sign-in-bluesky")}
-          >
-            <Bird className="size-5" />
-            Sign in with Bluesky
-          </Button>
-        </div>
-        <DialogClose asChild>
-          <Button variant="outline" className="w-full">
-            Close
-          </Button>
-        </DialogClose>
+
+      {/* Sign-in Options */}
+      <div className="space-y-3 mb-6">
+        <Button
+          variant="outline"
+          className="w-full h-12 justify-start gap-3 text-left hover:bg-accent/50 transition-all duration-200"
+          onClick={() => pushDialog("sign-in-email")}
+        >
+          <Mail className="size-4 text-muted-foreground" />
+          <span className="flex-1">Continue with Email</span>
+        </Button>
+        
+        <Button
+          variant="outline"
+          className="w-full h-12 justify-start gap-3 text-left hover:bg-accent/50 transition-all duration-200"
+          onClick={() => pushDialog("sign-in-external-wallet")}
+        >
+          <Wallet className="size-4 text-muted-foreground" />
+          <span className="flex-1">Connect Wallet</span>
+        </Button>
+        
+        <Button
+          variant="outline"
+          className="w-full h-12 justify-start gap-3 text-left hover:bg-accent/50 transition-all duration-200"
+          onClick={() => pushDialog("sign-in-bluesky")}
+        >
+          <Bird className="size-4 text-muted-foreground" />
+          <span className="flex-1">Continue with Bluesky</span>
+        </Button>
       </div>
+
+      {/* Close Button */}
+      <DialogClose asChild>
+        <Button 
+          variant="ghost" 
+          className="w-full text-muted-foreground hover:text-foreground"
+        >
+          Maybe later
+        </Button>
+      </DialogClose>
     </DialogContent>
   );
 };
