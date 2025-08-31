@@ -1,7 +1,7 @@
 import { Map as MapInterface, Marker } from "mapbox-gl";
-import { Feature } from "geojson";
-import { bbox } from "@turf/turf";
-import { centroid } from "@turf/turf";
+import { bbox, centroid } from "@turf/turf";
+
+type Feature = GeoJSON.Feature;
 
 function createCustomMarkerElement() {
   const markerRoot = document.createElement("div");
@@ -86,14 +86,22 @@ export function addShapefileSourceAndLayers(
       type: "FeatureCollection",
       features: features.map((feature) => {
         if (feature.geometry.type === "MultiPolygon") {
-          return {
-            type: "Feature",
-            properties: feature.properties,
-            geometry: {
-              type: "Point",
-              coordinates: feature.geometry.coordinates[0][0][0],
-            },
-          };
+          const coords = feature.geometry.coordinates[0]?.[0]?.[0];
+          // Validate coordinates exist and are valid numbers
+          if (coords && Array.isArray(coords) && coords.length >= 2 && 
+              typeof coords[0] === 'number' && typeof coords[1] === 'number' &&
+              !isNaN(coords[0]) && !isNaN(coords[1])) {
+            return {
+              type: "Feature",
+              properties: feature.properties,
+              geometry: {
+                type: "Point",
+                coordinates: coords,
+              },
+            };
+          }
+          // If coordinates are invalid, use centroid calculation as fallback
+          return centroid(feature);
         }
         return centroid(feature);
       }),
@@ -101,15 +109,22 @@ export function addShapefileSourceAndLayers(
 
     // Add markers for each centroid
     centroids.features.forEach((point) => {
-      new Marker({
-        color: "#FFFFFF",
-        scale: 0.75,
-        pitchAlignment: "map",
-        rotationAlignment: "map",
-        element: createCustomMarkerElement(),
-      })
-        .setLngLat(point.geometry.coordinates as [number, number])
-        .addTo(map);
+      const coords = point.geometry.coordinates as [number, number];
+      // Additional safety check: ensure coordinates are valid before creating marker
+      if (coords && coords.length >= 2 && 
+          typeof coords[0] === 'number' && typeof coords[1] === 'number' &&
+          !isNaN(coords[0]) && !isNaN(coords[1]) &&
+          !(coords[0] === 0 && coords[1] === 0)) { // Avoid creating markers at 0,0
+        new Marker({
+          color: "#FFFFFF",
+          scale: 0.75,
+          pitchAlignment: "map",
+          rotationAlignment: "map",
+          element: createCustomMarkerElement(),
+        })
+          .setLngLat(coords)
+          .addTo(map);
+      }
     });
 
     // Fit bounds to the shapefile

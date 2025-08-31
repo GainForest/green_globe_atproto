@@ -6,6 +6,19 @@ import { useAtproto } from "../_components/Providers/AtprotoProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useState } from "react";
 
+// Bluesky profile type definition
+interface BlueskyProfile {
+  did: string;
+  handle: string;
+  displayName?: string;
+  description?: string;
+  avatar?: string;
+  banner?: string;
+  followersCount?: number;
+  followsCount?: number;
+  postsCount?: number;
+}
+
 export type ProjectMinified = {
   project_id: string;
   name: string;
@@ -39,7 +52,7 @@ type User = {
   };
   bluesky: {
     isAuthenticated: boolean;
-    profile: any | null;
+    profile: BlueskyProfile | null;
     isInitialized: boolean;
   };
   isPending: boolean;

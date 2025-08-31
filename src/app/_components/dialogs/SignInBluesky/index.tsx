@@ -65,7 +65,7 @@ const SignInBluesky = ({ closeAll }: StackedDialogContext) => {
         <div className="w-full flex flex-col items-center py-8 gap-4">
           <div className="text-green-500 text-4xl">✅</div>
           <p className="text-center text-muted-foreground">
-            You're already signed in with Bluesky. You can close this dialog or sign out if you want to sign in with a different account.
+            You&apos;re already signed in with Bluesky. You can close this dialog or sign out if you want to sign in with a different account.
           </p>
           <div className="flex flex-col w-full gap-2">
             <Button

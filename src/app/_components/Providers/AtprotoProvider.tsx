@@ -4,12 +4,25 @@ import { BrowserOAuthClient } from '@atproto/oauth-client-browser';
 import { Agent } from '@atproto/api';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+// Bluesky profile type definition
+interface BlueskyProfile {
+  did: string;
+  handle: string;
+  displayName?: string;
+  description?: string;
+  avatar?: string;
+  banner?: string;
+  followersCount?: number;
+  followsCount?: number;
+  postsCount?: number;
+}
+
 interface AtprotoContextType {
   client: BrowserOAuthClient | null;
   agent: Agent | null;
   isInitialized: boolean;
   isAuthenticated: boolean;
-  userProfile: any | null;
+  userProfile: BlueskyProfile | null;
   signIn: (handle: string) => Promise<void>;
   signOut: () => Promise<void>;
   error: string | null;
@@ -35,7 +48,7 @@ export default function AtprotoProvider({
   const [isInitialized, setIsInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userProfile, setUserProfile] = useState<any | null>(null);
+  const [userProfile, setUserProfile] = useState<BlueskyProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Initialize the OAuth client
@@ -106,7 +119,7 @@ export default function AtprotoProvider({
 
         const oauthClient = new BrowserOAuthClient({
           handleResolver: 'https://bsky.social',
-          clientMetadata: clientMetadata as any,
+          clientMetadata,
         });
 
         setClient(oauthClient);
@@ -128,12 +141,13 @@ export default function AtprotoProvider({
                   const profile = await userAgent.getProfile({ actor: userAgent.accountDid });
                   setUserProfile(profile.data);
                   return; // Success, exit retry loop
-                } catch (profileError: any) {
+                } catch (profileError: unknown) {
                   console.error(`Profile fetch attempt ${attempt} failed:`, profileError);
 
                   if (attempt === retries) {
                     // Last attempt failed, handle gracefully
-                    if (profileError.message?.includes('scope') || profileError.message?.includes('Missing required scope')) {
+                    const errorMessage = profileError instanceof Error ? profileError.message : String(profileError);
+                    if (errorMessage.includes('scope') || errorMessage.includes('Missing required scope')) {
                       console.warn('Profile fetch failed due to scope permissions, but authentication succeeded');
                       // Set basic user info from session instead
                       setUserProfile({
@@ -159,9 +173,9 @@ export default function AtprotoProvider({
 
             await fetchProfileWithRetry();
           }
-        } catch (initError: any) {
+        } catch (initError: unknown) {
           // Handle specific OAuth initialization errors gracefully
-          const errorMessage = initError.message || initError.toString();
+          const errorMessage = initError instanceof Error ? initError.message : String(initError);
 
           if (errorMessage.includes('Unknown authorization session')) {
             console.warn('OAuth session not found, proceeding without existing session');

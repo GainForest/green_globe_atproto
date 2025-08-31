@@ -10,18 +10,7 @@ export const treesSource: GeoJSONSourceSpecification = {
   type: "geojson",
   data: {
     type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [0, 0],
-        },
-        properties: {
-          data: "Dummy Source for initialization",
-        },
-      },
-    ],
+    features: [], // Empty features array instead of dummy feature at [0,0]
   },
   cluster: true,
   clusterMaxZoom: 15, // Max zoom to cluster points on
