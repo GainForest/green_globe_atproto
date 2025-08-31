@@ -5,15 +5,18 @@ import { StackedDialogContext } from "@/components/ui/StackedDialog/context";
 import { usePrivy } from "@privy-io/react-auth";
 import { useUserContext } from "@/app/_contexts/User";
 import { useAtproto } from "../../Providers/AtprotoProvider";
-import { Loader2, LogOut, User, Wallet, Bird } from "lucide-react";
+import { Loader2, LogOut, User, Wallet, Bird, ExternalLink, RefreshCw } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Account = ({ openDialog }: StackedDialogContext) => {
   const { ready, authenticated, user, logout } = usePrivy();
   const { bluesky } = useUserContext();
-  const { signOut: blueskySignOut } = useAtproto();
+  const { signOut: blueskySignOut, restoreSession } = useAtproto();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isBlueskyLoggingOut, setIsBlueskyLoggingOut] = useState(false);
+  const [isRestoringSession, setIsRestoringSession] = useState(false);
+  const router = useRouter();
 
   const handleLogout = async () => {
     try {
@@ -40,6 +43,20 @@ const Account = ({ openDialog }: StackedDialogContext) => {
       });
     } finally {
       setIsBlueskyLoggingOut(false);
+    }
+  };
+
+  const handleRestoreSession = async () => {
+    try {
+      setIsRestoringSession(true);
+      await restoreSession();
+    } catch (error) {
+      console.error("[Account] Session restoration failed:", {
+        error,
+        timestamp: new Date().toISOString(),
+      });
+    } finally {
+      setIsRestoringSession(false);
     }
   };
 
@@ -72,7 +89,7 @@ const Account = ({ openDialog }: StackedDialogContext) => {
   return (
     <DialogContent
       title={<span>Account</span>}
-      description="Manage your account"
+      description="Manage your account and environmental projects"
       showCloseButton={true}
     >
       <div className="flex flex-col w-full gap-6">
@@ -112,25 +129,62 @@ const Account = ({ openDialog }: StackedDialogContext) => {
 
           {/* Bluesky Section */}
           {bluesky.isAuthenticated && bluesky.profile && (
-            <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
-              <Bird className="size-5 text-muted-foreground" />
-              <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-sm font-medium">Bluesky Account</span>
-                <span className="text-xs text-muted-foreground">
-                  @{bluesky.profile.handle}
-                </span>
-                {bluesky.profile.displayName && (
+            <div className="flex flex-col gap-3 p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <Bird className="size-5 text-muted-foreground" />
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="text-sm font-medium">Bluesky Account</span>
                   <span className="text-xs text-muted-foreground">
-                    {bluesky.profile.displayName}
+                    @{bluesky.profile.handle}
                   </span>
-                )}
+                  {bluesky.profile.displayName && (
+                    <span className="text-xs text-muted-foreground">
+                      {bluesky.profile.displayName}
+                    </span>
+                  )}
+                </div>
               </div>
+              {/* Restore Session Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={handleRestoreSession}
+                disabled={isRestoringSession}
+              >
+                {isRestoringSession ? (
+                  <>
+                    <Loader2 className="size-3 mr-2 animate-spin" />
+                    Restoring...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="size-3 mr-2" />
+                    Restore Session
+                  </>
+                )}
+              </Button>
             </div>
           )}
         </div>
 
         {/* Actions Section */}
         <div className="flex flex-col w-full items-center gap-1">
+          {/* My Profile Button - only show if user is authenticated with Bluesky */}
+          {bluesky.isAuthenticated && bluesky.profile && (
+            <DialogClose asChild>
+              <Button
+                variant="default"
+                className="w-full"
+                onClick={() => router.push(`/${encodeURIComponent(bluesky.profile?.did || '')}?overlay-active-tab=project&project-views=`)}
+              >
+                <User className="size-4 mr-2" />
+                My Environmental Project
+                <ExternalLink className="size-4 ml-2" />
+              </Button>
+            </DialogClose>
+          )}
+          
           {authenticated && (
             <Button
               variant="destructive"

@@ -4,6 +4,14 @@ import { BrowserOAuthClient } from '@atproto/oauth-client-browser';
 import { Agent } from '@atproto/api';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+// Extend window interface for debugging
+declare global {
+  interface Window {
+    __atprotoClient?: BrowserOAuthClient;
+    __atprotoAgent?: Agent;
+  }
+}
+
 // Bluesky profile type definition
 interface BlueskyProfile {
   did: string;
@@ -25,6 +33,7 @@ interface AtprotoContextType {
   userProfile: BlueskyProfile | null;
   signIn: (handle: string) => Promise<void>;
   signOut: () => Promise<void>;
+  restoreSession: () => Promise<void>;
   error: string | null;
 }
 
@@ -64,6 +73,17 @@ export default function AtprotoProvider({
     const initClient = async () => {
       try {
         console.log('[AtprotoProvider] Starting client initialization');
+
+        // Debug: Log current localStorage state
+        try {
+          const localStorageKeys = Object.keys(localStorage).filter(key =>
+            key.includes('oauth') || key.includes('atproto') || key.includes('session')
+          );
+          console.log('[AtprotoProvider] OAuth-related localStorage keys:', localStorageKeys);
+        } catch {
+          console.warn('[AtprotoProvider] Could not access localStorage for debugging');
+        }
+
         setIsInitializing(true);
         // Check if we're in production or development
         const isProduction = process.env.NODE_ENV === 'production';
@@ -123,56 +143,91 @@ export default function AtprotoProvider({
         });
 
         setClient(oauthClient);
+        
+        // Make client available globally
+        window.__atprotoClient = oauthClient;
 
-        // Initialize the client and check for existing sessions
-        try {
-          const result = await oauthClient.init();
+        // Initialize the client and check for existing sessions with retry logic
+        const initSessionWithRetry = async (retries = 2) => {
+          for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+              console.log(`[AtprotoProvider] Session restoration attempt ${attempt}`);
+              const result = await oauthClient.init();
 
-          if (result) {
-            const { session } = result;
-            const userAgent = new Agent(session);
-            setAgent(userAgent);
-            setIsAuthenticated(true);
+              if (result) {
+                console.log('[AtprotoProvider] Session restored successfully!');
+                const { session } = result;
+                const userAgent = new Agent(session);
+                setAgent(userAgent);
+                setIsAuthenticated(true);
 
-            // Fetch user profile with retry logic
-            const fetchProfileWithRetry = async (retries = 3) => {
-              for (let attempt = 1; attempt <= retries; attempt++) {
-                try {
-                  const profile = await userAgent.getProfile({ actor: userAgent.accountDid });
-                  setUserProfile(profile.data);
-                  return; // Success, exit retry loop
-                } catch (profileError: unknown) {
-                  console.error(`Profile fetch attempt ${attempt} failed:`, profileError);
+                // Make agent available globally for other parts of the app
+                window.__atprotoAgent = userAgent;
+                console.log('[AtprotoProvider] Global agent reference set');
 
-                  if (attempt === retries) {
-                    // Last attempt failed, handle gracefully
-                    const errorMessage = profileError instanceof Error ? profileError.message : String(profileError);
-                    if (errorMessage.includes('scope') || errorMessage.includes('Missing required scope')) {
-                      console.warn('Profile fetch failed due to scope permissions, but authentication succeeded');
-                      // Set basic user info from session instead
-                      setUserProfile({
-                        did: session.sub,
-                        handle: session.sub, // This might not be the handle, but we can use DID as fallback
-                        displayName: 'Authenticated User'
-                      });
-                    } else {
-                      // For other errors, still try to set basic info
-                      setUserProfile({
-                        did: session.sub,
-                        handle: session.sub,
-                        displayName: 'Authenticated User'
-                      });
+                // Fetch user profile with retry logic
+                const fetchProfileWithRetry = async (profileRetries = 3) => {
+                  for (let profileAttempt = 1; profileAttempt <= profileRetries; profileAttempt++) {
+                    try {
+                      console.log(`[AtprotoProvider] Profile fetch attempt ${profileAttempt}`);
+                      const profile = await userAgent.getProfile({ actor: userAgent.accountDid });
+                      setUserProfile(profile.data);
+                      console.log('[AtprotoProvider] Profile fetched successfully');
+                      return; // Success, exit retry loop
+                    } catch (profileError: unknown) {
+                      console.error(`Profile fetch attempt ${profileAttempt} failed:`, profileError);
+
+                      if (profileAttempt === profileRetries) {
+                        // Last attempt failed, handle gracefully
+                        const errorMessage = profileError instanceof Error ? profileError.message : String(profileError);
+                        if (errorMessage.includes('scope') || errorMessage.includes('Missing required scope')) {
+                          console.warn('Profile fetch failed due to scope permissions, but authentication succeeded');
+                          // Set basic user info from session instead
+                          setUserProfile({
+                            did: session.sub,
+                            handle: session.sub, // This might not be the handle, but we can use DID as fallback
+                            displayName: 'Authenticated User'
+                          });
+                        } else {
+                          // For other errors, still try to set basic info
+                          setUserProfile({
+                            did: session.sub,
+                            handle: session.sub,
+                            displayName: 'Authenticated User'
+                          });
+                        }
+                      } else {
+                        // Wait before retrying (exponential backoff)
+                        await new Promise(resolve => setTimeout(resolve, profileAttempt * 1000));
+                      }
                     }
-                  } else {
-                    // Wait before retrying (exponential backoff)
-                    await new Promise(resolve => setTimeout(resolve, attempt * 1000));
                   }
+                };
+
+                await fetchProfileWithRetry();
+                return; // Session restoration successful, exit retry loop
+              } else {
+                console.log(`[AtprotoProvider] No existing session found on attempt ${attempt}`);
+                if (attempt === retries) {
+                  console.log('[AtprotoProvider] No session found after all retries');
                 }
               }
-            };
+            } catch (sessionError: unknown) {
+              console.error(`Session restoration attempt ${attempt} failed:`, sessionError);
 
-            await fetchProfileWithRetry();
+              if (attempt === retries) {
+                // All attempts failed, throw the error
+                throw sessionError;
+              } else {
+                // Wait before retrying (exponential backoff)
+                await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+              }
+            }
           }
+        };
+
+        try {
+          await initSessionWithRetry();
         } catch (initError: unknown) {
           // Handle specific OAuth initialization errors gracefully
           const errorMessage = initError instanceof Error ? initError.message : String(initError);
@@ -229,6 +284,8 @@ export default function AtprotoProvider({
       setAgent(null);
       setIsAuthenticated(false);
       setUserProfile(null);
+      // Clear global references
+      window.__atprotoAgent = null;
     };
 
     client.addEventListener('deleted', handleSessionDeleted);
@@ -237,6 +294,49 @@ export default function AtprotoProvider({
       client.removeEventListener('deleted', handleSessionDeleted);
     };
   }, [client]);
+
+  // Periodic session validation and refresh
+  useEffect(() => {
+    if (!client || !agent || !isAuthenticated) return;
+
+    const validateSession = async () => {
+      try {
+        // Try to make a simple API call to validate the session
+        await agent.getProfile({ actor: agent.accountDid });
+        console.log('[AtprotoProvider] Session validation successful');
+      } catch (error) {
+        console.warn('[AtprotoProvider] Session validation failed, attempting refresh:', error);
+
+        try {
+          // Try to refresh the session
+          const refreshedResult = await client.init();
+          if (refreshedResult) {
+            const { session } = refreshedResult;
+            const refreshedAgent = new Agent(session);
+            setAgent(refreshedAgent);
+            window.__atprotoAgent = refreshedAgent;
+            console.log('[AtprotoProvider] Session refreshed successfully');
+          } else {
+            throw new Error('Session refresh failed - no result returned');
+          }
+        } catch (refreshError) {
+          console.error('[AtprotoProvider] Session refresh failed:', refreshError);
+          // If refresh fails, clear the session
+          setAgent(null);
+          setIsAuthenticated(false);
+          setUserProfile(null);
+          window.__atprotoAgent = null;
+        }
+      }
+    };
+
+    // Validate session every 5 minutes
+    const intervalId = setInterval(validateSession, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [client, agent, isAuthenticated]);
 
   const signIn = async (handle: string) => {
     if (!client) {
@@ -264,11 +364,60 @@ export default function AtprotoProvider({
       setUserProfile(null);
       setError(null);
 
+      // Clear global references
+      window.__atprotoAgent = null;
+
       // The client handles session cleanup automatically
       console.log('Bluesky sign out completed successfully');
     } catch (err) {
       console.error('Failed to sign out:', err);
       setError('Failed to sign out');
+    }
+  };
+
+  const restoreSession = async () => {
+    if (!client) {
+      console.warn('[AtprotoProvider] Cannot restore session - client not initialized');
+      return;
+    }
+
+    try {
+      console.log('[AtprotoProvider] Manually attempting session restoration...');
+      setError(null);
+
+      // Try to initialize/reinitialize the session
+      const result = await client.init();
+
+      if (result) {
+        const { session } = result;
+        const userAgent = new Agent(session);
+        setAgent(userAgent);
+        setIsAuthenticated(true);
+
+        // Make agent available globally
+        window.__atprotoAgent = userAgent;
+
+        // Fetch user profile
+        try {
+          const profile = await userAgent.getProfile({ actor: userAgent.accountDid });
+          setUserProfile(profile.data);
+          console.log('[AtprotoProvider] Session restored successfully with profile');
+        } catch (profileError) {
+          console.warn('[AtprotoProvider] Session restored but profile fetch failed:', profileError);
+          // Set basic user info
+          setUserProfile({
+            did: session.sub,
+            handle: session.sub,
+            displayName: 'Authenticated User'
+          });
+        }
+      } else {
+        console.warn('[AtprotoProvider] No session found to restore');
+        setError('No existing session found');
+      }
+    } catch (err) {
+      console.error('[AtprotoProvider] Manual session restoration failed:', err);
+      setError('Failed to restore session');
     }
   };
 
@@ -280,6 +429,7 @@ export default function AtprotoProvider({
     userProfile,
     signIn,
     signOut,
+    restoreSession,
     error,
   };
 

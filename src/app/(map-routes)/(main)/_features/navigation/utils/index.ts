@@ -92,7 +92,10 @@ export const generateNavigationStateFromURL = (
   url: string,
   params: ReadonlyURLSearchParams
 ): NavigationState => {
+  console.log('[generateNavigationStateFromURL] Called with url:', url);
+  console.log('[generateNavigationStateFromURL] Params:', Object.fromEntries(params.entries()));
   const urlChunks = url.split("/").filter((str) => str.trim() !== "");
+  console.log('[generateNavigationStateFromURL] URL chunks:', urlChunks);
 
   // Overlay
   const overlayActiveTab = params.get("overlay-active-tab");

@@ -66,6 +66,7 @@ const useNavigationStore = create<NavigationState & NavigationActions>(
   (set) => ({
     ...DEFAULT_NAVIGATION_STATE,
     updateNavigationState: (state) => {
+      console.log('[NavigationStore] updateNavigationState called with:', state);
       set((current) => {
         let newState;
         if (typeof state === "function") {
@@ -75,6 +76,7 @@ const useNavigationStore = create<NavigationState & NavigationActions>(
             Object.assign(draft, state);
           });
         }
+        console.log('[NavigationStore] New navigation state:', newState);
         return newState;
       });
     },

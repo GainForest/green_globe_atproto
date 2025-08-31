@@ -7,6 +7,18 @@ import { cn } from "@/lib/utils";
 import useProjectOverlayStore, { ProjectOverlayState } from "./store";
 import { Project } from "./store/types";
 import useNavigation from "@/app/(map-routes)/(main)/_features/navigation/use-navigation";
+import { useAtproto } from "@/app/_components/Providers/AtprotoProvider";
+
+// Helper function to find country code from country name
+const findCountryCode = (countryName: string): string | null => {
+  const normalizedName = countryName.toLowerCase().trim();
+  for (const [code, details] of Object.entries(countryToEmoji)) {
+    if (details.name.toLowerCase() === normalizedName) {
+      return code;
+    }
+  }
+  return null;
+};
 const TabButton = ({
   children,
   label,
@@ -111,12 +123,79 @@ const Tabs = () => {
 };
 
 const Header = ({ projectData }: { projectData: Project }) => {
-  const countryDetails = Object.keys(countryToEmoji).includes(
-    projectData.country
-  )
-    ? countryToEmoji[projectData.country as keyof typeof countryToEmoji]
+  console.log('[Header] Component render:', { projectId: projectData.id, name: projectData.name });
+
+  const { agent } = useAtproto();
+  const isAtprotoProject = projectData.id.startsWith('did:plc:');
+
+  console.log('[Header] Project type check:', { isAtprotoProject, agentAvailable: !!agent });
+
+  const [atprotoCountry, setAtprotoCountry] = useState<string>('');
+  const [atprotoHectares, setAtprotoHectares] = useState<number | null>(null);
+
+  // Fetch ATproto data for ATproto projects
+  useEffect(() => {
+    if (!isAtprotoProject || !agent) return;
+
+    const fetchAtprotoData = async () => {
+      try {
+        const gainForestResponse = await agent.api.com.atproto.repo.getRecord({
+          repo: projectData.id,
+          collection: 'app.gainforest.profile',
+          rkey: 'self',
+        });
+
+        if (gainForestResponse.success) {
+          const gainForestData = gainForestResponse.data.value;
+          if (gainForestData) {
+            const location = (gainForestData.location as string) || '';
+            const hectares = (gainForestData.hectares as number) || null;
+            setAtprotoCountry(location);
+            setAtprotoHectares(hectares);
+            console.log('[Header] ATproto data fetched:', { location, hectares });
+          }
+        }
+      } catch (error) {
+        console.error('[Header] Failed to fetch ATproto data:', error);
+      }
+    };
+
+    fetchAtprotoData();
+  }, [projectData.id, isAtprotoProject, agent]);
+
+  // Use ATproto data for ATproto projects, regular data for others
+  // For ATproto projects, only show data if we have it loaded
+  const displayCountry = isAtprotoProject
+    ? (atprotoCountry || projectData.country)
+    : projectData.country;
+  const displayArea = isAtprotoProject
+    ? (atprotoHectares || Math.round(projectData.area / 10000))
+    : Math.round(projectData.area / 10000);
+
+  // For ATproto projects, find country code from country name
+  let countryCode = displayCountry;
+  if (isAtprotoProject && displayCountry) {
+    const foundCode = findCountryCode(displayCountry);
+    countryCode = foundCode || displayCountry;
+    console.log('[Header] Country mapping:', { displayCountry, foundCode, countryCode });
+  }
+
+  const countryDetails = countryCode && Object.keys(countryToEmoji).includes(countryCode)
+    ? countryToEmoji[countryCode as keyof typeof countryToEmoji]
     : null;
-  const area = Math.round(projectData.area / 10000);
+
+  console.log('[Header] Display logic:', {
+    isAtprotoProject,
+    atprotoCountry,
+    atprotoHectares,
+    displayCountry,
+    displayArea,
+    countryCode,
+    hasCountryDetails: !!countryDetails,
+    countryDetails: countryDetails?.name,
+    projectDataCountry: projectData.country,
+    projectDataArea: projectData.area
+  });
 
   const activeTab = useProjectOverlayStore((state) => state.activeTab);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -165,9 +244,9 @@ const Header = ({ projectData }: { projectData: Project }) => {
             &nbsp;&nbsp;
             {countryDetails.name}
           </span>
-          {Boolean(area) && (
+          {Boolean(displayArea) && (
             <span className="px-2 py-1 bg-background/50 backdrop-blur-lg rounded-full text-sm">
-              <b>{area}</b> {area === 1 ? "hectare" : "hectares"}
+              <b>{displayArea}</b> {displayArea === 1 ? "hectare" : "hectares"}
             </span>
           )}
         </div>

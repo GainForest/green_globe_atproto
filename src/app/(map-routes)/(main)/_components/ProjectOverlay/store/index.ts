@@ -106,7 +106,10 @@ const initialState: ProjectOverlayState = {
 const useProjectOverlayStore = create<
   ProjectOverlayState & ProjectOverlayActions
 >((set, get) => {
-  const isProjectStillActive = (id: string) => get().projectId === id;
+  const isProjectStillActive = (id: string) => {
+    const currentProjectId = get().projectId;
+    return currentProjectId === id;
+  };
 
   const getAllSiteAssets = (projectData: Project) => {
     return projectData.assets.filter((asset) => {
@@ -120,7 +123,7 @@ const useProjectOverlayStore = create<
   return {
     ...initialState,
     setProjectId: async (projectId, navigate, zoomToSite) => {
-      console.log("setProjectId", projectId, navigate, zoomToSite);
+      console.log("[ProjectOverlayStore] setProjectId called with:", projectId, navigate, zoomToSite);
       // Reset state if no id provided
       if (!projectId) {
         get().resetState();
@@ -143,7 +146,20 @@ const useProjectOverlayStore = create<
         },
       });
 
+      console.log('[ProjectOverlay] About to fetch project data for:', projectId);
+      console.log('[ProjectOverlay] Project ID type check:', {
+        startsWithDidPlc: projectId.startsWith('did:plc:'),
+        decodedProjectId: decodeURIComponent(projectId)
+      });
       const projectData = await fetchProjectData(projectId);
+      console.log('[ProjectOverlay] Project data fetch result:', projectData ? 'SUCCESS' : 'FAILED');
+      if (projectData) {
+        console.log('[ProjectOverlay] Project data:', {
+          id: projectData.id,
+          name: projectData.name,
+          description: projectData.longDescription?.substring(0, 100)
+        });
+      }
 
       if (!isProjectStillActive(projectId)) return;
 

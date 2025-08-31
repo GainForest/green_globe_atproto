@@ -16,10 +16,14 @@ const useStoreUrlSync = (
     projectId?: string;
   }
 ) => {
+  console.log('[use-store-url-sync] Hook called with params:', params);
+  console.log('[use-store-url-sync] Query params:', Object.fromEntries(queryParams.entries()));
   const { projectId: projectIdParam } = params;
 
   // ⚠️⚠️⚠️ Make sure to update the dependencies, in case of changes to the props.
   useEffect(() => {
+    console.log('[use-store-url-sync] useEffect running with projectIdParam:', projectIdParam);
+    console.log('[use-store-url-sync] Generated URL:', projectIdParam ? `/${projectIdParam}` : "");
     const navigationState = generateNavigationStateFromURL(
       projectIdParam ? `/${projectIdParam}` : "",
       queryParams
@@ -40,16 +44,22 @@ const useStoreUrlSync = (
     // Project
     const project = useNavigationStore.getState().project;
     let map = useNavigationStore.getState().map;
+    console.log('[use-store-url-sync] Project from navigation:', project);
     if (project) {
       const { projectId, setProjectId } = useProjectOverlayStore.getState();
+      console.log('[use-store-url-sync] Current projectId in store:', projectId);
+      console.log('[use-store-url-sync] Project ID from navigation:', project["project-id"]);
 
       // Project & Map bounds
       if (project["project-id"] !== projectId) {
+        console.log('[use-store-url-sync] Calling setProjectId with:', project["project-id"]);
         setProjectId(
           project["project-id"],
           undefined,
           map["bounds"] === null || map["bounds"].length !== 4
         );
+      } else {
+        console.log('[use-store-url-sync] Project IDs match, not calling setProjectId');
       }
 
       const { siteId, setSiteId } = useProjectOverlayStore.getState();
